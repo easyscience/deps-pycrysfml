@@ -104,6 +104,12 @@ If the standard installation doesn't work for you, try building pycrysfml locall
   python pybuild.py --create-scripts
   ```
 
+* Alternative: Create job scripts some options specified 
+
+  ```
+  python pybuild.py --create-scripts --platform macos --compiler gfortran --mode debug
+  ```
+
 * Print some build-specific variables (_optional_)
 
   ```
