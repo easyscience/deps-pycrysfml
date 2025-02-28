@@ -144,12 +144,28 @@ jobs:
           scripts/copy_init_file_to_pycfml_dist.sh
           scripts/copy_cfml_databases_to_pycfml_dist.sh
 
+      - name: Declare env variables needed for Python package wheel
+        shell: bash
+        run: |
+          echo "WHEEL_DIR=$(python3 pybuild.py --print-wheel-dir)" >> $GITHUB_ENV
+
       - name: Create Python package wheel of pyCFML
         shell: bash
         run: |
           scripts/validate_pyproject_toml.sh
           scripts/create_pycfml_python_wheel.sh
           scripts/rename_pycfml_python_wheel.sh
+
+      - name: Fix Python package wheel dependencies
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          pip install delocate
+          delocate-wheel -v ${{ env.WHEEL_DIR }}/*.whl
+
+      - name: Check Python package wheel of pyCFML
+        shell: bash
+        run: |
           scripts/detect_abi3_violations.sh
           scripts/check_wheel_contents.sh
 
@@ -168,12 +184,6 @@ jobs:
       - name: Prepare for uploading Python package wheel of pyCFML
         shell: bash
         run: echo "WHEEL_DIR=$(python3 pybuild.py --print-wheel-dir)" >> $GITHUB_ENV
-
-      - name: Fix Python package wheel dependencies
-        shell: bash
-        run: |
-          pip install delocate
-          delocate-wheel -v ${{ env.WHEEL_DIR }}/*.whl
 
       - name: Upload zipped Python package wheel of pyCFML for next job
         uses: actions/upload-artifact@v4
