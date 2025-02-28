@@ -141,8 +141,6 @@ jobs:
         shell: bash
         run: |
           scripts/copy_built_to_pycfml_dist.sh
-          scripts/change_runpath_for_built_pycfml.sh
-          scripts/copy_extra_libs_to_pycfml_dist.sh
           scripts/copy_py_api_files_to_pycfml_dist.sh
           scripts/copy_init_file_to_pycfml_dist.sh
           scripts/copy_cfml_databases_to_pycfml_dist.sh
@@ -153,6 +151,8 @@ jobs:
           scripts/validate_pyproject_toml.sh
           scripts/create_pycfml_python_wheel.sh
           scripts/rename_pycfml_python_wheel.sh
+          pip install delocate
+          delocate-wheel -v ${{ env.WHEEL_DIR }}/*.whl
 
       - name: Install pyCFML from created Python package wheel
         shell: bash
