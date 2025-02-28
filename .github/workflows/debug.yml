@@ -150,8 +150,6 @@ jobs:
           scripts/validate_pyproject_toml.sh
           scripts/create_pycfml_python_wheel.sh
           scripts/rename_pycfml_python_wheel.sh
-          pip install delocate
-          delocate-wheel -v ${{ env.WHEEL_DIR }}/*.whl
           scripts/detect_abi3_violations.sh
           scripts/check_wheel_contents.sh
 
@@ -170,6 +168,12 @@ jobs:
       - name: Prepare for uploading Python package wheel of pyCFML
         shell: bash
         run: echo "WHEEL_DIR=$(python3 pybuild.py --print-wheel-dir)" >> $GITHUB_ENV
+
+      - name: Fix Python package wheel dependencies
+        shell: bash
+        run: |
+          pip install delocate
+          delocate-wheel -v ${{ env.WHEEL_DIR }}/*.whl
 
       - name: Upload zipped Python package wheel of pyCFML for next job
         uses: actions/upload-artifact@v4
