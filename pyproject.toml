@@ -1,6 +1,6 @@
 [project]
 name = 'pycrysfml'
-version = '0.1.5'
+version = '0.1.6'
 description = 'Python API to CrysFML2008 from https://code.ill.fr/scientific-software/CrysFML2008'
 authors = [
   {name = 'Juan Rodríguez-Carvajal', email = 'jrc@ill.fr'},
