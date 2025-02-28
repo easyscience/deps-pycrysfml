@@ -57,7 +57,7 @@ jobs:
       - name: Set up Python environment
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Upgrade package installer for Python
         shell: bash
@@ -215,7 +215,7 @@ jobs:
       - name: Set up python environment
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Upgrade package installer for Python
         shell: bash
