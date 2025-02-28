@@ -166,7 +166,7 @@ jobs:
         shell: bash
         run: |
           pip install delocate
-          delocate-wheel -v ${{ env.WHEEL_DIR }}/*.whl
+          #delocate-wheel -v ${{ env.WHEEL_DIR }}/*.whl
 
       - name: Install pyCFML from created Python package wheel
         shell: bash
