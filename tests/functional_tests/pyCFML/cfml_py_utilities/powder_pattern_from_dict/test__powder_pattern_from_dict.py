@@ -127,7 +127,7 @@ def test__tof_powder_pattern_from_dict__Al2O3(benchmark):
     # goodness of fit
     chi2 = chi_squared(desired_y, actual_y)
     # compare
-    assert_almost_equal(chi2, 274.9, decimal=1, verbose=True)
+    assert_almost_equal(chi2, 12.1, decimal=1, verbose=True)
     assert_almost_equal(actual_x, desired_x, decimal=3, verbose=True)
     #assert_almost_equal(actual_y, desired_y, decimal=0, verbose=True)
     # plot
@@ -166,7 +166,7 @@ def test__tof_powder_pattern_from_dict__Si(benchmark):
     # goodness of fit
     chi2 = chi_squared(desired_y, actual_y)
     # compare
-    assert_almost_equal(chi2, 158.2, decimal=1, verbose=True)
+    assert_almost_equal(chi2, 0.49, decimal=2, verbose=True)
     assert_almost_equal(actual_x, desired_x, decimal=3, verbose=True)
     #assert_almost_equal(actual_y, desired_y, decimal=0, verbose=True)
     # plot
