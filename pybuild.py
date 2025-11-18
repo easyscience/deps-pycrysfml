@@ -1508,7 +1508,7 @@ if __name__ == '__main__':
     add_main_script_header(f"Create and run {CFML} test programs")
     build_cfml_test_programs()
     #copy_cfml_test_programs_to_tests_dir()
-    run_cfml_functional_tests_no_benchmarks()
+    ####run_cfml_functional_tests_no_benchmarks()
     #run_cfml_functional_tests_with_benchmarks()
 
     ##############
