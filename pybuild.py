@@ -129,7 +129,8 @@ def _python_site_packages():
 def _python_lib():
     if _platform() == 'macos':
         #python_lib = '`python3-config --ldflags --embed`'
-        python_lib = '`pkg-config --libs python3-embed`'
+        #python_lib = '`pkg-config --libs python3-embed`'
+        python_lib = '-Wl,-undefined,dynamic_lookup' # Resolve symbols at runtime
     elif _platform() == 'linux':
         python_lib = ''
     elif _platform() == 'windows':
