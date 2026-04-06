@@ -24,7 +24,9 @@ classifiers = [
 ]
 requires-python = '>=3.9'
 dependencies = [
-  'numpy<2'
+#  'numpy<2; python_version < "3.13"',
+#  'numpy>=2; python_version >= "3.13"'
+  'numpy',
 ]
 
 [project.optional-dependencies]
