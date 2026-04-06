@@ -88,7 +88,8 @@ build-exe = '{COMPILER} {OPTIONS} -o {EXE_NAME} {SOURCE_PATH} -I {CFML_INCLUDE_P
 modes.base = '-cpp -fdec-math -ffree-line-length-none -fno-stack-arrays -fPIC'
 modes.debug = '-O0'
 #modes.release = '-march=native -O2 -pipe'
-modes.release = '-march=native -O2'
+#modes.release = '-march=native -O2'
+modes.release = '-O2'
 
 [[build-configs]]
 platforms = ['macos']
