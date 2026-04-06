@@ -23,7 +23,8 @@ dist-progs = 'dist/CFML/progs'      # for test programs
 
 [cfml.git]
 url = 'https://code.ill.fr/scientific-software/crysfml2008.git'
-branch = 'nebil'
+#branch = 'nebil'
+branch = 'jrc_branch'
 
 [cfml.scripts]
 pyapigen = 'repo/CFML/Scripts/PythonAPI/apigen.py'
@@ -888,8 +889,6 @@ components-files = [
 
 
 
-
-
 ######################
 # Forpy-dependent code
 ######################
@@ -918,7 +917,7 @@ components-files = [
     'Py_Utilities_Patterns',
     'Py_Utilities_IOForm',
     'Py_Utilities_Structure_Factors',
-    'Py_Utilities_Esmeralda'
+    #'Py_Utilities_Esmeralda'
 ]
 
 ####################################
