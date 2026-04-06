@@ -79,8 +79,16 @@ def _print_error_msg(msg:str):
     print(Fore.RED + f':::::: ERROR: {msg}' + Style.RESET_ALL)
 
 def _processor():
+    # On Windows, platform.processor() returns e.g.
+    # 'Intel64 Family 6 Model 154 Stepping 3, GenuineIntel'
+    # whose first word ('Intel64') is CPU-vendor-specific and doesn't match
+    # the architecture key used in pybuild.toml ('AMD64').
+    # platform.machine() reliably returns 'AMD64' on all 64-bit Windows
+    # machines, so use it there instead.
+    if sys.platform == 'win32':
+        return platform.machine()  # e.g. 'AMD64'
     processor = platform.processor()
-    processor = processor.split()[0]  # get the 1st word from string, such as 'Intel64 Family 6 Model 154 Stepping 3, GenuineIntel'
+    processor = processor.split()[0]
     return processor
 
 def _platform():
