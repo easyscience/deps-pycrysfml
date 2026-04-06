@@ -1,0 +1,2170 @@
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:20.384                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18750   0.25000   0.16711   1.23244   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02334   0.00000
+ATOM S        0.06529   0.25000   0.68383   0.24148   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04878   0.00000
+ATOM O1       0.90800   0.25000   0.59529   1.91387   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00025   0.03991   0.00000
+ATOM O2       0.19379   0.25000   0.54376   1.36843   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00029   0.03677   0.00000
+ATOM O3       0.08117   0.02719   0.80862   1.18319   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02324   0.00000
+CELL    8.47791   5.39644   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00006   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.437730551   0.004920266
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1511   0.0035  -0.4875   0.0077   0.4516   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1287   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14416   0.00109
+RFAR   3.694      4.574      1.943      5.542    
+RFAC   8.682      8.510      3.615      5.542        2884
+DEVA   2676.     0.9275     0.2775      1.902    
+RFBR   3.688      4.573      1.902      5.781    
+RFBC   8.457      8.483      3.528      5.781        2747
+DEVB   2604.     0.9474     0.2793      1.900    
+BRAG1    3.905    2.686     318.320     100.000    1213.030       1.000
+EXRP    1.601   2.307
+REFL   199  104.12  135.52  160.83
+REFP     1    8   16
+SOLV     6.51    8.47   10.05
+SCOR       3.0225
+SCOR1              4.63            3.98            3.61
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:22.549                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.21065   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02333   0.00000
+ATOM S        0.06514   0.25000   0.68379   0.20722   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04857   0.00000
+ATOM O1       0.90796   0.25000   0.59530   1.90538   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03987   0.00000
+ATOM O2       0.19382   0.25000   0.54382   1.33746   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00029   0.03668   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16276   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02322   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00006   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.434066534   0.004899859
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1516   0.0035  -0.4889   0.0077   0.4510   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1312   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14425   0.00108
+RFAR   3.689      4.563      1.943      5.517    
+RFAC   8.670      8.491      3.615      5.517        2884
+DEVA   2666.     0.9239     0.2780      1.902    
+RFBR   3.684      4.563      1.903      5.750    
+RFBC   8.452      8.465      3.530      5.750        2750
+DEVB   2596.     0.9433     0.2797      1.900    
+BRAG1    3.952    2.715     318.319     100.000    1213.030       1.000
+EXRP    1.640   2.249
+REFL   199  104.12  135.52  160.83
+REFP     1    8   16
+SOLV     6.51    8.47   10.05
+SCOR       3.0398
+SCOR1              4.64            3.98            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:23.330                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20972   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02333   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20471   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04856   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90460   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03988   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33487   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00029   0.03669   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16152   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02323   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00006   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433876872   0.004900788
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1516   0.0035  -0.4889   0.0077   0.4510   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14423   0.00108
+RFAR   3.689      4.565      1.943      5.521    
+RFAC   8.671      8.494      3.615      5.521        2884
+DEVA   2667.     0.9243     0.2777      1.902    
+RFBR   3.684      4.564      1.903      5.755    
+RFBC   8.453      8.468      3.530      5.755        2750
+DEVB   2597.     0.9438     0.2794      1.900    
+BRAG1    3.962    2.723     318.319     100.000    1213.030       1.000
+EXRP    1.605   2.299
+REFL   199  104.12  135.52  160.83
+REFP     1    8   16
+SOLV     6.51    8.47   10.05
+SCOR       3.0489
+SCOR1              4.65            3.99            3.63
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:23.997                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20926   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02333   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20336   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04855   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90420   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03988   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33355   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03667   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16090   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02322   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00006   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433783293   0.004900233
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1516   0.0035  -0.4889   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14423   0.00108
+RFAR   3.689      4.565      1.943      5.522    
+RFAC   8.671      8.494      3.615      5.522        2884
+DEVA   2667.     0.9244     0.2777      1.902    
+RFBR   3.684      4.565      1.903      5.755    
+RFBC   8.452      8.468      3.530      5.755        2750
+DEVB   2597.     0.9439     0.2794      1.900    
+BRAG1    3.958    2.721     318.319     100.000    1213.030       1.000
+EXRP    1.605   2.298
+REFL   199  104.12  135.52  160.83
+REFP     1    8   16
+SOLV     6.51    8.47   10.05
+SCOR       3.0488
+SCOR1              4.65            3.99            3.63
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:24.460                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20905   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02333   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20267   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04854   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90397   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03987   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33290   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03666   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16059   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02322   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00006   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433734179   0.004899730
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1516   0.0035  -0.4889   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.689      4.565      1.943      5.522    
+RFAC   8.670      8.494      3.615      5.522        2884
+DEVA   2667.     0.9242     0.2777      1.902    
+RFBR   3.683      4.565      1.903      5.755    
+RFBC   8.451      8.468      3.530      5.755        2750
+DEVB   2597.     0.9437     0.2795      1.900    
+BRAG1    3.956    2.720     318.320     100.000    1213.030       1.000
+EXRP    1.659   2.224
+REFL   199  104.12  135.52  160.83
+REFP     1    8   16
+SOLV     6.51    8.47   10.05
+SCOR       3.0490
+SCOR1              4.65            3.99            3.63
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:24.709                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20896   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20238   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90389   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03987   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33255   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16043   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02322   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00006   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433715582   0.004899031
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1516   0.0035  -0.4889   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.669      8.494      3.615      5.521        2884
+DEVA   2667.     0.9241     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.467      3.530      5.754        2750
+DEVB   2596.     0.9436     0.2794      1.900    
+BRAG1    3.956    2.720     318.320     100.000    1213.030       1.000
+EXRP    1.619   2.279
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0492
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:24.923                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20891   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20223   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90385   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03987   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33237   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16036   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02322   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00006   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433706284   0.004899029
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4889   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.669      8.494      3.615      5.521        2884
+DEVA   2667.     0.9241     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.468      3.530      5.754        2750
+DEVB   2596.     0.9436     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.589   2.321
+REFL   199  104.12  135.52  160.83
+REFP     1    8   16
+SOLV     6.51    8.47   10.05
+SCOR       3.0493
+SCOR1              4.65            3.99            3.63
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:25.123                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20889   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20215   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90383   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33229   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16032   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00006   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433701277   0.004898900
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4889   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.669      8.494      3.615      5.521        2884
+DEVA   2666.     0.9240     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.468      3.530      5.754        2750
+DEVB   2596.     0.9435     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.619   2.278
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0425
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:25.306                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20887   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20210   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90383   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33225   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16030   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433698654   0.004898740
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4888   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9239     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.608   2.294
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:25.498                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20886   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20208   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90387   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33222   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16028   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433696747   0.004898750
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4888   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9240     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.641   2.248
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:25.680                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20883   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20203   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90387   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33218   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16026   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433692575   0.004898705
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1516   0.0035  -0.4889   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9239     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.449      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.620   2.276
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:25.886                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20886   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20205   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90385   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33221   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16028   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433696508   0.004898730
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4888   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9240     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.577   2.339
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:26.076                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20886   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20205   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90384   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33221   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16028   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433696628   0.004898725
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4888   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9239     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.591   2.318
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:26.260                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20886   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20206   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90387   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33220   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16027   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433695674   0.004898745
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4888   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9240     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.592   2.317
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:26.451                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20883   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20202   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90387   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33217   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16025   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433692098   0.004898706
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1516   0.0035  -0.4889   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9239     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.449      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.619   2.278
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:26.641                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20886   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20205   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90385   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33221   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16028   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433696628   0.004898724
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4888   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9240     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.615   2.284
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:26.823                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20886   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20205   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90384   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33221   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16028   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433696628   0.004898725
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4888   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9239     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.620   2.277
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:26.999                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20886   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20206   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90387   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33220   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16027   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433695674   0.004898745
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4888   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9240     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.640   2.249
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:27.191                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20883   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20202   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90387   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33217   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16025   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433692098   0.004898706
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1516   0.0035  -0.4889   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9239     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.449      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.640   2.249
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:27.377                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20886   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20205   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90385   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33221   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16028   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433696628   0.004898724
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4888   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9240     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.576   2.340
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:27.557                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20886   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20205   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90384   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33221   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16028   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433696628   0.004898725
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4888   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9239     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.569   2.351
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:04:27.732                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18748   0.25000   0.16716   1.20886   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02332   0.00000
+ATOM S        0.06513   0.25000   0.68378   0.20206   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.04852   0.00000
+ATOM O1       0.90795   0.25000   0.59531   1.90387   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.03986   0.00000
+ATOM O2       0.19383   0.25000   0.54382   1.33220   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00028   0.03665   0.00000
+ATOM O3       0.08115   0.02720   0.80862   1.16027   1.00000  0  0    3
+SIGM        0.00014   0.00019   0.00017   0.02321   0.00000
+CELL    8.47791   5.39643   6.95773  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.433695674   0.004898745
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1515   0.0035  -0.4888   0.0077   0.4509   0.0041
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1313   0.0025   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14422   0.00108
+RFAR   3.688      4.565      1.943      5.521    
+RFAC   8.668      8.493      3.615      5.521        2884
+DEVA   2666.     0.9240     0.2777      1.902    
+RFBR   3.683      4.564      1.903      5.754    
+RFBC   8.450      8.467      3.530      5.754        2750
+DEVB   2596.     0.9434     0.2794      1.900    
+BRAG1    3.955    2.719     318.320     100.000    1213.030       1.000
+EXRP    1.615   2.283
+REFL   199  104.12  135.52  161.33
+REFP     1    8   16
+SOLV     6.51    8.47   10.08
+SCOR       3.0494
+SCOR1              4.65            3.99            3.62
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:05:15.965                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18746   0.25000   0.16700   1.26086   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02950   0.00000
+ATOM S        0.06534   0.25000   0.68415   0.24548   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05100   0.00000
+ATOM O1       0.90807   0.25000   0.59550   1.90550   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04102   0.00000
+ATOM O2       0.19381   0.25000   0.54357   1.37761   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03886   0.00000
+ATOM O3       0.08115   0.02725   0.80846   1.22023   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02958   0.00000
+CELL    8.47793   5.39644   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.410135984   0.005856006
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1524   0.0034  -0.4787   0.0076   0.4485   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1104   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14411   0.00105
+RFAR   3.586      4.412      1.940      5.172    
+RFAC   8.709      8.356      3.674      5.172        2876
+DEVA   2515.     0.8741     0.2937      1.908    
+RFBR   3.580      4.411      1.900      5.391    
+RFBC   8.480      8.330      3.588      5.391        2742
+DEVB   2452.     0.8937     0.2956      1.906    
+BRAG1    3.972    2.600     318.320     100.000    1213.030       1.000
+EXRP    1.724   2.080
+REFL   199  104.12  135.52  160.33
+REFP     9    8   16
+SOLV     6.51    8.47   10.02
+SCOR       3.0725
+SCOR1              4.52            3.88            3.53
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:05:18.724                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18747   0.25000   0.16698   1.26032   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02960   0.00000
+ATOM S        0.06536   0.25000   0.68417   0.24973   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05109   0.00000
+ATOM O1       0.90809   0.25000   0.59548   1.90182   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04110   0.00000
+ATOM O2       0.19380   0.25000   0.54355   1.38275   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03891   0.00000
+ATOM O3       0.08116   0.02725   0.80847   1.21959   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02971   0.00000
+CELL    8.47793   5.39645   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.409862280   0.005866125
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1521   0.0034  -0.4778   0.0076   0.4482   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1099   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14408   0.00105
+RFAR   3.597      4.420      1.940      5.192    
+RFAC   8.727      8.367      3.672      5.192        2876
+DEVA   2522.     0.8764     0.2932      1.908    
+RFBR   3.591      4.420      1.900      5.412    
+RFBC   8.499      8.341      3.586      5.412        2742
+DEVB   2459.     0.8961     0.2950      1.906    
+BRAG1    3.972    2.602     318.321     100.000    1213.030       1.000
+EXRP    1.726   2.084
+REFL   199  104.12  135.52  160.33
+REFP     9    8   16
+SOLV     6.51    8.47   10.02
+SCOR       3.0531
+SCOR1              4.53            3.89            3.54
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:05:19.294                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18747   0.25000   0.16698   1.26019   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02959   0.00000
+ATOM S        0.06536   0.25000   0.68417   0.24971   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05107   0.00000
+ATOM O1       0.90809   0.25000   0.59548   1.90156   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04108   0.00000
+ATOM O2       0.19380   0.25000   0.54355   1.38270   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03889   0.00000
+ATOM O3       0.08116   0.02725   0.80847   1.21943   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02970   0.00000
+CELL    8.47793   5.39646   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.409830570   0.005864430
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1521   0.0034  -0.4778   0.0076   0.4482   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1099   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14407   0.00105
+RFAR   3.596      4.419      1.940      5.190    
+RFAC   8.722      8.365      3.672      5.190        2876
+DEVA   2521.     0.8759     0.2935      1.908    
+RFBR   3.590      4.419      1.900      5.410    
+RFBC   8.494      8.339      3.585      5.410        2742
+DEVB   2457.     0.8957     0.2953      1.906    
+BRAG1    3.972    2.602     318.321     100.000    1213.030       1.000
+EXRP    1.717   2.094
+REFL   199  104.21  135.52  160.33
+REFP     9    8   16
+SOLV     6.51    8.47   10.02
+SCOR       3.0528
+SCOR1              4.53            3.89            3.54
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:05:19.570                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18747   0.25000   0.16698   1.26003   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02959   0.00000
+ATOM S        0.06536   0.25000   0.68417   0.24958   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05106   0.00000
+ATOM O1       0.90809   0.25000   0.59548   1.90138   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04108   0.00000
+ATOM O2       0.19380   0.25000   0.54355   1.38267   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03889   0.00000
+ATOM O3       0.08116   0.02725   0.80847   1.21929   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02970   0.00000
+CELL    8.47793   5.39646   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.409803033   0.005864068
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1521   0.0034  -0.4778   0.0076   0.4482   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1099   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14407   0.00105
+RFAR   3.595      4.419      1.940      5.190    
+RFAC   8.720      8.364      3.672      5.190        2876
+DEVA   2520.     0.8758     0.2934      1.908    
+RFBR   3.590      4.419      1.900      5.410    
+RFBC   8.492      8.338      3.585      5.410        2742
+DEVB   2457.     0.8955     0.2952      1.906    
+BRAG1    3.972    2.602     318.321     100.000    1213.030       1.000
+EXRP    1.722   2.088
+REFL   199  104.71  135.52  160.33
+REFP     9    8   16
+SOLV     6.54    8.47   10.02
+SCOR       3.0532
+SCOR1              4.51            3.89            3.54
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:05:19.765                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18747   0.25000   0.16698   1.25998   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02959   0.00000
+ATOM S        0.06536   0.25000   0.68417   0.24958   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05106   0.00000
+ATOM O1       0.90809   0.25000   0.59548   1.90128   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04108   0.00000
+ATOM O2       0.19380   0.25000   0.54355   1.38267   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03889   0.00000
+ATOM O3       0.08116   0.02725   0.80847   1.21925   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02970   0.00000
+CELL    8.47793   5.39646   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.409789681   0.005864064
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1521   0.0034  -0.4778   0.0076   0.4481   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1099   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14407   0.00105
+RFAR   3.595      4.420      1.940      5.190    
+RFAC   8.718      8.364      3.671      5.190        2876
+DEVA   2520.     0.8757     0.2934      1.908    
+RFBR   3.589      4.419      1.900      5.410    
+RFBC   8.490      8.338      3.585      5.410        2742
+DEVB   2457.     0.8955     0.2952      1.906    
+BRAG1    3.972    2.602     318.321     100.000    1213.030       1.000
+EXRP    1.715   2.096
+REFL   199  104.71  135.52  160.33
+REFP     9    8   16
+SOLV     6.54    8.47   10.02
+SCOR       3.0532
+SCOR1              4.51            3.89            3.54
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:05:19.938                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18747   0.25000   0.16698   1.25995   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02959   0.00000
+ATOM S        0.06536   0.25000   0.68417   0.24957   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05106   0.00000
+ATOM O1       0.90809   0.25000   0.59548   1.90126   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04108   0.00000
+ATOM O2       0.19380   0.25000   0.54355   1.38267   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03889   0.00000
+ATOM O3       0.08116   0.02725   0.80847   1.21923   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02970   0.00000
+CELL    8.47793   5.39646   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.409781456   0.005864044
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1521   0.0034  -0.4778   0.0076   0.4481   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1099   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14406   0.00105
+RFAR   3.595      4.420      1.940      5.190    
+RFAC   8.717      8.364      3.671      5.190        2876
+DEVA   2520.     0.8757     0.2934      1.908    
+RFBR   3.589      4.419      1.900      5.410    
+RFBC   8.489      8.338      3.585      5.410        2742
+DEVB   2457.     0.8954     0.2952      1.906    
+BRAG1    3.973    2.602     318.321     100.000    1213.030       1.000
+EXRP    1.747   2.058
+REFL   199  104.71  135.52  160.33
+REFP     9    8   16
+SOLV     6.54    8.47   10.02
+SCOR       3.0533
+SCOR1              4.51            3.89            3.54
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:05:20.296                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18747   0.25000   0.16698   1.25993   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02959   0.00000
+ATOM S        0.06536   0.25000   0.68417   0.24956   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05106   0.00000
+ATOM O1       0.90809   0.25000   0.59548   1.90124   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04107   0.00000
+ATOM O2       0.19380   0.25000   0.54355   1.38267   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03889   0.00000
+ATOM O3       0.08116   0.02725   0.80847   1.21921   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02970   0.00000
+CELL    8.47793   5.39646   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.409774423   0.005863690
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1521   0.0034  -0.4778   0.0076   0.4481   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1099   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14406   0.00105
+RFAR   3.594      4.419      1.940      5.190    
+RFAC   8.716      8.364      3.671      5.190        2876
+DEVA   2520.     0.8756     0.2934      1.908    
+RFBR   3.589      4.419      1.900      5.409    
+RFBC   8.488      8.338      3.585      5.409        2742
+DEVB   2456.     0.8953     0.2952      1.906    
+BRAG1    3.972    2.602     318.321     100.000    1213.030       1.000
+EXRP    1.741   2.064
+REFL   199  104.71  135.52  160.33
+REFP     9    8   16
+SOLV     6.54    8.47   10.02
+SCOR       3.0533
+SCOR1              4.51            3.89            3.54
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:05:20.480                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18747   0.25000   0.16698   1.25991   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02959   0.00000
+ATOM S        0.06536   0.25000   0.68417   0.24957   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05106   0.00000
+ATOM O1       0.90809   0.25000   0.59548   1.90119   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04107   0.00000
+ATOM O2       0.19380   0.25000   0.54355   1.38272   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03889   0.00000
+ATOM O3       0.08116   0.02725   0.80847   1.21920   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02970   0.00000
+CELL    8.47793   5.39646   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.409770846   0.005863689
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1521   0.0034  -0.4778   0.0076   0.4481   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1099   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14406   0.00105
+RFAR   3.594      4.419      1.940      5.190    
+RFAC   8.716      8.364      3.671      5.190        2876
+DEVA   2519.     0.8755     0.2934      1.908    
+RFBR   3.588      4.419      1.900      5.410    
+RFBC   8.488      8.338      3.585      5.410        2742
+DEVB   2456.     0.8953     0.2952      1.906    
+BRAG1    3.972    2.602     318.321     100.000    1213.030       1.000
+EXRP    1.716   2.095
+REFL   199  104.71  135.52  160.33
+REFP     9    8   16
+SOLV     6.54    8.47   10.02
+SCOR       3.0534
+SCOR1              4.51            3.89            3.54
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:05:20.668                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18747   0.25000   0.16698   1.25991   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02959   0.00000
+ATOM S        0.06536   0.25000   0.68418   0.24958   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05106   0.00000
+ATOM O1       0.90809   0.25000   0.59548   1.90118   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04107   0.00000
+ATOM O2       0.19380   0.25000   0.54355   1.38271   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03889   0.00000
+ATOM O3       0.08116   0.02725   0.80847   1.21920   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02970   0.00000
+CELL    8.47793   5.39646   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.409768701   0.005863859
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1520   0.0034  -0.4778   0.0076   0.4481   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1099   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14406   0.00105
+RFAR   3.594      4.420      1.940      5.190    
+RFAC   8.716      8.364      3.671      5.190        2876
+DEVA   2519.     0.8755     0.2934      1.908    
+RFBR   3.588      4.419      1.900      5.410    
+RFBC   8.488      8.338      3.585      5.410        2742
+DEVB   2456.     0.8952     0.2952      1.906    
+BRAG1    3.972    2.602     318.322     100.000    1213.030       1.000
+EXRP    1.730   2.078
+REFL   199  104.79  135.52  160.33
+REFP     9    8   16
+SOLV     6.55    8.47   10.02
+SCOR       3.0533
+SCOR1              4.51            3.89            3.54
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:05:20.849                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18747   0.25000   0.16698   1.25991   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02959   0.00000
+ATOM S        0.06536   0.25000   0.68418   0.24962   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05106   0.00000
+ATOM O1       0.90809   0.25000   0.59548   1.90122   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04107   0.00000
+ATOM O2       0.19380   0.25000   0.54355   1.38270   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03889   0.00000
+ATOM O3       0.08116   0.02725   0.80847   1.21919   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02970   0.00000
+CELL    8.47793   5.39646   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.409767747   0.005863759
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1520   0.0034  -0.4777   0.0076   0.4481   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1099   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14406   0.00105
+RFAR   3.594      4.420      1.940      5.190    
+RFAC   8.715      8.364      3.671      5.190        2876
+DEVA   2519.     0.8754     0.2934      1.908    
+RFBR   3.588      4.419      1.900      5.410    
+RFBC   8.487      8.338      3.585      5.410        2742
+DEVB   2456.     0.8951     0.2952      1.906    
+BRAG1    3.972    2.602     318.322     100.000    1213.030       1.000
+EXRP    1.717   2.093
+REFL   199  104.71  135.52  160.33
+REFP     9    8   16
+SOLV     6.54    8.47   10.02
+SCOR       3.0537
+SCOR1              4.51            3.89            3.54
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:05:21.028                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18747   0.25000   0.16698   1.25991   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02959   0.00000
+ATOM S        0.06536   0.25000   0.68418   0.24964   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05106   0.00000
+ATOM O1       0.90809   0.25000   0.59548   1.90121   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04107   0.00000
+ATOM O2       0.19380   0.25000   0.54355   1.38270   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03889   0.00000
+ATOM O3       0.08116   0.02725   0.80847   1.21918   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02969   0.00000
+CELL    8.47793   5.39646   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.409767151   0.005863585
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1520   0.0034  -0.4777   0.0076   0.4481   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1099   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14406   0.00105
+RFAR   3.594      4.419      1.940      5.189    
+RFAC   8.715      8.363      3.671      5.189        2876
+DEVA   2519.     0.8753     0.2934      1.908    
+RFBR   3.588      4.419      1.900      5.409    
+RFBC   8.487      8.338      3.585      5.409        2742
+DEVB   2455.     0.8950     0.2952      1.906    
+BRAG1    3.972    2.602     318.322     100.000    1213.030       1.000
+EXRP    1.732   2.075
+REFL   199  104.71  135.52  160.33
+REFP     9    8   16
+SOLV     6.54    8.47   10.02
+SCOR       3.0537
+SCOR1              4.51            3.89            3.54
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:07:57.552                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    0     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    0     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18747   0.25000   0.16698   1.25991   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02959   0.00000
+ATOM S        0.06536   0.25000   0.68418   0.24964   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05106   0.00000
+ATOM O1       0.90809   0.25000   0.59548   1.90121   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04107   0.00000
+ATOM O2       0.19380   0.25000   0.54355   1.38270   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03888   0.00000
+ATOM O3       0.08116   0.02725   0.80847   1.21917   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02969   0.00000
+CELL    8.47793   5.39646   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.409766555   0.005863561
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1520   0.0034  -0.4777   0.0076   0.4481   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1099   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14406   0.00105
+RFAR   3.594      4.419      1.940      5.189    
+RFAC   8.715      8.363      3.671      5.189        2876
+DEVA   2519.     0.8753     0.2934      1.908    
+RFBR   3.588      4.419      1.900      5.409    
+RFBC   8.487      8.338      3.585      5.409        2742
+DEVB   2455.     0.8950     0.2952      1.906    
+BRAG1    3.972    2.602     318.322     100.000    1213.030       1.000
+EXRP    1.724   2.085
+REFL   199  104.79  135.52  160.33
+REFP     9    8   16
+SOLV     6.55    8.47   10.02
+SCOR       3.0537
+SCOR1              4.51            3.89            3.54
+--------------------------------------------------------------------------------
+TITL  PbSO4 D1A(ILL),Rietveld Round Robin, R.J. Hill,JApC 25,589(1992)
+FILES => PCR-file : pbso4
+FILES => DAT-files: pbso4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+DATE & TIME     Date: 12/12/2024  Time: 12:08:30.800                              
+REM   NPHASE    IDUM   IASG    NRELL   ICRYG 
+GLB1     1       0       0       0       0
+REM   JOBTYP   NPROF  NBCKGD   NEXCRG   NSCAT   NORI
+GLB1     1       7       8       2       0       0
+REM    IWGT    ILOR   IRESO    ISTEP    IXUNIT  ICORR 
+GLB2     0       0       0       0       0       0
+REM   IOT   IPL   IPC   MAT   NXT  lst1  lst2  lst3  NLIN  PL_PRF
+OUT1    2     0     1     0     1     0     4     0     0     1
+REM   instr  JCIL  JSY  jlkh  jfou ISHOR ianaly
+OUT2    6     1     1     0     0     1     1
+REM    MAT   NXT   NLIN  JCIL  JSY  ISHOR 
+OUT1    0     1     0     1     1     1
+REM    IOT   IPL   IPC  LST1  LST2  LST3  
+OUT2    2     0     1     0     4     0
+REM  PL_PRF INSTR  JLKH JFOU  IANALY
+OUT3    1     6     0     0     1
+DATT        0   0        0.00
+PHAS1  PbSO4                       V
+SPGR P n m a             
+NATM    5
+COND    0   0   0   0
+ATOM Pb       0.18747   0.25000   0.16698   1.25990   0.50000  0  0    1
+SIGM        0.00011   0.00000   0.00018   0.02959   0.00000
+ATOM S        0.06536   0.25000   0.68418   0.24963   0.50000  0  0    2
+SIGM        0.00034   0.00000   0.00045   0.05105   0.00000
+ATOM O1       0.90809   0.25000   0.59548   1.90121   0.50000  0  0    3
+SIGM        0.00023   0.00000   0.00024   0.04107   0.00000
+ATOM O2       0.19380   0.25000   0.54355   1.38270   0.50000  0  0    3
+SIGM        0.00022   0.00000   0.00028   0.03888   0.00000
+ATOM O3       0.08116   0.02725   0.80847   1.21916   1.00000  0  0    3
+SIGM        0.00013   0.00019   0.00017   0.02969   0.00000
+CELL    8.47793   5.39646   6.95772  90.00000  90.00000  90.00000
+SIGM    0.00005   0.00004   0.00005   0.00000   0.00000   0.00000
+NNVK     0
+SCAL    1.409765720   0.005863540
+SHAP   0.00000  0.00000
+BOVE    0.0000   0.0000
+HUVW    0.1520   0.0034  -0.4777   0.0076   0.4481   0.0042
+PREF    0.0000   0.0000   0.0000   0.0000
+ASYM    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+XYPA    0.1099   0.0034   0.0000   0.0000
+STRA    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+SIZE    0.0000   0.0000   0.0000   0.0000
+ZERO   -0.14406   0.00105
+RFAR   3.594      4.419      1.940      5.189    
+RFAC   8.715      8.363      3.671      5.189        2876
+DEVA   2519.     0.8753     0.2934      1.908    
+RFBR   3.588      4.419      1.900      5.409    
+RFBC   8.487      8.338      3.585      5.409        2742
+DEVB   2455.     0.8950     0.2952      1.906    
+BRAG1    3.972    2.602     318.322     100.000    1213.030       1.000
+EXRP    1.742   2.063
+REFL   199  104.79  135.52  160.33
+REFP     9    8   16
+SOLV     6.55    8.47   10.02
+SCOR       3.0537
+SCOR1              4.51            3.89            3.54
+--------------------------------------------------------------------------------

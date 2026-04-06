@@ -1,0 +1,17 @@
+[workspace]
+channels = ["conda-forge"]
+platforms = ["osx-arm64", "win-64", "linux-64"]
+
+[dependencies]
+#python = "3.12.*"
+python = "3.14.*"
+
+[pypi-dependencies]
+pycrysfml = { path = '.', editable = true, extras = ['ci', 'test'] }
+
+[system-requirements]
+macos = "14.0"
+
+[tasks]
+scripts = "python pybuild.py --create-scripts --enable-backslash-escapes"
+build = "scripts/main.sh"

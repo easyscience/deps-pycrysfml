@@ -26,3 +26,7 @@ scripts
 
 # Misc
 .benchmarks/local
+
+# pixi environments
+.pixi/*
+!.pixi/config.toml

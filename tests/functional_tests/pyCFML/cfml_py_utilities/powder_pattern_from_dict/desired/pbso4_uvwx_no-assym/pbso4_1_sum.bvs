@@ -1,0 +1,12 @@
+  Subroutine Calc_BVS (JRC-LLB, version: March-2005)
+  Title: Summary of Bond-Valence calculations for file: pbso4_1.cfl
+   Atom      Coord  D_aver Sigm   Distort(x10-4)    Valence    BVSum(Sigma)
+    Pb       10.00  2.7842(   5)        28.998       2.000       1.957(  2)
+    S         4.00  1.4767(  13)         0.476       6.000       5.958( 21)
+    O1        2.00  2.0418(  18)       785.793      -2.000       1.783( 13)
+    O2        4.00  2.5237(  11)       626.510      -2.000       2.041( 14)
+    O3        4.00  2.4463(   8)       527.321      -2.000       2.045(  8)
+ =>  Old Global Instability Index (  GII=SQRT{SUM{|BVS-abs(q)|^2}/Num_Atoms} ) =  10.43 /100
+ =>  Normalized   GII(a)=       SUM {|BVS-abs(q)|  *mult}       /N_Atoms_UCell =   7.23 /100
+ =>  Normalized   GII(b)=       SUM {|BVS-abs(q)|  *mult/abs(q)}/N_Atoms_UCell =   3.38 %
+ =>  Normalized   GII(c)= SQRT{ SUM {|BVS-abs(q)|^2*mult}       /N_Atoms_UCell}=   9.70 /100

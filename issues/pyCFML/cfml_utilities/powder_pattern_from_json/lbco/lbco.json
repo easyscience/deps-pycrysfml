@@ -1,0 +1,74 @@
+{
+  "phases": [
+    {
+      "lbco": {
+        "_space_group_name_H-M_alt": "P m -3 m",
+        "_cell_length_a": 3.8909,
+        "_cell_length_b": 3.8909,
+        "_cell_length_c": 3.8909,
+        "_cell_angle_alpha": 90,
+        "_cell_angle_beta": 90,
+        "_cell_angle_gamma": 90,
+        "_atom_site": [
+          {
+            "_label": "La",
+            "_type_symbol": "La",
+            "_fract_x": 0,
+            "_fract_y": 0,
+            "_fract_z": 0,
+            "_occupancy": 0.5,
+            "_adp_type": "Biso",
+            "_B_iso_or_equiv": 0.4958
+          },
+          {
+            "_label": "Ba",
+            "_type_symbol": "Ba",
+            "_fract_x": 0,
+            "_fract_y": 0,
+            "_fract_z": 0,
+            "_occupancy": 0.5,
+            "_adp_type": "Biso",
+            "_B_iso_or_equiv": 0.4943
+          },
+          {
+            "_label": "Co",
+            "_type_symbol": "Co",
+            "_fract_x": 0.5,
+            "_fract_y": 0.5,
+            "_fract_z": 0.5,
+            "_occupancy": 1,
+            "_adp_type": "Biso",
+            "_B_iso_or_equiv": 0.2567
+          },
+          {
+            "_label": "O",
+            "_type_symbol": "O",
+            "_fract_x": 0,
+            "_fract_y": 0.5,
+            "_fract_z": 0.5,
+            "_occupancy": 1,
+            "_adp_type": "Biso",
+            "_B_iso_or_equiv": 1.4041
+          }
+        ]
+      }
+    }
+  ],
+  "experiments": [
+    {
+      "NPD": {
+        "_diffrn_radiation_probe": "neutron",
+        "_diffrn_radiation_wavelength": 1.494,
+        "_pd_instr_resolution_u": 0.0834,
+        "_pd_instr_resolution_v": -0.1168,
+        "_pd_instr_resolution_w": 0.123,
+        "_pd_instr_resolution_x": 0,
+        "_pd_instr_resolution_y": 0.0797,
+        "_pd_meas_2theta_offset": 0.6225,
+        "_pd_meas_2theta_range_min": 10.3,
+        "_pd_meas_2theta_range_max": 164.85,
+        "_pd_meas_2theta_range_inc": 0.05
+      }
+    }
+  ]
+}

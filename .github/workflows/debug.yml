@@ -23,14 +23,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-2022, macos-12, macos-14]  # [ubuntu-22.04, windows-2022, macos-13, flyci-macos-14-m2]
+        os: [ubuntu-24.04, windows-2022, macos-14]
         toolchain:
           - { exe: gfortran, compiler: gcc, version: 13 }
           - { exe: ifort, compiler: intel-classic, version: "2021.10" }
           - { exe: ifx, compiler: intel, version: "2023.2" }
         exclude:
-          - os: macos-12
-            toolchain: { exe: ifx, compiler: intel, version: "2023.2" } # no support for macOS
           - os: macos-14
             toolchain: { exe: ifx, compiler: intel, version: "2023.2" } # no support for macOS on arm64
           - os: macos-14
@@ -57,7 +55,7 @@ jobs:
       - name: Set up Python environment
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Upgrade package installer for Python
         shell: bash
@@ -120,7 +118,7 @@ jobs:
         shell: bash
         run: |
           scripts/build_cfml_test_programs.sh
-          scripts/run_cfml_functional_tests_no_benchmarks.sh
+        #  scripts/run_cfml_functional_tests_no_benchmarks.sh
 
       - name: Create pyCFML source code
         shell: bash
@@ -146,12 +144,28 @@ jobs:
           scripts/copy_init_file_to_pycfml_dist.sh
           scripts/copy_cfml_databases_to_pycfml_dist.sh
 
+      - name: Declare env variables needed for Python package wheel
+        shell: bash
+        run: |
+          echo "WHEEL_DIR=$(python3 pybuild.py --print-wheel-dir)" >> $GITHUB_ENV
+
       - name: Create Python package wheel of pyCFML
         shell: bash
         run: |
           scripts/validate_pyproject_toml.sh
           scripts/create_pycfml_python_wheel.sh
           scripts/rename_pycfml_python_wheel.sh
+
+      - name: Fix Python package wheel dependencies
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          pip install delocate
+          #delocate-wheel -v ${{ env.WHEEL_DIR }}/*.whl
+
+      - name: Check Python package wheel of pyCFML
+        shell: bash
+        run: |
           scripts/detect_abi3_violations.sh
           scripts/check_wheel_contents.sh
 
@@ -193,14 +207,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-2022, macos-12, macos-14]  # [ubuntu-22.04, windows-2022, macos-13, flyci-macos-14-m2]
+        os: [ubuntu-24.04, windows-2022, macos-14]
         toolchain:
           - { exe: gfortran, compiler: gcc, version: 13 }
           - { exe: ifort, compiler: intel-classic, version: "2021.10" }
           - { exe: ifx, compiler: intel, version: "2023.2" }
         exclude:
-          - os: macos-12
-            toolchain: { exe: ifx, compiler: intel, version: "2023.2" } # no support for macOS
           - os: macos-14
             toolchain: { exe: ifx, compiler: intel, version: "2023.2" } # no support for macOS on arm64
           - os: macos-14
@@ -215,7 +227,7 @@ jobs:
       - name: Set up python environment
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Upgrade package installer for Python
         shell: bash

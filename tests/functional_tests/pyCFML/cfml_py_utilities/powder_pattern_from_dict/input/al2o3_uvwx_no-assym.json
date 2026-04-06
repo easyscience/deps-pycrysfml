@@ -1,0 +1,75 @@
+{
+  "phases": [
+    {
+	  "Al2O3": {
+		"_space_group_name_H-M_alt": "R -3 c",
+        "_cell_length_a": 4.754000,
+        "_cell_length_b": 4.754000,
+        "_cell_length_c": 12.990000,
+        "_cell_angle_alpha": 90,
+        "_cell_angle_beta": 90,
+        "_cell_angle_gamma": 120,
+        "_atom_site": [
+          {
+            "_label": "Al",
+            "_type_symbol": "Al",
+            "_fract_x": 0.0,
+            "_fract_y": 0.0,
+            "_fract_z": 0.35228,
+            "_occupancy": 1,
+            "_adp_type": "Biso",
+            "_B_iso_or_equiv": 0.40
+          },
+          {
+            "_label": "O",
+            "_type_symbol": "O",
+            "_fract_x": 0.30640,
+            "_fract_y": 0,
+            "_fract_z": 0.25,
+            "_occupancy": 1,
+            "_adp_type": "Biso",
+            "_B_iso_or_equiv": 0.60
+          }
+		]
+	  }
+	}
+  ],
+  "experiments": [
+    {
+      "NPD": {
+        "_diffrn_source": "nuclear reactor",
+        "_diffrn_radiation_probe": "neutron",
+        "_diffrn_radiation_wavelength": 1.540560,
+        "_pd_instr_resolution_u": 0.004133,
+        "_pd_instr_resolution_v": -0.007618,
+        "_pd_instr_resolution_w": 0.006255,
+        "_pd_instr_resolution_x": 0.018961,
+        "_pd_instr_resolution_y": 0,
+        "_pd_instr_reflex_asymmetry_p1": 0,
+        "_pd_instr_reflex_asymmetry_p2": 0,
+        "_pd_instr_reflex_asymmetry_p3": 0,
+        "_pd_instr_reflex_asymmetry_p4": 0,
+        "_pd_meas_2theta_offset": 0,
+        "_pd_meas_2theta_range_min": 1,
+        "_pd_meas_2theta_range_max": 150,
+        "_pd_meas_2theta_range_inc": 0.02,
+        "_phase": [
+          {
+            "_label": "Al2O3",
+            "_scale": 1
+          }
+        ],
+        "_pd_background": [
+          {
+            "_2theta": 1,
+            "_intensity": 0
+          },
+          {
+            "_2theta": 140,
+            "_intensity": 0
+          }
+        ]
+      }
+    }
+  ]
+}
