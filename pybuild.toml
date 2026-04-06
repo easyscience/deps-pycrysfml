@@ -864,6 +864,22 @@ components-files = [
     'Pow_Preferred_Orientation'
 ]
 
+[[src-cfml-modules]]
+main-file = 'CFML_Laue'
+components-dir = 'CFML_Laue'
+components-files = [
+    'Laue_Allocate',
+    'Laue_Geom',
+    'Laue_HBin',
+    'Laue_Image',
+    'Laue_Init',
+    'Laue_Instrument',
+    'Laue_Output',
+    'Laue_PeakFind',
+    'Laue_Ref_Calc',
+    'Laue_Ref_Gen'
+]
+
 
 
 
