@@ -99,6 +99,19 @@ def _platform_tag():
     tag = tag.replace('.', '_')
     return tag
 
+def _macos_deployment_target():
+    """Return the current macOS major version as 'X.0' (e.g. '26.0').
+
+    This is used to set MACOSX_DEPLOYMENT_TARGET in generated scripts so that
+    gfortran (which may have a stale built-in default, e.g. '16.0') and clang
+    agree on the deployment target and the
+      clang: warning: overriding deployment version from 'X.0' to 'Y.0'
+    warning is silenced.
+    """
+    ver = platform.mac_ver()[0]  # e.g. '26.2'
+    major = ver.split('.')[0]    # '26'
+    return f'{major}.0'          # '26.0'
+
 def _platform_tag_github_ci():  # sysconf always returns 'macosx_10_9_universal2' on GH macOS...
     tag = sysconfig.get_platform()
     if _platform() == 'macos':
@@ -552,6 +565,11 @@ def add_main_script_header(txt: str):
 
 def print_build_variables():
     lines = []
+    if _platform() == 'macos':
+        target = _macos_deployment_target()
+        lines.append(f'export MACOSX_DEPLOYMENT_TARGET={target}')
+        msg = _echo_msg(f"MACOSX_DEPLOYMENT_TARGET: {target}")
+        lines.append(msg)
     msg = _echo_msg(f"Platform: {_platform()}")
     lines.append(msg)
     msg = _echo_msg(f"Processor: {_processor()}")
