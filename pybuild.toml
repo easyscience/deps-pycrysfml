@@ -901,7 +901,8 @@ components-dir = 'CFML_Py_Utilities'
 components-files = [
     'Py_Utilities_Patterns',
     'Py_Utilities_IOForm',
-    'Py_Utilities_Structure_Factors'
+    'Py_Utilities_Structure_Factors',
+    'Py_Utilities_Esmeralda'
 ]
 
 ####################################
