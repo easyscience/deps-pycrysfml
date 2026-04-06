@@ -23,10 +23,10 @@ def _test__from_pycrysfml_import_crysfml08lib():
         print(f"::::: Failed to '{msg}': {e}")
         assert False
 
-def test__from_pycrysfml_import_cfml_utilities():
-    msg = 'from pycrysfml import cfml_utilities'
+def test__from_pycrysfml_import_cfml_py_utilities():
+    msg = 'from pycrysfml import cfml_py_utilities'
     try:
-        from pycrysfml import cfml_utilities
+        from pycrysfml import cfml_py_utilities
         print(f"::::: Succeeded to '{msg}'")
         assert True
     except Exception as e:
@@ -37,4 +37,4 @@ def test__from_pycrysfml_import_cfml_utilities():
 
 if __name__ == '__main__':
     test__import_pycrysfml()
-    test__from_pycrysfml_import_cfml_utilities()
+    test__from_pycrysfml_import_cfml_py_utilities()

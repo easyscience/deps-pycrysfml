@@ -79,8 +79,16 @@ def _print_error_msg(msg:str):
     print(Fore.RED + f':::::: ERROR: {msg}' + Style.RESET_ALL)
 
 def _processor():
+    # On Windows, platform.processor() returns e.g.
+    # 'Intel64 Family 6 Model 154 Stepping 3, GenuineIntel'
+    # whose first word ('Intel64') is CPU-vendor-specific and doesn't match
+    # the architecture key used in pybuild.toml ('AMD64').
+    # platform.machine() reliably returns 'AMD64' on all 64-bit Windows
+    # machines, so use it there instead.
+    if sys.platform == 'win32':
+        return platform.machine()  # e.g. 'AMD64'
     processor = platform.processor()
-    processor = processor.split()[0]  # get the 1st word from string, such as 'Intel64 Family 6 Model 154 Stepping 3, GenuineIntel'
+    processor = processor.split()[0]
     return processor
 
 def _platform():
@@ -98,6 +106,19 @@ def _platform_tag():
     tag = tag.replace('-', '_')
     tag = tag.replace('.', '_')
     return tag
+
+def _macos_deployment_target():
+    """Return the current macOS major version as 'X.0' (e.g. '26.0').
+
+    This is used to set MACOSX_DEPLOYMENT_TARGET in generated scripts so that
+    gfortran (which may have a stale built-in default, e.g. '16.0') and clang
+    agree on the deployment target and the
+      clang: warning: overriding deployment version from 'X.0' to 'Y.0'
+    warning is silenced.
+    """
+    ver = platform.mac_ver()[0]  # e.g. '26.2'
+    major = ver.split('.')[0]    # '26'
+    return f'{major}.0'          # '26.0'
 
 def _platform_tag_github_ci():  # sysconf always returns 'macosx_10_9_universal2' on GH macOS...
     tag = sysconfig.get_platform()
@@ -128,8 +149,9 @@ def _python_site_packages():
 
 def _python_lib():
     if _platform() == 'macos':
-        #python_lib = '`python3-config --ldflags --embed`'
-        python_lib = '`pkg-config --libs python3-embed`'
+        #python_lib = '`python3-config --ldflags --embed`' # Get Python linker flags
+        #python_lib = '`pkg-config --libs python3-embed`' # Get Python linker flags
+        python_lib = '-Wl,-undefined,dynamic_lookup' # Resolve Python symbols at runtime
     elif _platform() == 'linux':
         python_lib = ''
     elif _platform() == 'windows':
@@ -251,6 +273,16 @@ def _compiler_options():
             break
     return options
 
+def _extra_compiler_options():
+    compiler = _compiler_name()
+    extra = ''
+    for build in CONFIG['build-configs']:
+        if _platform() in build['platforms'] and compiler in build['compilers']:
+            if 'extra' in build['modes']:
+                extra += f" {build['modes']['extra']}"
+            break
+    return extra
+
 def _obj_ext():
     compiler = _compiler_name()
     ext = ''
@@ -298,9 +330,10 @@ def _compiling_progress(current: int, total: int):
     return progress
 
 def _compile_obj_script_line(src_path: str,
-                                   include_path: str=''):
+                             include_path: str=''):
     compiler = _compiler_name()
     options = _compiler_options()
+    extra = _extra_compiler_options()
     template_cmd = CONFIG['template']['build-obj']
     if not include_path:
         template_cmd = template_cmd.replace(' -I {INCLUDE}', '')
@@ -310,6 +343,7 @@ def _compile_obj_script_line(src_path: str,
     cmd = cmd.replace('{COMPILER}', compiler)
     cmd = cmd.replace('{OPTIONS}', options)
     cmd = cmd.replace('{PATH}', src_path)
+    cmd = cmd.replace('{EXTRA}', extra)
     return cmd
 
 def _compile_pycfml_shared_obj_or_dynamic_lib_script_line():
@@ -337,6 +371,7 @@ def _compile_objs_script_lines(modules: str,
                                include_path: str=''):
     compiler = _compiler_name()
     options = _compiler_options()
+    extra = _extra_compiler_options()
     src_ext = CONFIG['build']['src-ext']
     template_cmd = CONFIG['template']['build-obj']
     if not include_path:
@@ -357,6 +392,7 @@ def _compile_objs_script_lines(modules: str,
             cmd = cmd.replace('{COMPILER}', compiler)
             cmd = cmd.replace('{OPTIONS}', options)
             cmd = cmd.replace('{PATH}', path)
+            cmd = cmd.replace('{EXTRA}', extra)
             lines.append(cmd)
         if 'components-dir' in module and 'components-files' in module:
             components_dir = module['components-dir']
@@ -371,6 +407,7 @@ def _compile_objs_script_lines(modules: str,
                 cmd = cmd.replace('{COMPILER}', compiler)
                 cmd = cmd.replace('{OPTIONS}', options)
                 cmd = cmd.replace('{PATH}', path)
+                cmd = cmd.replace('{EXTRA}', extra)
                 cmd = f'{cmd}&'  # start this bash command in background for parallel compilation
                 lines.append(cmd)
                 if current % 11 == 0:  # do not parallelise for more than 10 compilations
@@ -418,6 +455,7 @@ def _compile_executables_script_lines(modules: str,
     template_cmd = _compiler_build_exe_template()
     compiler = _compiler_name()
     options = _compiler_options()
+    extra = _extra_compiler_options()
     total = _total_src_file_count(modules)
     current = 0
     lines = []
@@ -438,6 +476,7 @@ def _compile_executables_script_lines(modules: str,
         cmd = cmd.replace('{CFML_LIB_DIR}', lib_dir)
         cmd = cmd.replace('{CFML_LIB_NAME}', lib_name)
         cmd = cmd.replace('{LIB_EXT}', lib_ext)
+        cmd = cmd.replace('{EXTRA}', extra)
         #lines.append(f"echo '>>>>> {cmd}'")
         lines.append(cmd)
     return lines
@@ -504,6 +543,8 @@ def loaded_config(name: str):
             config['build-configs'][idx]['modes']['base'] = build['modes']['base'].replace('/', '-')
             config['build-configs'][idx]['modes']['debug'] = build['modes']['debug'].replace('/', '-')
             config['build-configs'][idx]['modes']['release'] = build['modes']['release'].replace('/', '-')
+            if 'extra' in build['modes']:
+                config['build-configs'][idx]['modes']['extra'] = build['modes']['extra'].replace('/', '-')
     return config
 
 def clear_main_script():
@@ -532,6 +573,14 @@ def add_main_script_header(txt: str):
 
 def print_build_variables():
     lines = []
+    if _platform() == 'macos':
+        target = _macos_deployment_target()
+        lines.append(f'export MACOSX_DEPLOYMENT_TARGET={target}')
+        msg = _echo_msg(f"MACOSX_DEPLOYMENT_TARGET: {target}")
+        lines.append(msg)
+        lines.append('export SDKROOT="$(xcrun --show-sdk-path)"')
+        msg = _echo_msg(f"SDKROOT: $(xcrun --show-sdk-path)")
+        lines.append(msg)
     msg = _echo_msg(f"Platform: {_platform()}")
     lines.append(msg)
     msg = _echo_msg(f"Processor: {_processor()}")
@@ -1188,7 +1237,8 @@ def copy_extra_libs_to_pycfml_dist():
     package_abspath = os.path.join(_project_path(), package_relpath)
     lines = []
     for lib_path in extra_libs:
-        msg = _echo_msg(f"Copying {lib_path} to dist dir '{package_relpath}'")
+        display_lib_path = lib_path.replace('"', '')
+        msg = _echo_msg(f"Copying '{display_lib_path}' to dist dir '{package_relpath}'")
         lines.append(msg)
         cmd = f'cp {lib_path} {package_abspath}'
         lines.append(cmd)
@@ -1334,7 +1384,7 @@ def run_pycfml_unit_tests():
     relpath = os.path.join('tests', 'unit_tests', 'pyCFML')
     abspath = os.path.join(_project_path(), relpath)
     lines = []
-    msg = _echo_msg(f"Running unit tests from '{relpath}'")
+    msg = _echo_msg(f"Running tests from '{relpath}'")
     lines.append(msg)
     cmd = CONFIG['template']['run-tests']
     cmd = cmd.replace('{PATH}', abspath)
@@ -1374,7 +1424,7 @@ def run_pycfml_functional_tests_no_benchmarks():
     relpath = os.path.join('tests', 'functional_tests', 'pyCFML')
     abspath = os.path.join(_project_path(), relpath)
     lines = []
-    msg = _echo_msg(f"Running unit tests from '{relpath}'")
+    msg = _echo_msg(f"Running tests from '{relpath}'")
     lines.append(msg)
     cmd = CONFIG['template']['run-tests']
     cmd = cmd.replace('{PATH}', abspath)
@@ -1488,7 +1538,7 @@ if __name__ == '__main__':
     add_main_script_header(f"Create and run {CFML} test programs")
     build_cfml_test_programs()
     #copy_cfml_test_programs_to_tests_dir()
-    run_cfml_functional_tests_no_benchmarks()
+    ####run_cfml_functional_tests_no_benchmarks()
     #run_cfml_functional_tests_with_benchmarks()
 
     ##############

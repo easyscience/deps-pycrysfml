@@ -1,0 +1,19 @@
+!
+Title  CFL-file generated from FullProf for phase:  PbSO4                       VARY xyz b          BKG blue
+!
+Cell    8.47793(5)  5.39646(4)  6.95772(5)  90.0000  90.0000  90.0000
+!
+SpGR  P n m a
+!
+!  Atom-strings in the order: Label, Species, x, y, z, Biso, Occ [,2*Spin, charge]
+Atom Pb   PB+2   0.18747(11)   0.25000       0.16698(18)   1.26(3)       0.50000
+Atom S    S+6    0.0654(3)     0.25000       0.6842(4)     0.25(5)       0.50000
+Atom O1   O-2    0.9081(2)     0.25000       0.5955(2)     1.90(4)       0.50000
+Atom O2   O-2    0.1938(2)     0.25000       0.5435(3)     1.38(4)       0.50000
+Atom O3   O-2    0.08116(13)   0.02725(19)   0.80847(17)   1.22(3)       1.00000
+!
+!   Bond_STR instructions 
+DISTANCE 
+RESTRAINTS 
+DMAX   3.5000  0.0000
+TOL   20.0000

@@ -1,0 +1,52 @@
+{
+  "phases": [
+    {
+	  "Al2O3": {
+		"_space_group_name_H-M_alt": "F d 3 m",
+        "_cell_length_a": 5.431343,
+        "_cell_length_b": 5.431343,
+        "_cell_length_c": 5.431343,
+        "_cell_angle_alpha": 90,
+        "_cell_angle_beta": 90,
+        "_cell_angle_gamma": 90,
+        "_atom_site": [
+          {
+            "_label": "Si",
+            "_type_symbol": "Si",
+            "_fract_x": 0.125,
+            "_fract_y": 0.125,
+            "_fract_z": 0.125,
+            "_occupancy": 1,
+            "_adp_type": "Biso",
+            "_B_iso_or_equiv": 0.52454
+          }
+		]
+	  }
+	}
+  ],
+  "experiments": [
+    {
+      "NPD": {
+        "_diffrn_source": "nuclear reactor",
+        "_diffrn_radiation_probe": "neutron",
+        "_pd_jorg_vondreele_alpha0": 0.0,
+        "_pd_jorg_vondreele_alpha1": 0.597100,
+        "_pd_jorg_vondreele_beta0": 0.042210,
+        "_pd_jorg_vondreele_beta1": 0.009460,
+        "_pd_jorg_vondreele_gamma0": 0.0,
+        "_pd_jorg_vondreele_gamma1": 2.5435,
+        "_pd_jorg_vondreele_gamma2": 0.0,
+        "_pd_jorg_vondreele_sigma0": 3.5542,
+        "_pd_jorg_vondreele_sigma1": 33.0417,
+        "_pd_jorg_vondreele_sigma2": 0.0,
+        "_pd_meas_tof_offset": -9.18824,
+        "_pd_meas_tof_dtt1": 7476.91016,
+        "_pd_meas_tof_dtt2": -1.54,
+        "_pd_meas_tof_bank_angle": 144.845,
+        "_pd_meas_tof_range_min": 2000.0,
+        "_pd_meas_tof_range_max": 29995.0,
+        "_pd_meas_tof_range_inc": 5.0
+	  }
+    }
+  ]
+}

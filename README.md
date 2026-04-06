@@ -66,18 +66,20 @@ If the standard installation doesn't work for you, try building pycrysfml locall
 
 * Create and activate a python environment (_optional_)
 
-  ***macOS and Linux***
+  ```
+  python3 -m venv .venv
+  . .venv/bin/activate          # macOS and Linux
+  . .venv/Scripts/activate      # Windows with Unix like shells
+  .\.venv\Scripts\activate.bat  # Windows with CMD
+  .\.venv\Scripts\activate.ps1  # Windows with Power shell
+  ```
+  
+* Exit and remove the virtual environment (_if no longer needed_)
 
   ```
-  python3.11 -m venv .venv
-  source .venv/bin/activate
-  ```
-
-  ***Windows***
-
-  ```
-  python3.11 -m venv .venv
-  .venv\Scripts\activate
+  deactivate
+  rm -rf .venv       # macOS and Linux
+  rmdir /s /q .venv  # Windows
   ```
 
 * Upgrade the package installer for Python (_optional_)
@@ -102,6 +104,12 @@ If the standard installation doesn't work for you, try building pycrysfml locall
 
   ```
   python pybuild.py --create-scripts
+  ```
+
+* Alternative: Create job scripts some options specified 
+
+  ```
+  python pybuild.py --create-scripts --platform macos --compiler gfortran --mode debug
   ```
 
 * Print some build-specific variables (_optional_)

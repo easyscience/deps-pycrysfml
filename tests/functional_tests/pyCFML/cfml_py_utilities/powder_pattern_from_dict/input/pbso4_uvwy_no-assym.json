@@ -1,0 +1,88 @@
+{
+  "phases": [
+    {
+      "SrTiO3": {
+        "_space_group_name_H-M_alt": "P n m a",
+        "_cell_length_a": 8.477985,
+        "_cell_length_b": 5.396485,
+        "_cell_length_c": 6.957716,
+        "_cell_angle_alpha": 90,
+        "_cell_angle_beta": 90,
+        "_cell_angle_gamma": 90,
+        "_atom_site": [
+          {
+            "_label": "Pb",
+            "_type_symbol": "Pb",
+            "_fract_x": 0.18754,
+            "_fract_y": 0.25,
+            "_fract_z": 0.16708,
+            "_occupancy": 1,
+            "_adp_type": "Biso",
+            "_B_iso_or_equiv": 1.38880
+          },
+          {
+            "_label": "S",
+            "_type_symbol": "S",
+            "_fract_x": 0.06538,
+            "_fract_y": 0.25,
+            "_fract_z": 0.68411,
+            "_occupancy": 1,
+            "_adp_type": "Biso",
+            "_B_iso_or_equiv": 0.37140
+          },
+          {
+            "_label": "O1",
+            "_type_symbol": "O",
+            "_fract_x": 0.90822,
+            "_fract_y": 0.25,
+            "_fract_z": 0.59539,
+            "_occupancy": 1,
+            "_adp_type": "Biso",
+            "_B_iso_or_equiv": 2.03914
+          },
+          {
+            "_label": "O2",
+            "_type_symbol": "O",
+            "_fract_x": 0.19384,
+            "_fract_y": 0.25,
+            "_fract_z": 0.54357,
+            "_occupancy": 1,
+            "_adp_type": "Biso",
+            "_B_iso_or_equiv": 1.51677
+          },
+          {
+            "_label": "O3",
+            "_type_symbol": "O",
+            "_fract_x": 0.08116,
+            "_fract_y": 0.02718,
+            "_fract_z": 0.80857,
+            "_occupancy": 1,
+            "_adp_type": "Biso",
+            "_B_iso_or_equiv": 1.35554
+          }
+        ]
+      }
+    }
+  ],
+  "experiments": [
+    {
+      "NPD": {
+        "_diffrn_radiation_probe": "neutron",
+        "_diffrn_radiation_wavelength": 1.912,
+        "_pd_instr_resolution_u": 0.140466,
+        "_pd_instr_resolution_v": -0.416156,
+        "_pd_instr_resolution_w": 0.390386,
+        "_pd_instr_resolution_x": 0,
+        "_pd_instr_resolution_y": 0.084563,
+        "_pd_instr_reflex_asymmetry_p1": 0,
+        "_pd_instr_reflex_asymmetry_p2": 0,
+        "_pd_instr_reflex_asymmetry_p3": 0,
+        "_pd_instr_reflex_asymmetry_p4": 0,
+        "_pd_meas_2theta_offset": -0.14364,
+        "_pd_meas_2theta_range_min": 10.0,
+        "_pd_meas_2theta_range_max": 155.45,
+        "_pd_meas_2theta_range_inc": 0.05
+      }
+    }
+  ]
+}
