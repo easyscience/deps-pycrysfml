@@ -1136,6 +1136,10 @@ def change_runpath_for_built_pycfml():
     try:
         rpaths = CONFIG['build']['rpaths'][_platform()][_processor()][_compiler_name()]
     except KeyError:
+        rpaths = []
+    # On macOS, rpaths are discovered dynamically from the binary at runtime,
+    # so we proceed even when no rpaths are configured in pybuild.toml.
+    if not rpaths and _platform() != 'macos':
         msg = _echo_msg(f"No change of runtime paths are needed for platform '{_platform()} ({_processor()})' and compiler '{_compiler_name()}'")
         lines = [msg]
         script_name = f'{sys._getframe().f_code.co_name}.sh'
@@ -1180,42 +1184,99 @@ def change_runpath_for_built_pycfml():
             change_lib_template_cmd = CONFIG['template']['dependent-lib']['change'][_platform()]
         except KeyError:
             dependent_libs = []
-        delete_rpath_template_cmd = CONFIG['template']['rpath']['delete'][_platform()]
-        change_rpath_template_cmd = CONFIG['template']['rpath']['change'][_platform()]
         msg = _echo_msg(f"Changing runpath(s) for built {project_name} shared objects")
         lines.append(msg)
         name = CONFIG['pycfml']['src-name']
         path = os.path.join(package_abspath, name)
+        full_path = f'{path}.{shared_lib_ext}'
+        # Dynamically discover and delete all RPATHs that are not @loader_path or @rpath.
+        # This avoids hardcoding version-specific GCC Cellar paths (e.g. gcc@13/13.3.0)
+        # that break when the compiler is updated on CI runners.
+        msg = _echo_msg(f"Discovering and removing non-portable RPATHs from {name}.{shared_lib_ext}")
+        lines.append(msg)
+        lines.append(f'for _rpath in $(otool -l {full_path} | grep -A2 LC_RPATH | grep "path " | awk \'{{print $2}}\'); do')
+        lines.append(f'  case "$_rpath" in')
+        lines.append(f'    @loader_path*|@rpath*|@executable_path*)')
+        lines.append(f'      {_echo_cmd()} "{MSG_COLOR}:::::: Keeping RPATH: $_rpath{COLOR_OFF}"')
+        lines.append(f'      ;;')
+        lines.append(f'    *)')
+        lines.append(f'      {_echo_cmd()} "{MSG_COLOR}:::::: Deleting RPATH: $_rpath{COLOR_OFF}"')
+        lines.append(f'      install_name_tool -delete_rpath "$_rpath" {full_path}')
+        lines.append(f'      ;;')
+        lines.append(f'  esac')
+        lines.append(f'done')
+        # Ensure @loader_path is set as an RPATH so that @rpath/libXXX.dylib
+        # references resolve to the directory containing the .so binary.
+        # This is needed after deleting all non-portable RPATHs above.
+        add_rpath_template_cmd = CONFIG['template']['rpath']['add'][_platform()]
+        msg = _echo_msg(f"Adding @loader_path RPATH to {name}.{shared_lib_ext}")
+        lines.append(msg)
+        cmd = add_rpath_template_cmd
+        cmd = cmd.replace('{NEW}', '@loader_path')
+        cmd = cmd.replace('{PATH}', path)
+        cmd = cmd.replace('{EXT}', shared_lib_ext)
+        cmd = cmd + ' 2>/dev/null || true'  # tolerate if already present
+        lines.append(cmd)
+        # If the TOML config specifies rpaths with a non-empty 'new' value
+        # (e.g. ifort changing to @loader_path), try to apply those changes;
+        # fall back to -add_rpath if the old RPATH was already deleted above.
         for rpath in rpaths:
-            old_rpath = rpath['old']
-            new_rpath = rpath['new']
-            msg = _echo_msg(f"Changing runpath for {name}.{shared_lib_ext} from '{old_rpath}' to '{new_rpath}'")
-            lines.append(msg)
-            if rpath['new'] == '':  # delete this rpath
-                cmd = delete_rpath_template_cmd
-                cmd = cmd.replace('{OLD}', old_rpath)
-                cmd = cmd.replace('{PATH}', path)
-                cmd = cmd.replace('{EXT}', shared_lib_ext)
-            else:  # change this rpath
+            if rpath.get('new'):
+                change_rpath_template_cmd = CONFIG['template']['rpath']['change'][_platform()]
+                old_rpath = rpath['old']
+                new_rpath = rpath['new']
+                msg = _echo_msg(f"Changing runpath for {name}.{shared_lib_ext} from '{old_rpath}' to '{new_rpath}'")
+                lines.append(msg)
                 cmd = change_rpath_template_cmd
                 cmd = cmd.replace('{OLD}', old_rpath)
                 cmd = cmd.replace('{NEW}', new_rpath)
                 cmd = cmd.replace('{PATH}', path)
                 cmd = cmd.replace('{EXT}', shared_lib_ext)
-            #cmd = cmd + ' || true'  # allows to suppress the error message if no files are found
-            lines.append(cmd)
-        for lib in dependent_libs:
-            old_lib = lib['old']
-            new_lib = lib['new']
-            msg = _echo_msg(f"Changing the dependent shared library install name for {name}.{shared_lib_ext} from '{old_lib}' to '{new_lib}'")
-            lines.append(msg)
-            cmd = change_lib_template_cmd
-            cmd = cmd.replace('{OLD}', old_lib)
-            cmd = cmd.replace('{NEW}', new_lib)
-            cmd = cmd.replace('{PATH}', path)
-            cmd = cmd.replace('{EXT}', shared_lib_ext)
-            #cmd = cmd + ' || true'  # allows to suppress the error message if no files are found
-            lines.append(cmd)
+                # Try change first; if old rpath was already deleted by dynamic
+                # cleanup above, fall back to adding the new rpath instead.
+                add_cmd = add_rpath_template_cmd
+                add_cmd = add_cmd.replace('{NEW}', new_rpath)
+                add_cmd = add_cmd.replace('{PATH}', path)
+                add_cmd = add_cmd.replace('{EXT}', shared_lib_ext)
+                cmd = f'{cmd} || {add_cmd} 2>/dev/null || true'
+                lines.append(cmd)
+        # Dynamically discover and rewrite non-portable dependent library paths.
+        # Uses otool -L to find absolute-path dependencies (e.g. Homebrew gcc libs)
+        # and rewrites them to @rpath/basename so the bundled copies are found.
+        # This avoids hardcoding version-specific library paths that break on
+        # compiler updates (same issue as the RPATH cleanup above).
+        msg = _echo_msg(f"Discovering and rewriting non-portable dependent library paths in {name}.{shared_lib_ext}")
+        lines.append(msg)
+        lines.append(f'for _dep in $(otool -L {full_path} | tail -n +2 | awk \'{{print $1}}\'); do')
+        lines.append(f'  case "$_dep" in')
+        lines.append(f'    @*|/usr/lib/*|/System/Library/*)')
+        lines.append(f'      ;;')  # skip portable refs and system libs
+        lines.append(f'    /*)')
+        lines.append(f'      _basename=$(basename "$_dep")')
+        lines.append(f'      {_echo_cmd()} "{MSG_COLOR}:::::: Changing dependent lib \'$_dep\' to \'@rpath/$_basename\'{COLOR_OFF}"')
+        lines.append(f'      install_name_tool -change "$_dep" "@rpath/$_basename" {full_path}')
+        lines.append(f'      ;;')
+        lines.append(f'  esac')
+        lines.append(f'done')
+        # Also apply any explicit dependent-lib overrides from the TOML config
+        # as a fallback (e.g. for compilers with non-standard naming).
+        try:
+            change_lib_template_cmd = CONFIG['template']['dependent-lib']['change'][_platform()]
+        except KeyError:
+            change_lib_template_cmd = None
+        if change_lib_template_cmd:
+            for lib in dependent_libs:
+                old_lib = lib['old']
+                new_lib = lib['new']
+                msg = _echo_msg(f"Changing the dependent shared library install name for {name}.{shared_lib_ext} from '{old_lib}' to '{new_lib}'")
+                lines.append(msg)
+                cmd = change_lib_template_cmd
+                cmd = cmd.replace('{OLD}', old_lib)
+                cmd = cmd.replace('{NEW}', new_lib)
+                cmd = cmd.replace('{PATH}', path)
+                cmd = cmd.replace('{EXT}', shared_lib_ext)
+                cmd = cmd + ' || true'  # tolerate if already changed by dynamic discovery above
+                lines.append(cmd)
     else:
         msg = _echo_msg(f"Changing runpath is not needed for platform '{_platform()}'")
         lines.append(msg)
