@@ -233,50 +233,50 @@ rpaths.linux.x86_64.ifort = [
 rpaths.linux.x86_64.ifx = [
     { old = '', new = "'$ORIGIN'" },
 ] # set rpath to point to '$ORIGIN'
-rpaths.macos.i386.gfortran = [
-    # gcc 13.2.0
-    #{ old = '/usr/local/Cellar/gcc/13.2.0/lib/gcc/current/gcc/x86_64-apple-darwin21/13', new = '' }, # delete all rpaths besides @loader_path
-    #{ old = '/usr/local/Cellar/gcc/13.2.0/lib/gcc/current/gcc',                          new = '' }, # delete all rpaths besides @loader_path
-    #{ old = '/usr/local/Cellar/gcc/13.2.0/lib/gcc/current',                              new = '' }, # delete all rpaths besides @loader_path
-    # gcc 13.3.0
-    { old = '/usr/local/Cellar/gcc@13/13.3.0/lib/gcc/13/gcc/x86_64-apple-darwin21/13', new = '' }, # delete all rpaths besides @loader_path
-    { old = '/usr/local/Cellar/gcc@13/13.3.0/lib/gcc/13/gcc',                          new = '' }, # delete all rpaths besides @loader_path
-    { old = '/usr/local/Cellar/gcc@13/13.3.0/lib/gcc/13',                              new = '' }, # delete all rpaths besides @loader_path
-]
-rpaths.macos.arm.gfortran = [
-    # gcc 13.2.0
-    #{ old = '/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/gcc/aarch64-apple-darwin23/13', new = '' }, # delete all rpaths besides @loader_path
-    #{ old = '/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/gcc',                           new = '' }, # delete all rpaths besides @loader_path
-    #{ old = '/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current',                               new = '' }, # delete all rpaths besides @loader_path
-    # gcc 13.3.0
-    { old = '/opt/homebrew/Cellar/gcc@13/13.3.0/lib/gcc/13/gcc/aarch64-apple-darwin23/13', new = '' }, # delete all rpaths besides @loader_path
-    { old = '/opt/homebrew/Cellar/gcc@13/13.3.0/lib/gcc/13/gcc',                           new = '' }, # delete all rpaths besides @loader_path
-    { old = '/opt/homebrew/Cellar/gcc@13/13.3.0/lib/gcc/13',                               new = '' }, # delete all rpaths besides @loader_path
-]
+# NOTE: macOS gfortran rpaths are now handled dynamically in pybuild.py
+# using `otool -l` to discover actual RPATHs from the built binary.
+# This avoids breakage when GCC is updated and the Cellar version path changes
+# (e.g. from gcc@13/13.3.0 to gcc@13/13.4.0).
+# The entries below are kept commented-out for historical reference only.
+#rpaths.macos.i386.gfortran = [
+#    { old = '/usr/local/Cellar/gcc@13/13.3.0/lib/gcc/13/gcc/x86_64-apple-darwin21/13', new = '' },
+#    { old = '/usr/local/Cellar/gcc@13/13.3.0/lib/gcc/13/gcc',                          new = '' },
+#    { old = '/usr/local/Cellar/gcc@13/13.3.0/lib/gcc/13',                              new = '' },
+#]
+#rpaths.macos.arm.gfortran = [
+#    { old = '/opt/homebrew/Cellar/gcc@13/13.3.0/lib/gcc/13/gcc/aarch64-apple-darwin23/13', new = '' },
+#    { old = '/opt/homebrew/Cellar/gcc@13/13.3.0/lib/gcc/13/gcc',                           new = '' },
+#    { old = '/opt/homebrew/Cellar/gcc@13/13.3.0/lib/gcc/13',                               new = '' },
+#]
 rpaths.macos.i386.ifort = [
     { old = '/opt/intel/oneapi/compiler/2023.2.0/mac/bin/intel64/../../compiler/lib', new = '@loader_path' },
 ]
 rpaths.macos.arm.ifort = [
     { old = '/opt/intel/oneapi/compiler/2023.2.0/mac/bin/intel64/../../compiler/lib', new = '@loader_path' },
 ]
-dependent-libs.macos.i386.gfortran = [
-    # current gcc
-    #{ old = '/usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib', new = '@rpath/libgfortran.5.dylib' },
-    #{ old = '/usr/local/opt/gcc/lib/gcc/current/libgcc_s.1.1.dylib',  new = '@rpath/libgcc_s.1.1.dylib' },
-    #{ old = '/usr/local/opt/gcc/lib/gcc/current/libquadmath.0.dylib', new = '@rpath/libquadmath.0.dylib' },
-    # gcc 13
-    { old = '/usr/local/opt/gcc@13/lib/gcc/13/libgfortran.5.dylib', new = '@rpath/libgfortran.5.dylib' },
-    { old = '/usr/local/opt/gcc@13/lib/gcc/13/libgcc_s.1.1.dylib',  new = '@rpath/libgcc_s.1.1.dylib' },
-    { old = '/usr/local/opt/gcc@13/lib/gcc/13/libquadmath.0.dylib', new = '@rpath/libquadmath.0.dylib' },
-]
-dependent-libs.macos.arm.gfortran = [
-    # current gcc
-    #{ old = '/opt/homebrew/opt/gcc/lib/gcc/current/libgfortran.5.dylib', new = '@rpath/libgfortran.5.dylib' },
-    #{ old = '/opt/homebrew/opt/gcc/lib/gcc/current/libquadmath.0.dylib', new = '@rpath/libquadmath.0.dylib' },
-    # gcc 13
-    { old = '/opt/homebrew/opt/gcc@13/lib/gcc/13/libgfortran.5.dylib', new = '@rpath/libgfortran.5.dylib' },
-    { old = '/opt/homebrew/opt/gcc@13/lib/gcc/13/libquadmath.0.dylib', new = '@rpath/libquadmath.0.dylib' },
-]
+# NOTE: macOS gfortran dependent-libs are now handled dynamically in pybuild.py
+# using `otool -L` to discover actual dependent library paths from the built binary.
+# This avoids breakage when GCC is updated and the opt/Cellar path changes
+# (e.g. from gcc@13 to gcc@14).
+# The entries below are kept commented-out for historical reference only.
+#dependent-libs.macos.i386.gfortran = [
+#    # current gcc
+#    #{ old = '/usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib', new = '@rpath/libgfortran.5.dylib' },
+#    #{ old = '/usr/local/opt/gcc/lib/gcc/current/libgcc_s.1.1.dylib',  new = '@rpath/libgcc_s.1.1.dylib' },
+#    #{ old = '/usr/local/opt/gcc/lib/gcc/current/libquadmath.0.dylib', new = '@rpath/libquadmath.0.dylib' },
+#    # gcc 13
+#    { old = '/usr/local/opt/gcc@13/lib/gcc/13/libgfortran.5.dylib', new = '@rpath/libgfortran.5.dylib' },
+#    { old = '/usr/local/opt/gcc@13/lib/gcc/13/libgcc_s.1.1.dylib',  new = '@rpath/libgcc_s.1.1.dylib' },
+#    { old = '/usr/local/opt/gcc@13/lib/gcc/13/libquadmath.0.dylib', new = '@rpath/libquadmath.0.dylib' },
+#]
+#dependent-libs.macos.arm.gfortran = [
+#    # current gcc
+#    #{ old = '/opt/homebrew/opt/gcc/lib/gcc/current/libgfortran.5.dylib', new = '@rpath/libgfortran.5.dylib' },
+#    #{ old = '/opt/homebrew/opt/gcc/lib/gcc/current/libquadmath.0.dylib', new = '@rpath/libquadmath.0.dylib' },
+#    # gcc 13
+#    { old = '/opt/homebrew/opt/gcc@13/lib/gcc/13/libgfortran.5.dylib', new = '@rpath/libgfortran.5.dylib' },
+#    { old = '/opt/homebrew/opt/gcc@13/lib/gcc/13/libquadmath.0.dylib', new = '@rpath/libquadmath.0.dylib' },
+#]
 # Examples of GitHub values for Python 3.11
 #python-lib.macos = '`python3-config --ldflags --embed`'
 #python-lib.linux = ''

@@ -1325,8 +1325,8 @@ packages:
   requires_python: '>=3.10'
 - pypi: ./
   name: pycrysfml
-  version: 0.1.6
-  sha256: c3c90fbbcea387cbe598b7775c99a78ad1c527c1e6ab685273dce42cce2ed938
+  version: 0.2.0
+  sha256: 7f908a7946a040d391862dc8d4869e1d827ff5b688b7b4373b869e60a7677b46
   requires_dist:
   - numpy
   - toml ; extra == 'ci'
@@ -1341,7 +1341,7 @@ packages:
   - pytest-benchmark ; extra == 'test'
   - pygit2 ; extra == 'test'
   - matplotlib ; extra == 'test'
-  requires_python: '>=3.9'
+  requires_python: '>=3.11,<3.15'
 - pypi: https://files.pythonhosted.org/packages/5a/87/b70ad306ebb6f9b585f114d0ac2137d792b48be34d732d60e597c2f8465a/pydantic-2.12.5-py3-none-any.whl
   name: pydantic
   version: 2.12.5

@@ -15,3 +15,4 @@ macos = "14.0"
 [tasks]
 scripts = "python pybuild.py --create-scripts --enable-backslash-escapes"
 build = "scripts/main.sh"
+benchmark = "scripts/run_pycfml_functional_tests_with_benchmarks_save.sh"
