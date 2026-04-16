@@ -25,7 +25,8 @@ dist-progs = 'dist/CFML/progs'      # for test programs
 url = 'https://code.ill.fr/scientific-software/crysfml2008.git'
 #branch = 'nebil'
 #branch = 'jrc_branch'
-branch = 'andrew'
+#branch = 'andrew'
+branch = 'master'
 
 [cfml.scripts]
 pyapigen = 'repo/CFML/Scripts/PythonAPI/apigen.py'
