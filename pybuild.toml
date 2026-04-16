@@ -881,7 +881,8 @@ components-files = [
     'Laue_Output',
     'Laue_PeakFind',
     'Laue_Ref_Calc',
-    'Laue_Ref_Gen'
+    'Laue_Ref_Gen',
+    'Laue_Stereo'
 ]
 
 
@@ -920,7 +921,7 @@ components-files = [
     'Py_Utilities_Patterns',
     'Py_Utilities_IOForm',
     'Py_Utilities_Structure_Factors',
-    #'Py_Utilities_Esmeralda'
+    'Py_Utilities_Esmeralda'
 ]
 
 ####################################
