@@ -26,8 +26,8 @@ url = 'https://code.ill.fr/scientific-software/crysfml2008.git'
 #branch = 'nebil'
 #branch = 'jrc_branch'
 #branch = 'andrew'
-branch = 'master'
-#branch = 'py313_compatibility'
+#branch = 'master'
+branch = 'tof-fix-custom-x'
 
 [cfml.scripts]
 pyapigen = 'repo/CFML/Scripts/PythonAPI/apigen.py'

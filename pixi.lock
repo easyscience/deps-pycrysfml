@@ -1325,8 +1325,8 @@ packages:
   requires_python: '>=3.10'
 - pypi: ./
   name: pycrysfml
-  version: 0.2.1
-  sha256: 90ee7b44bddf5609de3b646d1b51066af66bebaa8a3e555b4f3aa2edc42c4fa8
+  version: 0.3.0
+  sha256: 1726d00b8ee5d8109a99d685aaf03eb289d772f2e95c5fd43fb91155fbd46db0
   requires_dist:
   - numpy
   - toml ; extra == 'ci'
