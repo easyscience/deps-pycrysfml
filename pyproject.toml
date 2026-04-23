@@ -1,14 +1,13 @@
 [project]
 name = 'pycrysfml'
-version = '0.2.1'
-description = 'Python API to CrysFML2008 from https://code.ill.fr/scientific-software/CrysFML2008'
+version = '0.3.0'
+description = 'Python bindings for the CrysFML2008 crystallographic library'
 authors = [
   {name = 'Juan Rodríguez-Carvajal', email = 'jrc@ill.fr'},
-  {name = 'Nebil Ayape Katcho', email = 'katcho@ill.fr'},
-  {name = 'Javier Gonzalez-Platas', email = 'jplatas@ull.edu.es'  }
+  {name = 'Javier Gonzalez-Platas', email = 'jplatas@ull.edu.es'},
+  {name = 'Nebil Ayape Katcho', email = 'katcho@ill.fr'}
 ]
 maintainers = [
-  {name = 'Elisa Rebolini', email = 'rebolini@ill.fr'},
   {name = 'Andrew Sazonov', email = 'andrew.sazonov@ess.eu'}
 ]
 readme = 'README.md'
