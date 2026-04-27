@@ -5,7 +5,7 @@
             --------------------------------
 
 
- => Symmetry information on space group: F d 3 m             
+ => Symmetry information on space group: F d -3 m            
  -> The multiplicity of the general position is: 192
  -> The space group is Centric (-1 at origin)   
  -> Lattice type  F: { 000;  0  1/2 1/2; 1/2  0  1/2; 1/2 1/2  0 }+
@@ -42,7 +42,7 @@
         --------------------------- 
 
  =>   Number of Space group: 227
- =>  Hermann-Mauguin Symbol: F d 3 m
+ =>  Hermann-Mauguin Symbol: F d -3 m
  =>             Hall Symbol: -F 4vw 2vw 3
  =>            Setting Type: IT (Generated from Hermann-Mauguin symbol)
  =>          Crystal System: Cubic
@@ -255,6 +255,47 @@
  => SYMM(190): -x,z+1/4,y+1/4                    Symbol: 2 (0,1/4,1/4) 0,y,y
  => SYMM(191): x+3/4,z+1/4,-y+1/2                Symbol: 4- (3/4,0,0) x,3/8,1/8
  => SYMM(192): x+3/4,-z+1/2,y+1/4                Symbol: 4+ (3/4,0,0) x,1/8,3/8
+
+ => Special Wyckoff Positions for F d -3 m
+ 
+    Multp     Site        Representative Coordinates (centring translations excluded)
+     96       h              0,y,-y              0,-y+1/4,y+1/4      1/4,y,y+1/4                             
+                             1/4,-y+1/4,-y       y,-y,0              -y+1/4,y+1/4,0                          
+                             y,y+1/4,1/4         -y+1/4,-y,1/4       -y,0,y                                  
+                             y+1/4,0,-y+1/4      y+1/4,1/4,y         -y,1/4,-y+1/4                           
+                             y,0,-y              -y+1/4,0,y+1/4      y,1/4,y+1/4                             
+                             -y+1/4,1/4,-y       -y,y,0              y+1/4,-y+1/4,0                          
+                             y+1/4,y,1/4         -y,-y+1/4,1/4       0,-y,y                                  
+                             0,y+1/4,-y+1/4      1/4,y+1/4,y         1/4,-y,-y+1/4                           
+ 
+     96       g              x,x,z               x,-x+1/4,-z+1/4     -x+1/4,x,-z+1/4                         
+                             -x+1/4,-x+1/4,z     x,z,x               -x+1/4,-z+1/4,x                         
+                             x,-z+1/4,-x+1/4     -x+1/4,z,-x+1/4     z,x,x                                   
+                             -z+1/4,x,-x+1/4     -z+1/4,-x+1/4,x     z,-x+1/4,-x+1/4                         
+                             -x,-x,-z            -x,x+3/4,z+3/4      x+3/4,-x,z+3/4                          
+                             x+3/4,x+3/4,-z      -x,-z,-x            x+3/4,z+3/4,-x                          
+                             -x,z+3/4,x+3/4      x+3/4,-z,x+3/4      -z,-x,-x                                
+                             z+3/4,-x,x+3/4      z+3/4,x+3/4,-x      -z,x+3/4,x+3/4                          
+ 
+     48       f              x,1/8,1/8           -x+1/4,1/8,1/8      1/8,1/8,x                               
+                             1/8,1/8,-x+1/4      1/8,x,1/8           1/8,-x+1/4,1/8                          
+                             -x,7/8,7/8          x+3/4,7/8,7/8       7/8,7/8,-x                              
+                             7/8,7/8,x+3/4       7/8,-x,7/8          7/8,x+3/4,7/8                           
+ 
+     32       e              x,x,x               x,-x+1/4,-x+1/4     -x+1/4,x,-x+1/4                         
+                             -x+1/4,-x+1/4,x     -x,-x,-x            -x,x+3/4,x+3/4                          
+                             x+3/4,-x,x+3/4      x+3/4,x+3/4,-x                                              
+ 
+     16       d              1/2,1/2,1/2         1/2,3/4,3/4         3/4,1/2,3/4                             
+                             3/4,3/4,1/2                                                                     
+ 
+     16       c              0,0,0               0,1/4,1/4           1/4,0,1/4                               
+                             1/4,1/4,0                                                                       
+ 
+      8       b              3/8,3/8,3/8         5/8,5/8,5/8                                                 
+ 
+      8       a              1/8,1/8,1/8         7/8,7/8,7/8                                                 
+ 
 
        -------------------------------------------------
        INFORMATION ON SITE SYMMETRY OF ATOMS IN PHASE: 1
