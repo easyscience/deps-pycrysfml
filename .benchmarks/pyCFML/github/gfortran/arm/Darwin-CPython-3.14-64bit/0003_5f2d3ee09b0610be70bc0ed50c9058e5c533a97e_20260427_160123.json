@@ -1,0 +1,288 @@
+{
+    "machine_info": {
+        "node": "sat12-bq152-477fd225-e71a-43ca-8b4f-00620d062dee-4E197A802563.local",
+        "processor": "arm",
+        "machine": "arm64",
+        "python_compiler": "Clang 17.0.0 (clang-1700.6.4.2)",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.14.4",
+        "python_version": "3.14.4",
+        "python_build": [
+            "v3.14.4:23116f998f6",
+            "Apr  7 2026 09:45:22"
+        ],
+        "release": "23.6.0",
+        "system": "Darwin",
+        "cpu": {
+            "python_version": "3.14.4.final.0 (64 bit)",
+            "cpuinfo_version": [
+                9,
+                0,
+                0
+            ],
+            "cpuinfo_version_string": "9.0.0",
+            "arch": "ARM_8",
+            "bits": 64,
+            "count": 3,
+            "arch_string_raw": "arm64",
+            "brand_raw": "Apple M1 (Virtual)"
+        }
+    },
+    "commit_info": {
+        "id": "5f2d3ee09b0610be70bc0ed50c9058e5c533a97e",
+        "time": "2026-04-27T17:52:06+02:00",
+        "author_time": "2026-04-27T17:52:06+02:00",
+        "dirty": false,
+        "project": "deps-pycrysfml",
+        "branch": "develop"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test__cw_powder_pattern_from_dict__Al2O3_uvwx_noassym",
+            "fullname": "tests/functional_tests/pyCFML/cfml_py_utilities/powder_pattern_from_dict/test__powder_pattern_from_dict.py::test__cw_powder_pattern_from_dict__Al2O3_uvwx_noassym",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": 100000
+            },
+            "stats": {
+                "min": 0.0063279170000214435,
+                "max": 0.01623837500000036,
+                "mean": 0.009171723171234573,
+                "stddev": 0.0020660829581856744,
+                "rounds": 146,
+                "median": 0.008371354500013695,
+                "iqr": 0.002066416999980447,
+                "q1": 0.007811833000005208,
+                "q3": 0.009878249999985655,
+                "iqr_outliers": 9,
+                "stddev_outliers": 31,
+                "outliers": "31;9",
+                "ld15iqr": 0.0063279170000214435,
+                "hd15iqr": 0.013851875000000291,
+                "ops": 109.03076568384843,
+                "total": 1.3390715830002478,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test__cw_powder_pattern_from_dict__PbSO4",
+            "fullname": "tests/functional_tests/pyCFML/cfml_py_utilities/powder_pattern_from_dict/test__powder_pattern_from_dict.py::test__cw_powder_pattern_from_dict__PbSO4",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": 100000
+            },
+            "stats": {
+                "min": 0.03448795899998913,
+                "max": 0.06724374999998872,
+                "mean": 0.044514084724134026,
+                "stddev": 0.00901976931665644,
+                "rounds": 29,
+                "median": 0.042077916999971876,
+                "iqr": 0.011708811749969072,
+                "q1": 0.03698549025000375,
+                "q3": 0.04869430199997282,
+                "iqr_outliers": 1,
+                "stddev_outliers": 7,
+                "outliers": "7;1",
+                "ld15iqr": 0.03448795899998913,
+                "hd15iqr": 0.06724374999998872,
+                "ops": 22.464799763878645,
+                "total": 1.2909084569998868,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test__cw_powder_pattern_from_dict__PbSO4_custom_x",
+            "fullname": "tests/functional_tests/pyCFML/cfml_py_utilities/powder_pattern_from_dict/test__powder_pattern_from_dict.py::test__cw_powder_pattern_from_dict__PbSO4_custom_x",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": 100000
+            },
+            "stats": {
+                "min": 0.03408437500002037,
+                "max": 0.11185404200000448,
+                "mean": 0.03859024612499873,
+                "stddev": 0.013536589033173741,
+                "rounds": 32,
+                "median": 0.03550372899999843,
+                "iqr": 0.002217770999976665,
+                "q1": 0.03486925000001406,
+                "q3": 0.03708702099999073,
+                "iqr_outliers": 2,
+                "stddev_outliers": 1,
+                "outliers": "1;2",
+                "ld15iqr": 0.03408437500002037,
+                "hd15iqr": 0.04390391599997656,
+                "ops": 25.913283806505728,
+                "total": 1.2348878759999593,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test__tof_powder_pattern_from_dict__Al2O3",
+            "fullname": "tests/functional_tests/pyCFML/cfml_py_utilities/powder_pattern_from_dict/test__powder_pattern_from_dict.py::test__tof_powder_pattern_from_dict__Al2O3",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": 100000
+            },
+            "stats": {
+                "min": 0.1973169170000233,
+                "max": 0.209083416999988,
+                "mean": 0.20496966680000242,
+                "stddev": 0.00472909610349948,
+                "rounds": 5,
+                "median": 0.20488658299996132,
+                "iqr": 0.005827562749971094,
+                "q1": 0.20297179175003066,
+                "q3": 0.20879935450000175,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.1973169170000233,
+                "hd15iqr": 0.209083416999988,
+                "ops": 4.878770676715508,
+                "total": 1.024848334000012,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test__tof_powder_pattern_from_dict__ncaf_custom_x",
+            "fullname": "tests/functional_tests/pyCFML/cfml_py_utilities/powder_pattern_from_dict/test__powder_pattern_from_dict.py::test__tof_powder_pattern_from_dict__ncaf_custom_x",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": 100000
+            },
+            "stats": {
+                "min": 1.3161198329999593,
+                "max": 1.498936375000028,
+                "mean": 1.4080756245999964,
+                "stddev": 0.0781397697648194,
+                "rounds": 5,
+                "median": 1.4129257909999637,
+                "iqr": 0.13866285400000322,
+                "q1": 1.3371991455000085,
+                "q3": 1.4758619995000117,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.3161198329999593,
+                "hd15iqr": 1.498936375000028,
+                "ops": 0.7101891280051653,
+                "total": 7.040378122999982,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test__tof_powder_pattern_from_dict__Si",
+            "fullname": "tests/functional_tests/pyCFML/cfml_py_utilities/powder_pattern_from_dict/test__powder_pattern_from_dict.py::test__tof_powder_pattern_from_dict__Si",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": 100000
+            },
+            "stats": {
+                "min": 0.19652987500001018,
+                "max": 0.28533766699996477,
+                "mean": 0.23467193339998857,
+                "stddev": 0.035899874014650786,
+                "rounds": 5,
+                "median": 0.22282174999998006,
+                "iqr": 0.055620604749989866,
+                "q1": 0.2081745309999974,
+                "q3": 0.26379513574998725,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 0.19652987500001018,
+                "hd15iqr": 0.28533766699996477,
+                "ops": 4.261267998740784,
+                "total": 1.1733596669999429,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test__tof_powder_pattern_from_dict__Si_custom_x",
+            "fullname": "tests/functional_tests/pyCFML/cfml_py_utilities/powder_pattern_from_dict/test__powder_pattern_from_dict.py::test__tof_powder_pattern_from_dict__Si_custom_x",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": 100000
+            },
+            "stats": {
+                "min": 0.19622820799997953,
+                "max": 0.23450150000002168,
+                "mean": 0.2168360901666707,
+                "stddev": 0.01740691398356667,
+                "rounds": 6,
+                "median": 0.22046764600000301,
+                "iqr": 0.03537829099997225,
+                "q1": 0.1969866250000223,
+                "q3": 0.23236491599999454,
+                "iqr_outliers": 0,
+                "stddev_outliers": 3,
+                "outliers": "3;0",
+                "ld15iqr": 0.19622820799997953,
+                "hd15iqr": 0.23450150000002168,
+                "ops": 4.6117784139685964,
+                "total": 1.301016541000024,
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2026-04-27T16:02:04.463647+00:00",
+    "version": "5.2.3"
+}
