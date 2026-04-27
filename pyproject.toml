@@ -1,6 +1,6 @@
 [project]
 name = 'pycrysfml'
-version = '0.3.0'
+version = '0.4.0'
 description = 'Python bindings for the CrysFML2008 crystallographic library'
 authors = [
   {name = 'Juan Rodríguez-Carvajal', email = 'jrc@ill.fr'},
