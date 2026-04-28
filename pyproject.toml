@@ -1,6 +1,6 @@
 [project]
 name = 'pycrysfml'
-version = '0.4.0'
+dynamic = ['version']
 description = 'Python bindings for the CrysFML2008 crystallographic library'
 authors = [
   {name = 'Juan Rodríguez-Carvajal', email = 'jrc@ill.fr'},
@@ -49,8 +49,21 @@ test = [
 ]
 
 [build-system]
-requires = ['hatchling']
+requires = ['hatchling', 'versioningit']
 build-backend = 'hatchling.build'
+
+[tool.hatch.version]
+source = 'versioningit'
+
+[tool.versioningit.format]
+distance = '{base_version}+dev{distance}'
+dirty = '{base_version}+dirty{distance}'
+distance-dirty = '{base_version}+devdirty{distance}'
+
+[tool.versioningit.vcs]
+method = 'git'
+match = ['v*']
+default-tag = 'v0.0.0'
 
 [tool.hatch.build.targets.wheel]
 packages = ['dist/pyCFML/pycrysfml']

@@ -1,5 +1,4 @@
 import argparse
-import datetime
 import os
 import platform
 import site
@@ -182,23 +181,23 @@ def _new_python_wheel_tags():
         'platform_tag': _platform_tag_github_ci()
     }
 
-def _initial_wheel_name():
-    dist_package_name = PYPROJECT['project']['name']
-    dist_package_version = PYPROJECT['project']['version']
-    python_tag = _initial_python_wheel_tags()['python_tag']
-    abi_tag = _initial_python_wheel_tags()['abi_tag']
-    platform_tag = _initial_python_wheel_tags()['platform_tag']
-    name = f'{dist_package_name}-{dist_package_version}-{python_tag}-{abi_tag}-{platform_tag}.whl'
-    return name
+def _wheel_dir_path():
+    wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
+    return os.path.join(_project_path(), wheel_dir)
 
-def _new_wheel_name():
+def _wheel_file_glob():
     dist_package_name = PYPROJECT['project']['name']
-    dist_package_version = PYPROJECT['project']['version']
-    python_tag = _new_python_wheel_tags()['python_tag']
-    abi_tag = _new_python_wheel_tags()['abi_tag']
-    platform_tag = _new_python_wheel_tags()['platform_tag']
-    name = f'{dist_package_name}-{dist_package_version}-{python_tag}-{abi_tag}-{platform_tag}.whl'
-    return name
+    wheel_dir = _wheel_dir_path()
+    return os.path.join(wheel_dir, f'{dist_package_name}-*.whl')
+
+def _find_wheel_lines(var_name: str = 'WHEEL_PATH'):
+    wheel_glob = _wheel_file_glob()
+    wheel_dir = os.path.dirname(wheel_glob)
+    wheel_pattern = os.path.basename(wheel_glob)
+    lines = []
+    lines.append(f'{var_name}=$(find "{wheel_dir}" -maxdepth 1 -type f -name "{wheel_pattern}" | head -n 1)')
+    lines.append(f'[ -n "${{{var_name}}}" ] || {{ echo ":::::: ERROR: Could not find built wheel in {wheel_dir}"; exit 1; }}')
+    return lines
 
 def _fix_file_permissions(path: str):
     os.chmod(path, 0o777)
@@ -242,18 +241,6 @@ def _enable_backslash_escapes():
 def _print_wheel_dir():
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
     print(wheel_dir)
-
-def _print_release_version():
-    release_version = PYPROJECT['project']['version']
-    release_version = f'v{release_version}'
-    print(release_version)
-
-def _print_release_title():
-    release_version = PYPROJECT['project']['version']
-    dt = datetime.datetime.now()
-    build_date = f'{dt.day} {dt:%b} {dt.year}'  # e.g. 3 Jun 2021
-    release_title = f'Version {release_version} ({build_date})'
-    print(release_title)
 
 def _compiler_name():
     compiler = 'gfortran'  # default
@@ -516,12 +503,6 @@ def parsed_args():
     parser.add_argument("--print-wheel-dir",
                         action='store_true',
                         help="print pycfml wheel directory name")
-    parser.add_argument("--print-release-version",
-                        action='store_true',
-                        help="print pycfml package release version")
-    parser.add_argument("--print-release-title",
-                        action='store_true',
-                        help="print pycfml package release title")
     return parser.parse_args()
 
 def loaded_pyproject():
@@ -1387,15 +1368,13 @@ def create_pycfml_python_wheel():
 def rename_pycfml_python_wheel():
     project_name = CONFIG['pycfml']['log-name']
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
-    wheel_relpath = os.path.join(wheel_dir, _initial_wheel_name())
-    wheel_abspath = os.path.join(_project_path(), wheel_relpath)
-    lines = []
-    msg = _echo_msg(f"Renaming {project_name} python wheel from '{_initial_wheel_name()}' to '{_new_wheel_name()}' in '{wheel_dir}'")
+    lines = _find_wheel_lines()
+    msg = _echo_msg(f"Renaming {project_name} python wheel in '{wheel_dir}'")
     lines.append(msg)
     cmd = CONFIG['template']['rename-wheel']
     cmd = cmd.replace('{PYTHON_TAG}', _python_tag())  # https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/
     cmd = cmd.replace('{PLATFORM_TAG}', _platform_tag_github_ci())
-    cmd = cmd.replace('{PATH}', wheel_abspath)
+    cmd = cmd.replace('{PATH}', '"$WHEEL_PATH"')
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
@@ -1403,11 +1382,10 @@ def rename_pycfml_python_wheel():
 
 def detect_abi3_violations():
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
-    wheel_path = os.path.join(wheel_dir, _new_wheel_name())
-    lines = []
-    msg = _echo_msg(f"Scanning Python extensions in python wheel '{_new_wheel_name()}' for abi3 violations")
+    lines = _find_wheel_lines()
+    msg = _echo_msg(f"Scanning Python extensions in built python wheel from '{wheel_dir}' for abi3 violations")
     lines.append(msg)
-    cmd = f'abi3audit {wheel_path}'
+    cmd = 'abi3audit "$WHEEL_PATH"'
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
@@ -1415,11 +1393,10 @@ def detect_abi3_violations():
 
 def check_wheel_contents():
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
-    wheel_path = os.path.join(wheel_dir, _new_wheel_name())
-    lines = []
-    msg = _echo_msg(f"Checking content of Python wheel '{_new_wheel_name()}'")
+    lines = _find_wheel_lines()
+    msg = _echo_msg(f"Checking content of built python wheel from '{wheel_dir}'")
     lines.append(msg)
-    cmd = f'check-wheel-contents {wheel_path}'
+    cmd = 'check-wheel-contents "$WHEEL_PATH"'
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
@@ -1544,14 +1521,6 @@ if __name__ == '__main__':
 
     if ARGS.print_wheel_dir:  # NEED FIX. Maybe save extras to toml as in EDA?
         _print_wheel_dir()
-        exit(0)
-
-    if ARGS.print_release_version:  # NEED FIX. Maybe save extras to toml as in EDA?
-        _print_release_version()
-        exit(0)
-
-    if ARGS.print_release_title:  # NEED FIX. Maybe save extras to toml as in EDA?
-        _print_release_title()
         exit(0)
 
     if not ARGS.create_scripts:  # NEED FIX. Need proper check if create scripts or print flags are given
