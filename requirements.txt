@@ -1,6 +1,0 @@
-# This file is only used for binder: https://mybinder.org/v2/gh/EasyScience/PyCrysFML/issues
-
---extra-index-url https://easyscience.github.io/pypi/
-
-pycrysfml
-matplotlib

@@ -4,12 +4,11 @@ platforms = ["osx-arm64", "win-64", "linux-64"]
 
 [dependencies]
 #python = "3.12.*"
-python = "3.13.*"
+python = "3.14.*"
 
 [pypi-dependencies]
 pip = '*'
-#pycrysfml = { path = '.', editable = true, extras = ['ci', 'test'] }
-pycrysfml = { version = ">=0.2.1", extras = ['ci', 'test'], index = "https://easyscience.github.io/pypi/" }
+pycrysfml = { path = '.', editable = true, extras = ['ci', 'test'] }
 
 [system-requirements]
 macos = "14.0"
