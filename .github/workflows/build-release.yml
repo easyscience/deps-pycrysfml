@@ -78,80 +78,22 @@ jobs:
           --bash-syntax
           --enable-backslash-escapes
 
-      - name: Print some build-specific variables
+      - name: Build CFML and prepare distribution
         shell: bash
-        run: scripts/print_build_variables.sh  # bash -x scripts/print_build_variables.sh for printing commands
+        run: scripts/cfml_build.sh
 
-      - name: Create scripts, CFML and pyCFML directories
+      - name: Run CFML test programs
         shell: bash
-        run: |
-          scripts/create_cfml_repo_dir.sh
-          scripts/create_cfml_build_dir.sh
-          scripts/create_cfml_dist_dir.sh
-          scripts/create_pycfml_src_dir.sh
-          scripts/create_pycfml_build_dir.sh
-          scripts/create_pycfml_dist_dir.sh
-
-      - name: Download CFML repository
-        shell: bash
-        run: scripts/download_cfml_repo.sh
-
-      - name: Build CFML modules
-        shell: bash
-        run: |
-          scripts/rename_global_deps_file.sh
-          scripts/build_cfml_modules_obj.sh
-          scripts/delete_renamed_global_deps_file.sh
-
-      - name: Build CFML static library
-        shell: bash
-        run: scripts/build_cfml_static_lib.sh
-
-      - name: Make CFML distribution
-        shell: bash
-        run: scripts/move_built_to_cfml_dist.sh
-
-      - name: Build und run CFML functional test programs (without benchmarks)
-        shell: bash
-        run: |
-          scripts/build_cfml_test_programs.sh
-        #  scripts/run_cfml_functional_tests_no_benchmarks.sh
-
-      - name: Create pyCFML source code
-        shell: bash
-        run: scripts/create_pycfml_src.sh
-
-      - name: Build pyCFML modules
-        shell: bash
-        run: scripts/build_pycfml_modules_obj.sh
-
-      - name: Build pyCFML shared obj / dynamic library
-        shell: bash
-        run: |
-          scripts/build_pycfml_lib_obj.sh
-          scripts/build_pycfml_shared_obj_or_dynamic_lib.sh
-
-      - name: Make pyCFML distribution
-        shell: bash
-        run: |
-          scripts/copy_built_to_pycfml_dist.sh
-          scripts/change_runpath_for_built_pycfml.sh
-          scripts/copy_extra_libs_to_pycfml_dist.sh
-          scripts/copy_py_api_files_to_pycfml_dist.sh
-          scripts/copy_init_file_to_pycfml_dist.sh
-          scripts/copy_cfml_databases_to_pycfml_dist.sh
+        run: scripts/cfml_test.sh
 
       - name: Resolve wheel directory
         id: wheel_dir
         shell: bash
         run: echo "value=$(python3 pybuild.py --print-wheel-dir)" >> "$GITHUB_OUTPUT"
 
-      - name: Create Python package wheel of pyCFML
+      - name: Build pyCFML and create wheel
         shell: bash
-        run: |
-          scripts/validate_pyproject_toml.sh
-          scripts/create_pycfml_python_wheel.sh
-          scripts/rename_pycfml_python_wheel.sh
+        run: scripts/pycfml_build.sh
 
       #- name: Fix Python package wheel dependencies
       #  if: runner.os == 'macOS'
@@ -160,23 +102,9 @@ jobs:
       #    pip install delocate
       #    #delocate-wheel -v ${{ steps.wheel_dir.outputs.value }}/*.whl
 
-      - name: Check Python package wheel of pyCFML
+      - name: Test built pyCFML wheel
         shell: bash
-        run: |
-          scripts/detect_abi3_violations.sh
-          scripts/check_wheel_contents.sh
-
-      - name: Install pyCFML from created Python package wheel
-        shell: bash
-        run: scripts/install_pycfml_from_wheel.sh
-
-      - name: Run pyCFML unit tests
-        shell: bash
-        run: scripts/run_pycfml_unit_tests.sh
-
-      - name: Run pyCFML functional tests (without benchmarks)
-        shell: bash
-        run: scripts/run_pycfml_functional_tests_no_benchmarks.sh
+        run: scripts/pycfml_test.sh
 
       - name: Upload zipped Python package wheel of pyCFML for next job
         uses: actions/upload-artifact@v4
@@ -248,17 +176,9 @@ jobs:
           name: pycfml-wheel_${{ matrix.os }}_${{ matrix.python-version }}  # name (without .zip) of the zipped artifact uploaded on the previous jobs
           path: ${{ steps.wheel_dir.outputs.value }}  # directory to extract downloaded zipped artifacts
 
-      - name: Install pyCFML from downloaded Python package wheel
+      - name: Test downloaded pyCFML wheel
         shell: bash
-        run: scripts/install_pycfml_from_wheel.sh
-
-      - name: Run pyCFML unit tests
-        shell: bash
-        run: scripts/run_pycfml_unit_tests.sh
-
-      - name: Run pyCFML functional tests (without benchmarks)
-        shell: bash
-        run: scripts/run_pycfml_functional_tests_no_benchmarks.sh
+        run: scripts/pycfml_test.sh
 
       - name: Run pyCFML functional tests and compare benchmark results
         if: "!contains(github.event.head_commit.message, '[save benchmark results]')"
