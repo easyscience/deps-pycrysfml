@@ -630,24 +630,29 @@ def download_cfml_repo():
     if not _force_download_cfml_repo():
         msg = _echo_msg(f"Checking for existing local {project_name} sources in '{out_dir}'")
         lines.append(msg)
-        lines.append(f'if [ -d "{src_path}" ]; then {_echo_cmd()} "{MSG_COLOR}:::::: Using local {project_name} sources from {out_dir}{COLOR_OFF}"; exit 0; fi')
-        msg = _echo_msg(f"Local {project_name} checkout missing at '{src_dir}'; attempting remote clone")
+        lines.append(f'if [ -d "{src_path}" ]; then {_echo_cmd()} "{MSG_COLOR}:::::: Using local {project_name} sources from {out_dir}{COLOR_OFF}"; else')
+        lines.append(f'  {_echo_cmd()} "{ERROR_COLOR}:::::: ERROR: Vendored {project_name} sources are missing at {src_dir}{COLOR_OFF}"')
+        lines.append(f'  {_echo_cmd()} "{ERROR_COLOR}:::::: ERROR: Restore repo/CFML from the tracked vendored copy or regenerate scripts with --force-download-cfml-repo for a maintainer refresh{COLOR_OFF}"')
+        lines.append('  exit 1')
+        lines.append('fi')
+    else:
+        msg = _echo_msg(f"Downloading {project_name} ('{branch}' branch) to '{out_dir}' from {url}")
         lines.append(msg)
-    msg = _echo_msg(f"Downloading {project_name} ('{branch}' branch) to '{out_dir}' from {url}")
-    lines.append(msg)
-    cmd = CONFIG['template']['clone-repo']
-    cmd = cmd.replace('{BRANCH}', branch)
-    cmd = cmd.replace('{URL}', url)
-    cmd = cmd.replace('{OUT_PATH}', out_path)
-    lines.append('for ATTEMPT in 1 2 3; do')
-    lines.append(f'  {_echo_cmd()} "{MSG_COLOR}:::::: Clone attempt $ATTEMPT/3{COLOR_OFF}"')
-    lines.append(f'  {cmd} && exit 0')
-    lines.append(f'  {_echo_cmd()} "{ERROR_COLOR}:::::: Clone attempt $ATTEMPT failed; cleaning up partial checkout{COLOR_OFF}"')
-    lines.append(f'  rm -rf "{out_path}"')
-    lines.append(f'  mkdir -p "{out_path}"')
-    lines.append('done')
-    lines.append(f'{_echo_cmd()} "{ERROR_COLOR}:::::: ERROR: Failed to download {project_name} after 3 attempts{COLOR_OFF}"')
-    lines.append('exit 1')
+        cmd = CONFIG['template']['clone-repo']
+        cmd = cmd.replace('{BRANCH}', branch)
+        cmd = cmd.replace('{URL}', url)
+        cmd = cmd.replace('{OUT_PATH}', out_path)
+        lines.append('for ATTEMPT in 1 2 3; do')
+        lines.append(f'  {_echo_cmd()} "{MSG_COLOR}:::::: Clone attempt $ATTEMPT/3{COLOR_OFF}"')
+        lines.append(f'  {cmd} && break')
+        lines.append(f'  {_echo_cmd()} "{ERROR_COLOR}:::::: Clone attempt $ATTEMPT failed; cleaning up partial checkout{COLOR_OFF}"')
+        lines.append(f'  rm -rf "{out_path}"')
+        lines.append(f'  mkdir -p "{out_path}"')
+        lines.append("  if [ \"$ATTEMPT\" = 3 ]; then")
+        lines.append(f'    {_echo_cmd()} "{ERROR_COLOR}:::::: ERROR: Failed to download {project_name} after 3 attempts{COLOR_OFF}"')
+        lines.append('    exit 1')
+        lines.append('  fi')
+        lines.append('done')
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
     append_to_main_script(lines)
@@ -1438,15 +1443,12 @@ def check_wheel_contents():
 
 def install_pycfml_from_wheel():
     project_name = CONFIG['pycfml']['log-name']
-    package_name = PYPROJECT['project']['name']
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
-    wheel_path = os.path.join(_project_path(), wheel_dir)
-    lines = []
+    lines = _find_wheel_lines()
     msg = _echo_msg(f"Installing {project_name} python wheel from '{wheel_dir}'")
     lines.append(msg)
     cmd = CONFIG['template']['install-wheel']
-    cmd = cmd.replace('{PACKAGE}', package_name)
-    cmd = cmd.replace('{PATH}', wheel_path)
+    cmd = cmd.replace('{PATH}', '"$WHEEL_PATH"')
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
