@@ -601,6 +601,20 @@ def add_main_script_header(txt: str):
     header = _echo_header(txt)
     append_to_main_script(header)
 
+def _script_invocation(script_name: str, source_script: bool = False):
+    if source_script:
+        return f'. "$SCRIPT_DIR/{script_name}"'
+    return f'"$SCRIPT_DIR/{script_name}"'
+
+def _write_sectioned_script(script_name: str, sections: list):
+    lines = ['set -e']
+    lines.append('SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"')
+    for header, steps in sections:
+        lines.extend(_echo_header(header))
+        for step_script, source_script in steps:
+            lines.append(_script_invocation(step_script, source_script))
+    _write_lines_to_file(lines, script_name)
+
 def create_wheel_build_script():
     main_script_path = _main_script_path()
     wheel_build_script_path = _wheel_build_script_path()
@@ -609,6 +623,72 @@ def create_wheel_build_script():
     with open(wheel_build_script_path, 'w') as target_file:
         target_file.writelines(lines)
     _fix_file_permissions(wheel_build_script_path)
+
+def create_cfml_build_script():
+    sections = [
+        ('Print some build-specific variables', [('print_build_variables.sh', True)]),
+        (f'Create scripts, {CFML} and {pyCFML} directories', [
+            ('create_cfml_repo_dir.sh', False),
+            ('create_cfml_build_dir.sh', False),
+            ('create_cfml_dist_dir.sh', False),
+            ('create_pycfml_src_dir.sh', False),
+            ('create_pycfml_build_dir.sh', False),
+            ('create_pycfml_dist_dir.sh', False),
+        ]),
+        (f'Download {CFML} repository', [('download_cfml_repo.sh', False)]),
+        (f'Build {CFML} modules', [
+            ('rename_global_deps_file.sh', False),
+            ('build_cfml_modules_obj.sh', False),
+            ('delete_renamed_global_deps_file.sh', False),
+        ]),
+        (f'Build {CFML} static library', [('build_cfml_static_lib.sh', False)]),
+        (f'Make {CFML} distribution', [('move_built_to_cfml_dist.sh', False)]),
+    ]
+    _write_sectioned_script('cfml_build.sh', sections)
+
+def create_cfml_test_script():
+    sections = [
+        ('Print some build-specific variables', [('print_build_variables.sh', True)]),
+        (f'Create and run {CFML} test programs', [('build_cfml_test_programs.sh', False)]),
+    ]
+    _write_sectioned_script('cfml_test.sh', sections)
+
+def create_pycfml_build_script():
+    sections = [
+        ('Print some build-specific variables', [('print_build_variables.sh', True)]),
+        (f'Create {pyCFML} source code', [('create_pycfml_src.sh', False)]),
+        (f'Build {pyCFML} modules', [('build_pycfml_modules_obj.sh', False)]),
+        (f'Build {pyCFML} shared obj / dynamic library', [
+            ('build_pycfml_lib_obj.sh', False),
+            ('build_pycfml_shared_obj_or_dynamic_lib.sh', False),
+        ]),
+        (f'Make {pyCFML} distribution', [
+            ('copy_built_to_pycfml_dist.sh', False),
+            ('change_runpath_for_built_pycfml.sh', False),
+            ('copy_extra_libs_to_pycfml_dist.sh', False),
+            ('copy_py_api_files_to_pycfml_dist.sh', False),
+            ('copy_init_file_to_pycfml_dist.sh', False),
+            ('copy_cfml_databases_to_pycfml_dist.sh', False),
+        ]),
+        (f'Create Python package wheel of {pyCFML}', [
+            ('validate_pyproject_toml.sh', False),
+            ('create_pycfml_python_wheel.sh', False),
+            ('rename_pycfml_python_wheel.sh', False),
+            ('detect_abi3_violations.sh', False),
+            ('check_wheel_contents.sh', False),
+        ]),
+    ]
+    _write_sectioned_script('pycfml_build.sh', sections)
+
+def create_pycfml_test_script():
+    sections = [
+        (f'Install {pyCFML} from Python package wheel', [('install_pycfml_from_wheel.sh', False)]),
+        (f'Run {pyCFML} tests', [
+            ('run_pycfml_unit_tests.sh', False),
+            ('run_pycfml_functional_tests_no_benchmarks.sh', False),
+        ]),
+    ]
+    _write_sectioned_script('pycfml_test.sh', sections)
 
 def print_build_variables():
     lines = []
@@ -1706,5 +1786,10 @@ if __name__ == '__main__':
     run_pycfml_functional_tests_no_benchmarks()
     run_pycfml_functional_tests_with_benchmarks_save()
     run_pycfml_functional_tests_with_benchmarks_compare()
+
+    create_cfml_build_script()
+    create_cfml_test_script()
+    create_pycfml_build_script()
+    create_pycfml_test_script()
 
     _print_msg(f'All scripts were successfully created in {_scripts_path()}')

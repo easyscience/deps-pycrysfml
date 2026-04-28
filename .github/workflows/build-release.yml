@@ -153,12 +153,12 @@ jobs:
           scripts/create_pycfml_python_wheel.sh
           scripts/rename_pycfml_python_wheel.sh
 
-      - name: Fix Python package wheel dependencies
-        if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          pip install delocate
-          #delocate-wheel -v ${{ steps.wheel_dir.outputs.value }}/*.whl
+      #- name: Fix Python package wheel dependencies
+      #  if: runner.os == 'macOS'
+      #  shell: bash
+      #  run: |
+      #    pip install delocate
+      #    #delocate-wheel -v ${{ steps.wheel_dir.outputs.value }}/*.whl
 
       - name: Check Python package wheel of pyCFML
         shell: bash

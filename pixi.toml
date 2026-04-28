@@ -2,12 +2,11 @@
 channels = ["conda-forge"]
 platforms = ["osx-arm64", "win-64", "linux-64"]
 
-[dependencies]
-#python = "3.12.*"
-python = "3.14.*"
-
 [system-requirements]
 macos = "14.0"
+
+[dependencies]
+python = "3.14.*"
 
 [feature.dev.pypi-dependencies]
 pip = '*'
@@ -24,11 +23,13 @@ matplotlib = '*'
 default = ["dev"]
 wheeltest = ["wheeltest"]
 
-[tasks]
-scripts = { cmd = "python pybuild.py --create-scripts --enable-backslash-escapes", description = "Generate build and test shell scripts in the dev environment" }
-scripts-fresh = { cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo", description = "Generate scripts for a maintainer CFML refresh from the configured branch" }
-build = { cmd = "scripts/main.sh", description = "Run the full local build and test pipeline in the dev environment" }
-benchmark = { cmd = "scripts/run_pycfml_functional_tests_with_benchmarks_save.sh", description = "Save local benchmark results in the dev environment" }
+[tasks.scripts]
+cmd = "python pybuild.py --create-scripts --enable-backslash-escapes"
+description = "Generate build and test shell scripts in the dev environment"
+
+[tasks.scripts-fresh]
+cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo"
+description = "Generate scripts for a maintainer CFML refresh from the configured branch"
 
 [tasks.cfml-refresh]
 cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo && scripts/create_cfml_repo_dir.sh && scripts/download_cfml_repo.sh"
@@ -44,31 +45,33 @@ cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-dow
 args = ["commit", { arg = "branch", default = "master" }]
 description = "Refresh vendored CFML from a specific commit"
 
-[tasks.wheel-build]
-cmd = "scripts/wheel_build.sh"
-depends-on = ["scripts"]
-description = "Build and validate the local wheel without installing it"
+[tasks.cfml-build]
+cmd = "scripts/cfml_build.sh"
+description = "Build CFML modules, static library, and distribution"
 
-[tasks._wheel-smoke]
-cmd = 'scripts/install_pycfml_from_wheel.sh && python -c "import pycrysfml; from pycrysfml import cfml_py_utilities"'
+[tasks.cfml-test]
+cmd = "scripts/cfml_test.sh"
+description = "Create and run CFML test programs"
+
+[tasks.pycfml-build]
+cmd = "scripts/pycfml_build.sh"
+description = "Build pyCFML, assemble the package, and create the wheel"
+
+[tasks.pycfml-test]
+cmd = "scripts/pycfml_test.sh"
 default-environment = "wheeltest"
-description = "Install the built wheel in the clean wheeltest environment and smoke-test imports"
+description = "Install the built wheel in the clean environment and run tests"
 
-[tasks._wheel-import-test]
-cmd = 'scripts/install_pycfml_from_wheel.sh && pytest tests/unit_tests/pyCFML/import/test__import.py --color=yes --benchmark-disable'
-default-environment = "wheeltest"
-description = "Install the built wheel in the clean wheeltest environment and run the import unit test"
-
-[tasks.wheel-smoke]
+[tasks.full]
 depends-on = [
-	{ task = "wheel-build", environment = "default" },
-	{ task = "_wheel-smoke", environment = "wheeltest" },
+	{ task = "scripts", environment = "default" },
+	{ task = "cfml-build", environment = "default" },
+	{ task = "cfml-test", environment = "default" },
+	{ task = "pycfml-build", environment = "default" },
+	{ task = "pycfml-test", environment = "wheeltest" },
 ]
-description = "Build the wheel in the dev environment and smoke-test imports in the clean wheeltest environment"
+description = "Run the full local build and test pipeline in the dev environment"
 
-[tasks.wheel-import-test]
-depends-on = [
-	{ task = "wheel-build", environment = "default" },
-	{ task = "_wheel-import-test", environment = "wheeltest" },
-]
-description = "Build the wheel in the dev environment and run the import unit test in the clean wheeltest environment"
+[tasks.benchmark]
+cmd = "scripts/run_pycfml_functional_tests_with_benchmarks_save.sh"
+description = "Save local benchmark results in the dev environment"
