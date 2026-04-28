@@ -24,6 +24,10 @@ dist
 repo
 scripts
 
+!repo/
+!repo/CFML/
+!repo/CFML/**
+
 # Misc
 .benchmarks/local
 

@@ -587,14 +587,16 @@ def print_build_variables():
 def create_cfml_repo_dir():
     repo_dir = CONFIG['cfml']['dir']['repo']
     repo_path = os.path.join(_project_path(), repo_dir)
+    repo_src_dir = CONFIG['cfml']['dir']['repo-src']
+    repo_src_path = os.path.join(_project_path(), repo_src_dir)
     lines = []
-    msg = _echo_msg(f"Deleting build dir '{repo_dir}'")
+    msg = _echo_msg(f"Preparing source dir '{repo_dir}'")
     lines.append(msg)
-    cmd = f'rm -rf {repo_path}'
+    cmd = f'if [ -d "{repo_src_path}" ]; then {_echo_cmd()} "{MSG_COLOR}:::::: Reusing existing local {CONFIG['cfml']['log-name']} sources in {repo_dir}{COLOR_OFF}"; else mkdir -p "{repo_path}"; fi'
     lines.append(cmd)
-    msg = _echo_msg(f"Creating build dir '{repo_dir}'")
+    msg = _echo_msg(f"Ensuring source dir '{repo_dir}' exists")
     lines.append(msg)
-    cmd = f'mkdir -p {repo_path}'
+    cmd = f'mkdir -p "{repo_path}"'
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
@@ -606,7 +608,12 @@ def download_cfml_repo():
     branch = CONFIG['cfml']['git']['branch']
     out_dir = CONFIG['cfml']['dir']['repo']
     out_path = os.path.abspath(out_dir)
+    src_dir = CONFIG['cfml']['dir']['repo-src']
+    src_path = os.path.abspath(src_dir)
     lines = []
+    msg = _echo_msg(f"Checking for existing local {project_name} sources in '{out_dir}'")
+    lines.append(msg)
+    lines.append(f'if [ -d "{src_path}" ]; then {_echo_cmd()} "{MSG_COLOR}:::::: Using local {project_name} sources from {out_dir}{COLOR_OFF}"; exit 0; fi')
     msg = _echo_msg(f"Downloading {project_name} ('{branch}' branch) to '{out_dir}' from {url}")
     lines.append(msg)
     cmd = CONFIG['template']['clone-repo']

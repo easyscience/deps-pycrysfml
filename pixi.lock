@@ -1333,22 +1333,22 @@ packages:
   requires_python: '>=3.10'
 - pypi: ./
   name: pycrysfml
-  version: 0.4.0
-  sha256: da93897184fc46bffbf2758c5a9554acc10195299105f327fbbbef6cf2482c11
+  version: 0.4.0+dev5
+  sha256: 3914d5bc94faa0697b3500f7f8d40ba0c4bf49bd461dc68339589a131c7df0fa
   requires_dist:
   - numpy
+  - abi3audit ; extra == 'ci'
+  - build ; extra == 'ci'
+  - check-wheel-contents ; extra == 'ci'
+  - colorama ; extra == 'ci'
   - toml ; extra == 'ci'
   - validate-pyproject[all] ; extra == 'ci'
-  - build ; extra == 'ci'
   - wheel ; extra == 'ci'
-  - check-wheel-contents ; extra == 'ci'
-  - abi3audit ; extra == 'ci'
-  - colorama ; extra == 'ci'
   - deepdiff ; extra == 'test'
+  - matplotlib ; extra == 'test'
+  - pygit2 ; extra == 'test'
   - pytest ; extra == 'test'
   - pytest-benchmark ; extra == 'test'
-  - pygit2 ; extra == 'test'
-  - matplotlib ; extra == 'test'
   requires_python: '>=3.11,<3.15'
 - pypi: https://files.pythonhosted.org/packages/f3/0a/fd7d723f8f8153418fb40cf9c940e82004fce7e987026b08a68a36dd3fe7/pydantic-2.13.3-py3-none-any.whl
   name: pydantic
