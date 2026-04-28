@@ -1,0 +1,108 @@
+# Creates or updates the draft GitHub release after a successful
+# release-mode build on the default branch.
+
+name: Release draft update
+
+on:
+  workflow_run:
+    workflows: ['release-build-and-test']
+    types: [completed]
+  workflow_dispatch:
+
+# Opt into Node.js 24 for all JavaScript actions.
+# Remove once all referenced actions natively target Node 24.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  draft-release-notes:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       (github.event.workflow_run.head_branch == 'master' ||
+        github.event.workflow_run.head_branch == 'main'))
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository (workflow run)
+        if: ${{ github.event_name == 'workflow_run' }}
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0 # full history with tags to get the version number
+
+      - name: Checkout repository (manual)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # full history with tags to get the version number
+
+      - name: Setup easyscience[bot]
+        id: bot
+        uses: ./.github/actions/setup-easyscience-bot
+        with:
+          app-id: ${{ vars.EASYSCIENCE_APP_ID }}
+          private-key: ${{ secrets.EASYSCIENCE_APP_KEY }}
+
+      - name: Checkout repository (with bot token)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ steps.bot.outputs.token }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "easyscience[bot]"
+          git config user.email "${{ vars.EASYSCIENCE_APP_ID }}+easyscience[bot]@users.noreply.github.com"
+
+      - name: Drafts the next release notes
+        id: draft
+        uses: enhantica/drafterino@v2
+        with:
+          config: |
+            title: 'pycrysfml $COMPUTED_VERSION'
+            tag: 'v$COMPUTED_VERSION'
+            note-template: '- $PR_TITLE (#$PR_NUMBER)'
+
+            default-bump: post
+
+            major-bump-labels: ['[scope] significant']
+            minor-bump-labels: ['[scope] enhancement']
+            patch-bump-labels: ['[scope] bug', '[scope] maintenance']
+            post-bump-labels: ['[scope] documentation']
+
+            release-notes:
+              - title: 'Added'
+                labels: ['[scope] significant', '[scope] enhancement']
+              - title: 'Fixed'
+                labels: ['[scope] bug']
+              - title: 'Changed'
+                labels: ['[scope] maintenance', '[scope] documentation']
+        env:
+          GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
+
+      - name: Create release tag
+        env:
+          TAG_NAME: ${{ steps.draft.outputs.tag_name }}
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG_NAME}" >/dev/null 2>&1; then
+            echo "Tag ${TAG_NAME} already exists on origin"
+          else
+            git tag "${TAG_NAME}" HEAD
+            git push origin "${TAG_NAME}"
+          fi
+
+      - name: Create GitHub draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          tag_name: ${{ steps.draft.outputs.tag_name }}
+          name: ${{ steps.draft.outputs.release_name }}
+          body: ${{ steps.draft.outputs.release_notes }}
+          target_commitish: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+        env:
+          GITHUB_TOKEN: ${{ steps.bot.outputs.token }}

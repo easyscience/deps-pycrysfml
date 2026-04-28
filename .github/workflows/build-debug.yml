@@ -39,6 +39,8 @@ jobs:
     steps: # job steps
       - name: Check-out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history with tags is required for versioningit
 
       - name: Set up Fortran compiler (FC) [all except Windows + gfortran] # except: use pre-installed gfortran
         if: runner.os != 'Windows' || matrix.toolchain.exe != 'gfortran'
@@ -144,10 +146,10 @@ jobs:
           scripts/copy_init_file_to_pycfml_dist.sh
           scripts/copy_cfml_databases_to_pycfml_dist.sh
 
-      - name: Declare env variables needed for Python package wheel
+      - name: Resolve wheel directory
+        id: wheel_dir
         shell: bash
-        run: |
-          echo "WHEEL_DIR=$(python3 pybuild.py --print-wheel-dir)" >> $GITHUB_ENV
+        run: echo "value=$(python3 pybuild.py --print-wheel-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Create Python package wheel of pyCFML
         shell: bash
@@ -161,7 +163,7 @@ jobs:
         shell: bash
         run: |
           pip install delocate
-          #delocate-wheel -v ${{ env.WHEEL_DIR }}/*.whl
+          #delocate-wheel -v ${{ steps.wheel_dir.outputs.value }}/*.whl
 
       - name: Check Python package wheel of pyCFML
         shell: bash
@@ -189,7 +191,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:  # if name or path modified, remember to UPDATE those in the download step of the next job
           name: pycfml-wheel_${{ matrix.os }}_${{ matrix.toolchain.exe }} # name (without .zip) of the zip file to be uploaded
-          path: ${{ env.WHEEL_DIR }}  # all files in this directory will be zipped
+          path: ${{ steps.wheel_dir.outputs.value }}  # all files in this directory will be zipped
           if-no-files-found: "error"
           compression-level: 0
 
@@ -248,15 +250,16 @@ jobs:
           --bash-syntax
           --enable-backslash-escapes
 
-      - name: Prepare for downloading Python package wheel of pyCFML
+      - name: Resolve wheel directory
+        id: wheel_dir
         shell: bash
-        run: echo "WHEEL_DIR=$(python3 pybuild.py --print-wheel-dir)" >> $GITHUB_ENV
+        run: echo "value=$(python3 pybuild.py --print-wheel-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Download zipped pyCFML wheel from previous job
         uses: actions/download-artifact@v4
         with:  # name or path are taken from the upload step of the previous job
           name: pycfml-wheel_${{ matrix.os }}_${{ matrix.toolchain.exe }}  # name (without .zip) of the zipped artifact uploaded on the previous jobs
-          path: ${{ env.WHEEL_DIR }}  # directory to extract downloaded zipped artifacts
+          path: ${{ steps.wheel_dir.outputs.value }}  # directory to extract downloaded zipped artifacts
 
       - name: Install pyCFML from downloaded Python package wheel
         shell: bash
