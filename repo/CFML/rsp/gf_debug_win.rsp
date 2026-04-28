@@ -1,0 +1,4 @@
+options install --prefix gfortran_fpm_debug_win
+options --profile debug
+options --compiler gfortran
+options --flag "-Wno-conversion -Wno-character-truncation -Wno-maybe-uninitialized -fdec-math -fbacktrace  -ffree-line-length-none -fall-intrinsics -static -I ../../wint/lib.gnu64/8.1"

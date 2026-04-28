@@ -1,0 +1,157 @@
+PHASE_Ho2BaCuO5   1
+  !        a           b          c     alpha    beta   gamma
+  Cell 12.177598  11.323529   7.122767  90.000  90.000  90.000
+  !     
+  ! Space Group  From standard
+  SHUB  P2_1'/c :: -a-c,a,-b;3/4,0,0
+  !                      x           y              z           B       
+  Atom Ho1_1  JHO3   0.28692(20)   0.12500       0.1167(3)     0.58(6)  Moment:  7.4566    0.5358    0.8398
+  Atom Ho1_2  JHO3   0.28692(20)   0.62500       0.1167(3)     0.58(6)  Moment: -2.5919   -0.5358    3.0902
+  Atom Ho2_1  JHO3   0.07457(11)   0.12500       0.3963(2)     0.95(6)  Moment:  0.8997    0.0526   -8.6368
+  Atom Ho2_2  JHO3   0.07457(11)   0.62500       0.3963(2)     0.95(6)  Moment:  0.9688   -0.0526   -8.7583
+  Atom Cu_1   MCU2   0.66008       0.12500       0.7106(4)     1.15(7)  Moment: -0.6126    0.0000    0.5162
+  Atom Cu_2   MCU2   0.66008       0.62500       0.7106(4)     1.15(7)  Moment:  0.5555    0.0000    0.3827
+  Atom Ba_1   BA     0.9061(4)     0.12500       0.9273(5)     0.63(9)    
+  Atom Ba_2   BA     0.9061(4)     0.62500       0.9273(5)     0.63(9)    
+  Atom O1_1   O      0.4334(2)     0.9959(2)     0.1663(2)     1.22(6)    
+  Atom O1_2   O      0.4334(2)     0.4959(2)     0.1663(2)     1.22(6)    
+  Atom O1_3   O      0.9334(2)     0.2541(2)     0.3337(2)     1.22(6)    
+  Atom O1_4   O      0.9334(2)     0.7541(2)     0.3337(2)     1.22(6)    
+  Atom O2_1   O      0.22743(18)   0.75305       0.35570       1.27(7)    
+  Atom O2_2   O      0.22743(18)   0.25305       0.35570       1.27(7)    
+  Atom O2_3   O      0.72743(18)   0.49695       0.14430       1.27(7)    
+  Atom O2_4   O      0.72743(18)   0.99695       0.14430       1.27(7)    
+  Atom O3_1   O      0.1020(3)     0.12500       0.0814(5)     1.22(9)    
+  Atom O3_2   O      0.1020(3)     0.62500       0.0814(5)     1.22(9)    
+
+  Contributes_to_patterns  1  2  3   4
+  
+  ScaleFactors  1.313  0.003  0.456   0.00122
+  Pat2_ndomains  4 
+     domain_fracts 0.12  0.48  0.24  0.26
+  
+  
+  Iso_SIZE    950  Iso_SIZE_GaussFract 0.11
+  Iso_STRAIN  0.2  Iso_STRAIN_LorentzFract 0.23 
+
+END_PHASE_Ho2BaCuO5
+
+PHASE_PbSO4   2
+ 
+   Cell 8.478356   5.396669   6.957969  90.000000  90.000000  90.000000
+   SPGR  P n m a                 
+  !    Atom Typ         X        Y        Z      Biso       Occ      
+   Atom Pb   PB      0.18789  0.25000  0.16720  0.50000   0.50000  
+   Atom S    S       0.06455  0.25000  0.68498  0.50000   0.50000  
+   Atom O1   O       0.90867  0.25000  0.59565  0.50000   0.50000  
+   Atom O2   O       0.19308  0.25000  0.54286  0.50000   0.50000  
+   Atom O3   O       0.08073  0.02709  0.80841  0.50000   1.00000  
+  
+   Contributes_to_patterns  1  4
+   ScaleFactors  0.1211  0.23
+   Iso_SIZE    450  Iso_SIZE_GaussFract 0.11
+
+END_PHASE_PbSO4
+
+PHASE_LeBail   3  !If there is no atom the phase is treated automatically in LeBail mode
+                  !If the user wants to use a LeBail fit using atoms to bias the initial 
+                  !intensities the keyword "LeBail" should appear within the PHASE_ block
+   Cell 3.478356   3.478356   6.957969  90.000000  90.000000  90.000000
+   SPGR  P 4/m m m                    
+   Contributes_to_patterns  1  4
+   Iso_SIZE    450  Iso_SIZE_GaussFract 0.11
+   
+END_PHASE_LeBail
+!======================================================
+PATTERN_NeutronCW  1
+  Patt_Type   Neutrons Powder CW 
+  Zero  0.021    sycos 0.0    sysin 0.0
+  !!!  UVWX    1.689272  -1.090878 0.343690  0.00
+  Profile_function  TCH_pVoigt
+  Format_file: xys !Panalytical_formats, xye, Socabim, old_d1a, g41,  etc.
+  POWFILE  Neutron_pattern.xys
+  RANGE   10.00        0.1      90.00
+  LAMBDA    2.524
+  BACKGD   
+     Linear_interpolation 6 
+      2.00   341.0
+     10.00   322.0
+     30.00   298.0
+     
+     60.00   290.0
+     80.00   288.0
+     90.00   288.0
+   
+ END_BACKGD 
+  
+  IRF_type  1
+  IRF_File  MyIRF_file.irf
+  
+  EXCLUDED_REGIONS
+       0.00    2.00
+      90.00  180.00
+  END_EXCLUDED_REGIONS
+  
+END_PATTERN_NeutronCW
+
+!=============================================
+PATTERN_SXtalNeutrons 2
+  Patt_Type   Neutrons Integrated_Intensities CW 
+  HKLFILE  HoBaCuO.int
+  LAMBDA    0.824  
+END_PATTERN_SXtalNeutrons
+
+!=============================================
+PATTERN_NeutronTOF  3
+  Patt_Type   Neutrons Powder TOF 
+  Profile_function  TCH_convol_Back2BackExp
+  Zero  21.021    dtt1  321410.0    dtt2 0.0  dtt_1OverQ 0.0
+  sigm2   231.689272  sigm1 -1.090878 sigm0 0.343690 
+  gam2  0.0  gam1 12.22 gam0 0.0  
+  
+  POWFILE  Neutron_pattern.xys
+  RANGE   21130.00        4.55     521346.0    !Initial_val  step  Final_val
+  bank_angle    90.0
+  BACKGD   
+    Linear_interpolation
+     21345.00   341.0
+     91345.00   322.0
+    121345.00   298.0
+    221345.00   290.0
+    321345.00   288.0
+    521345.00   288.0
+  END_BACKGD 
+  
+  EXCLUDED_REGIONS
+     21345.00    31322.00
+    521345.00   600000.00
+  END_EXCLUDED_REGIONS
+  
+END_PATTERN_NeutronTOF
+
+!=============================================
+PATTERN_myXray 4
+  Patt_Type   X-rays Powder 
+  Zero  0.0021    sycos 0.0    sysin 0.0
+  UVWX    0.089272  -0.010878 0.043690  0.00
+  Profile_function  TCH_pVoigt
+  SD_SL  0.021`  0.0
+  POWFILE  X-ray_pattern.xys
+  RANGE   10.00        0.1      90.00
+  LAMBDA    1.5056  1.5444
+  BACKGD   
+   Chebychev 6  
+   231.1   1.2   -3.2  0.1   0.3  5.21
+   
+   Peaks_pVoigt 2
+   !    Position    Intensity   FWHM 
+         23.123     432.211      3.2
+         13.045      32.211      6.2
+  END_BACKGD
+  EXCLUDED_REGIONS
+       0.00    5.45
+     123.00  180.00
+  END_EXCLUDED_REGIONS  
+END_PATTERN_myXray
+
+

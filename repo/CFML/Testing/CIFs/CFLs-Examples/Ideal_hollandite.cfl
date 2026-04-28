@@ -1,0 +1,17 @@
+!
+Title  Ideal Hollandite (Priderite structure)
+!
+Cell    9.2591(5)  9.2591(5)  2.7245(5)  90.00000  90.00000  90.00000
+!
+SpGR  I 4/m
+!
+!  Atom-strings in the order: Label, Species, x, y, z, Biso, Occ [,2*Spin, charge]
+Atom Sr1  Sr+2    0.04076(6)   0.33441(6)    0       0.52(2)     
+Atom Sr2  Sr+2        0           0        0.18(2)   1.9(5)      
+Atom Mn   Mn+3    0.85138(1)   0.33235(1)    0       0.600(8)     
+Atom O1   O-2     0.65498(6)   0.29604(6)    0       0.49(2)    
+Atom O2   O-2     0.04076(6)   0.33441(6)    0       0.54(2)      
+!
+!!!!index  2
+!!!!full
+transf    2a+2b,-2a+2b,2c;0,0,0

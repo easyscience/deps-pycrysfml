@@ -1,0 +1,107 @@
+TITLE   FeTe2O5Br
+SPGR   P 21/C
+CELL  12.9815   6.5745  14.2897  90. 108.30 90.
+!    Lab  Scatt       x        y       z      Biso     Occ
+ATOM Fe1   FE      0.11843  0.00120  0.9734 0.00000 1.00000
+ATOM Fe5   FE      0.93770  0.29530  0.8562 0.00000 1.00000
+ATOM Te1   TE     -0.1120  -0.3120  -0.7192 0.00000 1.00000
+ATOM Te2   TE     -0.3645   0.4682  -0.6398 0.00000 1.00000
+ATOM Te3   TE     -0.2007  -0.0200  -0.5200 0.00000 1.00000
+ATOM Te4   TE     -0.2795   0.2879  -0.3581 0.00000 1.00000
+ATOM Br1   BR     -0.43231  0.7167  -0.5413 0.00000 1.00000
+ATOM Br2   BR     -0.38243  0.6418  -0.2754 0.00000 1.00000
+ATOM O1     O      0.0905   0.3018  -0.0525 0.00000 1.00000
+ATOM O2     O     -0.0354   0.9884  -0.1025 0.00000 1.00000
+ATOM O3     O     -0.2287   0.5897  -0.5931 0.00000 1.00000
+ATOM O4     O     -0.2108   0.2287  -0.2258 0.00000 1.00000
+ATOM O5     O     -0.1874   0.4826  -0.3785 0.00000 1.00000
+ATOM O6     O      0.2106   0.5535  -0.1096 0.00000 1.00000
+ATOM O7     O      0.1088   0.7117   0.0203 0.00000 1.00000
+ATOM O8     O      0.0140   0.7581  -0.2432 0.00000 1.00000
+ATOM O9     O     -0.1021   0.5790  -0.1368 0.00000 1.00000
+ATOM O10    O     -0.3323   0.2596  -0.5435 0.00000 1.00000
+
+Mag_Structure
+!
+lattiCE P
+kvect   0.5000000   0.46300   0.0
+!spherical !Rm      Rphi  Rtheta
+magcent
+magdom  u, v, w, 0.01 : 0.1 0.4
+magdom -u, v,-w, 0.01 : 0.4 0.1
+magdom  u, v, w, 0.01 : 0.240 0.189
+magdom -u, v,-w, 0.01 : 0.289 0.281
+magdom  u, v, w, 0.01 : 0.041 0.311
+magdom -u, v,-w, 0.01 : 0.100 0.548
+magdom  u, v, w, 0.01 : 0.50 0.50
+!
+symm  x,y,z
+msym  u,v,w, 0.0
+matom Fe1 MFE3     0.11843 0.00120  0.97341 0.00000 1.000
+skp       1  1     3.91 4.10  2.59 -1.61  1.99 -0.08  0.0
+matom Fe2 MFE3    -0.11843 -.00120 -0.97341 0.00000 1.000
+skp       1  1     3.91 4.10  2.59 -1.61  1.99 -0.08  0.036
+matom Fe3 MFE3    -0.11843 0.50120 -0.47341 0.00000 1.000
+skp       1  1     3.91 4.10  2.59 -1.61  1.99 -0.08  0.166
+matom Fe4 MFE3     0.11843 0.49880  1.47341 0.00000 1.000
+skp       1  1     3.91 4.10  2.59 -1.61  1.99 -0.08  0.212
+matom Fe5 MFE3     0.9377   0.2953  0.8562  0.00000 1.000
+skp       1  1     3.91 4.10  2.59 -1.61  1.99 -0.08  0.527
+matom Fe6 MFE3    -0.9377  -0.2953 -0.8562  0.00000 1.000
+skp       1  1     3.91 4.10  2.59 -1.61  1.99 -0.08  0.461
+matom Fe7 MFE3    -0.9377   0.7953 -0.3562  0.00000 1.000
+skp       1  1     3.91 4.10  2.59 -1.61  1.99 -0.08  0.733
+matom Fe8 MFE3     0.9377   0.2047  1.3562  0.00000 1.000
+skp       1  1     3.91 4.10  2.59 -1.61  1.99 -0.08  0.683
+!
+End_Mag_Structure
+
+! Codes for refinement
+!vary Rx_Fe1 0 3 0.1 1 Ry_Fe1 0 4 0.2 1 Rz_Fe1 0 5 0.3 1
+!vary Rx_Fe5 0 3 0.1 1 Ry_Fe5 0 4 0.2 1 Rz_Fe5 0 5 0.3 1
+!vary Rxyz 0 3 0.01 1
+!vary Ixyz 0 3 0.01 1
+!equal Rx_Fe1 Rx_Fe2 Rx_Fe3 Rx_Fe4 Rx_Fe5 Rx_Fe6 Rx_Fe7 Rx_Fe8
+!equal Ry_Fe1 Ry_Fe2 Ry_Fe3 Ry_Fe4 Ry_Fe5 Ry_Fe6 Ry_Fe7 Ry_Fe8
+!equal Rz_Fe1 Rz_Fe2 Rz_Fe3 Rz_Fe4 Rz_Fe5 Rz_Fe6 Rz_Fe7 Rz_Fe8
+!equal Ix_Fe1 Ix_Fe2 Ix_Fe3 Ix_Fe4 Ix_Fe5 Ix_Fe6 Ix_Fe7 Ix_Fe8
+!equal Iy_Fe1 Iy_Fe2 Iy_Fe3 Iy_Fe4 Iy_Fe5 Iy_Fe6 Iy_Fe7 Iy_Fe8
+!equal Iz_Fe1 Iz_Fe2 Iz_Fe3 Iz_Fe4 Iz_Fe5 Iz_Fe6 Iz_Fe7 Iz_Fe8
+vary MagPh_Fe2 0 1 0.2 1 MagPh_Fe3 0 1 0.2 1 MagPh_Fe4 0 1 0.2 1
+vary MagPh_Fe5 0 1 0.2 1 MagPh_Fe6 0 1 0.2 1 MagPh_Fe7 0 1 0.2 1
+vary MagPh_Fe8 0 1 0.2 1
+!
+vary magdom01 magdom02 magdom03 magdom04
+!
+!cryopad_data ori1.pol magdom01 magdom02 magdom03 magdom04
+mupad_data ori1.pol magdom01 magdom02 magdom03 magdom04
+mupad_data ori2.pol magdom05 magdom06 magdom07 magdom08
+mupad_data ori3.pol magdom09 magdom10 magdom11 magdom12
+F2mag_data fe4.int magdom13 magdom14
+
+WAVE  1.912
+RADIATION NEUTRONS
+
+!OPTIMIZE mupad
+!OPTIMIZE cryopad
+!OPTIMIZE F2mag
+OPTIMIZE F2mag_mupad
+
+! Simulated Annealing conditions
+SIM_ANN
+
+!       Name of the cost function
+CostNam  General_Cost
+
+!         T_ini     anneal     num_temps
+TemParM    25.0       0.90       90
+
+!         Nalgor  Nconf nm_cycl   num_therm   accept%
+Algor_T     0       3   100        0        10.0
+
+!         Value of Seed (if SeedVAL = 0, random seed)
+SeedVAL     0
+!
+Threshold   55.0
+!         Treatment of initial configuration
+InitCON   RAN

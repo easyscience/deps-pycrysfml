@@ -1,0 +1,231 @@
+Title  Si3N4 alpha and beta phases multipattern
+
+PATTERN_NeutronCW_3t2  1
+  Patt_Type   Neutrons Powder CW
+  !         Zero   sycos   sysin
+  Zero_Sy  0.01231  0.0     0.0
+  Profile_function  TCH_pVoigt
+  Format_file 3T2          !Panalytical_formats, xye, Socabim, old_d1a, g41,  etc.
+  PATT_FILE  sin_3t2.dat
+
+
+  BACKGD
+   Chebychev 11
+     134.783      42.693     -21.728      27.751     -26.749      23.987
+     -21.185      17.611     -11.557       5.150      -6.855       2.264
+
+   Peaks 2 split-pseudo-voigt
+   ! Pos   Int    FWHM-left  FWHM-right  eta-left   eta-right
+    13.0   3320.01       3.2      5.8          0.9       0.6
+    48.0   450.01       2.2      6.8          0.9       0.6
+
+  END_BACKGD
+
+  WDT  14.0
+  ASYM  0.00 0.000000
+  LAMBDA  1.225300   1.225300      0.0
+  UVWXY  0.0  0.0  0.0   0.000  0.056401
+  IRF_File  3t2-si3n4.irf
+
+  EXCLUDED_REGIONS
+       0.00    8.00
+  END_EXCLUDED_REGIONS
+
+END_PATTERN_NeutronCW_3t2
+
+PATTERN_NeutronCW_Studvik  2
+  Patt_Type   Neutrons Powder CW
+!  Zero -0.01245;    sycos 0.0;    sysin 0.0  <= This does not work!
+  Zero -0.01245
+  sycos 0.0
+  sysin 0.0
+!  Zero_Sy  -0.01245  0.0     0.0
+  Profile_function  TCH_pVoigt
+  Format_file Free          !Panalytical_formats, xye, xys, Socabim, old_d1a, g41,  etc.
+  PATT_FILE  si3n4r.dat
+  BACKGD
+   Chebychev 11
+     863.075      52.986     144.449     -47.121      39.811     -44.413
+      18.652      -0.747      38.977      -8.913      -6.191      -8.154
+   Peaks 2 pseudo-voigt
+   ! Pos   Int       FWHM      eta
+    10.0   550.01       4.2      0.6
+    43.0   50.01       2.3      0.9
+  END_BACKGD
+
+!   IRF_File  C:\FullProf_Suite\IRF_Files\RX-Lab\lab6n.irf
+  WDT   15.0
+  ASYM  0.000 0.00000
+  LAMBDA  1.225300   1.225300      0.0
+  UVWXY  0.0  0.0  0.0   0.000  0.131861
+  IRF_File  Studsvik.irf
+
+  EXCLUDED_REGIONS
+       0.00    8.00
+  END_EXCLUDED_REGIONS
+
+END_PATTERN_NeutronCW_Studvik
+
+PHASE_Si3N4_alpha   1
+  !        a           b          c      alpha      beta      gamma
+  Cell 7.753403   7.753403   5.620511  90.000000  90.000000 120.000000
+  SPGR  P 3 1 c
+
+  !    Atom   Typ         X        Y        Z      Biso       Occ
+  Atom Si1    SI      0.08221  0.51267  0.65924  0.23226   3.00000
+  Atom Si2    SI      0.25303  0.16787  0.45090  0.32967   3.00000
+  Atom N1     N       0.65550  0.61067  0.43204  0.40639   3.00000
+  Atom N2     N       0.31547  0.31892  0.69739  0.41431   3.00000
+  Atom N3     N       0.33333  0.66667  0.60248  0.47942   1.00000
+  Atom N4     N       0.00000  0.00000  0.45224  0.40618   1.00000
+  !!Molex_Amonium Spherical
+  !!! Centre coordinates    Orientation     Angle_type   Thermal_type
+  !!   0.0  0.0  0.0       23.0  0.2  43.1       P           ISO
+  !!!Atom_name   Chem       r   Theta   Phi    Biso    Occ
+  !!    N         N         0.0   0.0    0.0      0.6     1.0
+  !!    H1        H         1.6   0.0    0.0      1.6     1.0
+  !!    H2        H         1.6 120.0    0.0      1.6     1.0
+  !!    H3        H         1.6 120.0  120.0      1.6     1.0
+  !!    H4        H         1.6 120.0 -120.0      1.6     1.0
+  !!End_Molex_Amonium
+
+
+  Contributes_to_patterns  1  2
+
+  Scale_Factors  0.1975441E-01  0.2370462
+
+  PH_Pattern 1
+     Calc_Type Nuclear
+              !  Value(Angstroms)   Gaussian Fraction
+     Iso_SIZE         950                  0.11
+              !  Value(Angstroms)   Lorentzian Fraction
+     Iso_STRAIN       0.2                  0.23
+     !            Model      axis     Value      Gaussian Fraction
+     Aniso_SIZE  Platelet    0 0 1    0.123              0.11
+     !
+     Aniso_STRAIN  Quartic_Form   Laue "-31m H"
+     !  S_400   S_004    S_220  S_202
+        0.0      0.001     0.0    0.0
+
+     !Pref_OR  2
+     !! Axis    Val  Fract
+     ! 0 0 1   0.78    0.8
+     ! 1 1 0   1.10    0.2
+  END_PH_Pattern
+
+  PH_Pattern 2
+     Calc_Type Nuclear
+     Iso_SIZE    950  0.11
+     Iso_STRAIN  0.2  0.23
+     !            Model      axis     Value
+     Aniso_SIZE  Platelet   0 0 1    0.123
+     !
+     Aniso_STRAIN  Quartic_Form   "-31m H"
+     !  S_400   S_004    S_220  S_202
+        0.0      0.001     0.0    0.0
+
+     !Pref_OR     1
+     !! Axis    Val  Fract
+     ! 0 0 1   0.98    0.7
+     ! 1 1 0   0.90    0.3
+  END_PH_Pattern
+
+END_PHASE_Si3N4_alpha
+
+PHASE_Si3N4_beta    2
+   !
+   cell  7.606048   7.606048   2.907635  90.000000  90.000000 120.000000
+   SPGR  P 63/m
+    !    Atom   Typ         X        Y        Z      Biso       Occ
+   Atom   Si     Si      0.18058  0.77469  0.25000  0.71471   3.00000
+   Atom   N1     N       0.33162  0.03167  0.25000  0.67746   3.00000
+   Atom   N2     N       0.33333  0.66667  0.25000  0.89315   1.00000
+   !!Molex_Amonium Spherical
+   !!! Centre coordinates    Orientation     Angle_type   Thermal_type
+   !!   0.0  0.0  0.0       23.0  0.2  43.1       P           ISO
+   !!!Atom_name   Chem       r   Theta   Phi    Biso    Occ
+   !!    N         N         0.0   0.0    0.0      0.6     1.0
+   !!    H1        H         1.6   0.0    0.0      1.6     1.0
+   !!    H2        H         1.6 120.0    0.0      1.6     1.0
+   !!    H3        H         1.6 120.0  120.0      1.6     1.0
+   !!    H4        H         1.6 120.0 -120.0      1.6     1.0
+   !!End_Molex_Amonium
+
+   !!Molex_Methane Spherical
+   !!! Centre coordinates    Orientation     Angle_type   Thermal_type
+   !!   0.0  0.0  0.0       23.0  0.2  43.1       P           ISO
+   !!!Atom_name   Chem       r   Theta   Phi    Biso    Occ
+   !!    C         C         0.0   0.0    0.0      0.6     1.0
+   !!    H1        H         1.6   0.0    0.0      1.6     1.0
+   !!    H2        H         1.6 120.0    0.0      1.6     1.0
+   !!    H3        H         1.6 120.0  120.0      1.6     1.0
+   !!    H4        H         1.6 120.0 -120.0      1.6     1.0
+   !!End_Molex_Methane
+
+    Contributes_to_patterns  1  2
+    Scale_Factors  0.1968744E-02  0.2485666E-01
+    Iso_SIZE    450  0.05
+
+    
+    PH_Pattern 1
+     Calc_Type Nuclear
+    END_PH_Pattern
+    
+    PH_Pattern 2
+     Calc_Type Nuclear
+       Iso_SIZE    950;  Iso_SIZE_GaussFract 0.11
+       Iso_STRAIN  0.2;  Iso_STRAIN_LorentzFract 0.23
+       !            Model      axis     Value
+       Aniso_SIZE  Platelet   0 0 1    0.123
+       !
+       Aniso_STRAIN  Quartic_Form     "6/m"
+       !  S_400   S_004    S_220  S_202
+          0.0      0.001     0.0    0.0
+
+       !Pref_OR  2   1
+       !! Axis    Val  Fract
+       ! 0 0 1   0.98    0.7
+       ! 1 1 0   0.90    0.3
+    END_PH_Pattern
+    
+END_PHASE_Si3N4_beta
+
+COMMANDS
+
+  Phase_Si3N4_alpha
+    VARY cell
+    VARY xyz
+    !VARY mxmymz
+    VARY Iso_SIZE
+    VARY Iso_SIZE_GaussFract
+    FIX Iso_STRAIN_LorentzFract 0.0
+    VARY Iso_STRAIN
+
+    ! Instructions for refining parameters that depend on the pattern
+    VARY Scale_Factors
+  End_Phase_Si3N4_alpha
+
+ Phase_Si3N4_beta
+    VARY xyz
+    FIX xyz O1
+    VARY biso
+    EQUAL b_O1 b_O2 b_O3
+  End_Phase_Si3N4_beta
+
+  Pattern_NeutronCW_3t2
+    VARY ZERO
+  End_Pattern_NeutronCW_3t2
+
+  Pattern_NeutronCW_Studvik
+    VARY ZERO
+  End_Pattern_NeutronCW_Studvik
+
+END_COMMANDS
+
+!CALCULATION_TYPE  simulation
+!CALCULATION_TYPE  refinement
+
+!OPTIMIZATION_ALGORITHM  ODR (Orthogonal Distance Regression), Simulated_Annealing, Levenberg-Marquardt, Gauss-Newton, Divide&Conquer
+!LSQ_Conditions: Ncycles, MaxFun, Numerical/Analytical Derivatives
+!SANN_Conditions
+!ODR_conditions

@@ -1,0 +1,16 @@
+FROM ci_crysfml_xenial_gfortran_f2008
+
+SHELL ["/bin/bash", "-c"]
+
+ARG CI_COMMIT_SHORT_SHA
+ARG CI_COMMIT_REF_NAME
+
+ENV CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA}
+ENV CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME}
+
+COPY ./ /app/
+WORKDIR /app
+
+ENV CRYSFML08=${WORKDIR}
+
+CMD BuildServer/Unix/build_F2008.sh gfortran && cp -a build_gfortran_F2008 /artifacts/

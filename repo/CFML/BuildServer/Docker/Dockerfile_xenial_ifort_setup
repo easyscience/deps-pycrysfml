@@ -1,0 +1,29 @@
+FROM ubuntu:xenial
+
+ENV https_proxy http://proxy.ill.fr:8888
+ENV http_proxy http://proxy.ill.fr:8888
+
+ENV PATH=/opt/intel/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/intel/lib/intel64
+
+# Install recent cmake (3.17)
+# https://askubuntu.com/questions/355565/how-do-i-install-the-latest-version-of-cmake-from-the-command-line
+# So need to install software-properties-common to add kitware repo https://askubuntu.com/questions/493460/how-to-install-add-apt-repository-using-the-terminal
+# So need to install apt-transport-https https://unix.stackexchange.com/questions/263801/apt-get-fails-the-method-driver-usr-lib-apt-methods-https-could-not-be-found
+RUN apt-get update && apt-get install -y wget \
+                       software-properties-common \
+                       apt-transport-https && \
+    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add - && \
+    apt-add-repository 'deb https://apt.kitware.com/ubuntu/ xenial main' && \
+    apt-get update && apt-get install -y cmake
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get update && apt-get install -y python3.7-dev
+RUN apt-get update && apt-get install -y doxygen \
+                                         graphviz \
+                                         libaec-dev \
+                                         libz-dev \
+                                         libsz2
+
+RUN wget https://bootstrap.pypa.io/get-pip.py
+RUN python3.7 get-pip.py
+RUN python3.7 -m pip install numpy colorama

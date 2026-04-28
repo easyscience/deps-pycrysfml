@@ -1,0 +1,70 @@
+TITLE   Ho2BaNiO5 (Symmetry op. of Gk)
+SPGR   I m m m
+CELL     3.754168   5.729970  11.269413  90.000000  90.000000  90.000000
+!    Lab  Scatt       x        y       z      Biso     Occ
+ATOM BA    BA      0.50000  0.50000  0.00000 0.51197 0.12500
+ATOM HO    HO      0.50000  0.00000  0.20255 0.51197 0.25000
+ATOM NI    NI      0.00000  0.00000  0.00000 0.51197 0.12500
+ATOM O1    O       0.00000  0.24362  0.14953 0.51197 0.50000
+ATOM O2    O       0.50000  0.00000  0.00000 0.51197 0.12500
+
+Mag_Structure
+!
+lattiCE -I
+kvect   0.000   0.00000   0.0000
+!spherical !Rm      Rphi  Rtheta
+magcent
+magdom   u, v, w, 0.01  : 0.5 0.5
+magdom   u, v, w, 0.01  : 0.5 0.5
+symm  x,y,z
+msym  u,v,w, 0.0
+symm  -x,y,-z
+msym  u,v,w, 0.0
+matom HO  JHO3     0.50000  0.00000  0.20255   0.51197 0.25000
+skp       1  1     0.12700  0.12700  8.99300   1.00000  0.50000  4.00000    0.11000
+matom NI  MNI2     0.00000  0.00000  0.00000   0.51197 0.12500
+skp       1  1     0.58500  0.00000 -1.28600   0.80000  0.80000  0.80000    0.22000
+!
+End_Mag_Structure
+
+! Codes for refinement
+!vary Rx_Ho 0 3 0.1 1 Ry_Ho 0 4 0.2 1 Rz_Ho 0 5 0.3 1
+vary Rxyz  1 9 0.01 1
+equal Rx_Ho Ry_Ho
+!vary MagPh_Ho 0 1 0.2 1
+!vary MagPh_Ni 0 1 0.2 1
+!vary magdom01+ magdom02+ 
+!equal magdom01 magdom03
+!
+cryopad_data mag0.pol magdom01+ magdom01-
+f2mag_data mag0.int magdom02+ magdom02-
+!f2nuc_data nuc.int
+f2magnuc_data magnuc0.int
+
+WAVE  1.912
+RADIATION NEUTRONS
+
+!OPTIMIZE cryopad
+!OPTIMIZE F2mag
+!OPTIMIZE F2mag_mupad
+!SIMULATE F2mag_cryopad
+OPTIMIZE F2mag_cryopad
+
+! Simulated Annealing conditions
+SIM_ANN
+
+!       Name of the cost function
+CostNam  General_Cost
+
+!         T_ini     anneal     num_temps
+TemParM     30.0       0.95       80
+
+!         Nalgor  Nconf nm_cycl   num_therm   accept%
+Algor_T     0       1   50        0        10.0
+
+!         Value of Seed (if SeedVAL = 0, random seed)
+SeedVAL     0
+!
+Threshold   10.0
+!         Treatment of initial configuration
+InitCON   RAN

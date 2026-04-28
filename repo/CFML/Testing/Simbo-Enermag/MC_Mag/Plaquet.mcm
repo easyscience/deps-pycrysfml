@@ -1,0 +1,53 @@
+  Frustrated Triangular Plaquet  (isosceles JJJ')
+  XY   (1-2,1-3:J < 0) (2-3:J')  X=J'/J=2  Change J' at your will
+!NA(sites)  JCod    Z
+    -3        0     1      !No.of Sites( < 0 => no single anisotrpy),Jcod,Z
+!Site Neighb   Dsing_Anis      Dir                   Name      x       y       z
+   1    2         0.0           0 0 0              :: Ni      0.25    0.50    0.0
+!    Nav   Av  Bv  Cv        J
+      2     0   0   0       -1
+      3     0   0   0       -1
+   2    2         0.1           0 0 1              :: Ni      0.75    0.75    0.0
+      1     0   0   0       -1
+      3     0   0   0       -2
+   3    2         0.1           0 0 1              :: Ni      0.75    0.25    0.0
+      1     0   0   0       -1
+      2     0   0   0       -2
+!   Ni    Nf   Spin     ScattFact
+     1     3  2.0000     MNI3
+!     a          b          c        alpha       beta      gamma
+    3.4641016    4.00      2.00    90.00000   90.00000   90.00000
+!
+!  The conditions below should be adapted to the problem by the user
+!
+SpinModel    XY
+
+Title  Simulation of classical Spins: Triangular isolated plaquet
+
+!  Simulation box
+Ncells    1 1 1
+
+!  Initial configuration (R,I)
+InitConf  R
+
+! boundary conditions (Free,Periodic,Mixed)
+Boundary  Periodic
+
+! Scaling (sample,cell,site,mole)
+Scale     cell
+
+!  Sites for output during simulation
+Sites   1 2 3
+
+!         T_ini   Coef  T_final
+schedule    50   0.95    0.015
+
+!  Magnetic Field
+hfield    0  0  0  1
+
+!  Number of MC cycles and thermalization
+mcyc   5000  500
+
+print  E
+averages
+cryst   1  -1 0 0

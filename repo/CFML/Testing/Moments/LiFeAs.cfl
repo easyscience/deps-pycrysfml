@@ -1,0 +1,23 @@
+!   FILE for FullProf Studio: generated automatically by FullProf 
+!Title: LiFeAs2O7 D1B 2K  magph2                                                                                                                                            
+SPACEG C 2                 
+CELL     6.653956    8.255803    4.727002  90.0000 103.9837  90.0000   DISPLAY MULTIPLE
+BOX   -0.15  1.15   -0.15  1.15    -0.15  1.15 
+ATOM As      As       0.78248   0.33610   0.59131   color  0.00 0.00 1.00 1.00
+ATOM Fe      Fe       0.00000   0.00000   0.00000   color  1.00 0.00 0.00 1.00
+ATOM O1      O        0.75048   0.48109   0.82454  
+ATOM O2      O        0.82978   0.15693   0.74637  
+ATOM O3      O        0.61006   0.31632   0.27666  
+ATOM O4      O        0.00000   0.41537   0.50000  
+ATOM Li      Li       0.00000   0.61571   0.00000   color  1.00 1.00 0.00 1.00
+conn As O 0 1.9                                                               
+conn Fe O 0 2.18                                                              
+ 
+Mag_Structure
+LATTICE C
+K     0.70910   0.00000   0.15459
+SYMM  x,y,z
+MSYM  u,v,w,0.0
+MATOM Fe_1             Fe       0.00000   0.00000   0.00000  SCALE 1.0 GROUP ENVELOP
+SKP           1  1   0.00000   4.13548   0.00000     2.12782   0.00000   4.50085    0.00000  
+End_Mag_Structure

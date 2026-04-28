@@ -1,0 +1,5 @@
+! From HOMPACK90.
+      MODULE REAL_PRECISION
+!       This is for 64-bit arithmetic.
+        INTEGER, PARAMETER:: R8=SELECTED_REAL_KIND(13)
+      END MODULE REAL_PRECISION

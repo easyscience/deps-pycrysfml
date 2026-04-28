@@ -1,0 +1,28 @@
+# This is the manifest file for building CrysFML with fpm
+# It is better to comment the part corresponding to executables in order to construct
+# the library totally independent of the programs using it.
+#
+name = "CrysFML08"
+version = "0.1.0"
+license = "LGPL"
+author = "Juan Rodriguez-Carvajal, Javier Gonzalez-Platas, Nebil A. Katcho"
+maintainer = "jrc@ill.eu"
+copyright = "Copyright 2022, Juan Rodriguez-Carvajal, Javier Gonzalez-Platas, Nebil A. Katcho"
+
+[library]
+source-dir = "Src"
+include-dir = "../../wint/lib.i64"
+
+[build]
+auto-executables = false
+auto-tests = false
+auto-examples = false
+external-modules = "winteracter"
+link=["winter","user32", "gdi32", "comdlg32", "winspool", "winmm", "shell32", "advapi32", "htmlhelp"]
+
+[install]
+library = true
+
+#
+# The lines above are enough for building the library using the scripts make_CrysFML_fpm.bat/make_CrysFML_fpm.sh
+#

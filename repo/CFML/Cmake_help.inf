@@ -1,0 +1,301 @@
+  How to use CMake with CrysFML in Windows environments
+  =====================================================
+
+ - Download CMake for Windows and install it in a directory without blancs
+   (to be compatible with all kind of compilers), e.g. c:\cmake_3.17.0
+
+ - Do not put the CMake directories in the general PATH (see below)
+
+ - Download nmake utility from Microsoft (or from Microsoft Visual Studio directory
+   if it is installed) and copy it into the bin directory of CMake, e.g. c:\cmake_3.17.0\bin
+
+ - Create a link in the desktop to the program c:\Windows\system32\cmd.exe
+   (or to C:\Windows\SysWOW64\cmd.exe) and modify the properties in order
+   to be able to have large buffers for lines, quick edit mode, appropriate colours, etc.
+   Examples for which you have separate ways for working with ifort and gfortran:
+   For ifort:
+    C:\Windows\System32\cmd.exe /E:ON /V:ON /K  Bat_file_defining_environment_ifort.bat
+   For gfortran:
+    C:\Windows\System32\cmd.exe /E:ON /V:ON /K  Bat_file_defining_environment_gfortran.bat
+
+ - The BAT file defining the correct environment for running the compiler and CMake, may contain
+   many other environment variables for running editors or general programs.
+   
+   For instance you can create a file in c:\CrysFML08 (no need to commit it to the repository!)
+   called "gF_oneAPI.bat", for using gfortran and ifort in the same environment, with the following content:
+-----------------------------------------------------start bat file line below
+@echo off
+set  MINGW=C:\mingw_12.2.0\mingw64
+SET  INTEL= "C:\Program Files (x86)\Intel\oneAPI"
+set  INTEL_BIN=%INTEL%\compiler\2022.0.0\windows\bin
+set  INTEL_LIB=%INTEL%\compiler\2022.0.0\windows\lib
+set  REDIST=%INTEL%\compiler\2022.0.0\windows\redist\intel64_win\compiler
+call %INTEL%\setvars.bat
+set  FULLPROF=c:\FullProf_Suite
+set  LAUESUITE=c:\Esmeralda_Laue_Suite
+set  SXTALSOFT=c:\ILL_Git\SXtalSoft
+set  CRYSFML08=c:\ILL_Git\CrysFML08
+set  CRYSFML08_LIB=%CRYSFML08%\ifort64\LibC
+set  WCRYSFML08_LIB=%CRYSFML08%\ifort64\LibW
+set  CRYSFML_DB=%FULLPROF%\Databases
+set  PROGCFML=c:\ILL_Git\ProgCFML
+set  ESMERALDA=c:\ILL_Git\Esmeralda
+set  INCLUDE=%INCLUDE%;%MINGW%\include
+set  LIB=%LIB%;%CRYSFML08%\ifort64\LibC;%CRYSFML08%\ifort64\LibW;c:\wint\lib.i64;%INTEL_LIB%;%MINGW%\lib
+set  PATH=%PATH%;%FULLPROF%;%LAUESUITE%;C:\Program Files\CMake\bin;c:\wint\bin;%MINGW%\bin
+set  PATH=%PATH%;%INTEL_BIN%;%INTEL_LIB%;%REDIST%;C:\Program Files\Notepad++
+set  TARGET_ARCH=intel64
+echo .
+echo "------------------------------------------------------------------------------------------------------------"
+echo "This terminal is adequate for running oneAPI-Intel, GFortran, FullProf Suite and Cmake from the command line"
+echo "For running Python modify Py.bat for selecting the appropriate distribution. Py.bat is in this directory    "
+echo "------------------------------------------------------------------------------------------------------------"
+-----------------------------------------------------end bat file line above
+  
+  - Modify the properties of the link to cmd.exe by writing in the target box:
+
+     C:\Windows\System32\cmd.exe /K "c:\CrysFML\gF_oneAPI"
+
+ - Read the README file for general details on CMake for Windows and Linux
+
+CONFIGURATION OF CMAKE
+====================== 
+ 
+ - Create a directory: Build in the place of your choice. One can create other directories
+   inside it for different kinds of build. Examples
+    c:\CrysFML\Build_cmake\ifort_release
+    c:\CrysFML\Build_cmake\ifort_debug
+    c:\CrysFML\Build_cmake\gfortran_release
+    c:\CrysFML\Build_cmake\gfortran_debug
+   .....................
+
+
+ - Go to the appropriate subdirectory of the Build_cmake directory and execute a command of the type:
+   cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifort_release  ..\..\.
+                 ^                       ^                             ^                 ^                         ^
+       Generator of OS dependent        Specify compiler        Installation of the library         root CrysFML08 directory (Source for cmake)  
+         makefiles
+   The root CrysFML directory is where the file CMakeLists.txt is placed
+   GUI=ON means that the Winteracter library will be used. For console programs use GUI=OFF
+
+CMAKE COMMANDS
+==============
+CrysFML08
+cmake -G "NMake Makefiles"  -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifort -DPYTHON_API=ON -DODR=ON -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifort64_debug  -B . -S ..\..\
+cmake -G Ninja  -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=ifort -DPYTHON_API=ON -DODR=ON -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifort64  -B . -S ..\..\
+cmake -G "NMake Makefiles"  -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=ifx -DPYTHON_API=ON -DODR=ON -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifx_release  -B . -S ..\..\
+cmake -G Ninja  -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=ifx -DPYTHON_API=ON -DODR=ON -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifx_release  -B . -S ..\..\
+CrysFML
+cmake -G Ninja  -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=ifx -DGUI=ON -DHEAP_ARRAYS=ON -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifx_release  -B . -S ..\..\
+cmake -G Ninja  -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=ifort -DQPARALLEL=ON -DGUI=ON -DHEAP_ARRAYS=ON -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64  -B . -S ..\..\
+
+Classic_FP
+cmake -G Ninja  -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=ifx -DCRYSFML=%CRYSFML%\ifx_release -DCRYSFML08=%CRYSFML08%\ifx_release -B . -S ..\..\
+
+cmake --build . -j                             # Re-compiling the library
+cmake --build . --target clean                 # equivalent to nmake clean
+cmake -B . -S ..\..\.                          # re-configuring the library and programs depending on the configuarion, similar to "nmake" or "make" 
+cmake -DPYTHON_API=ON -DODR=ON -B . -S ..\..\  # re-configuring with addition of Python and ODR
+cmake --build .   --target executable_name     # Compiling a particular program 
+cmake --install . --target executable_name     # Installing a particular program
+cmake --install .
+
+git config --global credential.helper 'cache --timeout 18000' !this is to avoid introducing passwords repeatedly
+
+Concrete examples of configuarion (by default the compiler is ifort):
+
+To be run in an environment with intel 64bits (putting the option ARCH32=ON, we obtain the generation for 32 bits) :
+-----------------------------------------------------------------------OK for release
+cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+
+cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+
+cmake -G "NMake Makefiles"  -D GUI=ON -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+
+cmake -G "NMake Makefiles"  -D GUI=ON -D ARCH32=OFF -D CMAKE_Fortran_COMPILER_FORCED=ON -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+
+cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D PYTHON_API=ON -D ARCH32=OFF -D -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifort64_py -D CRYSFML_PREFIX=LibC ..\..\.
+
+IFX Release with Winteracter
+============================ 
+cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifx -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifx_release -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+
+GFORTRAN Release with Winteracter
+=================================
+cmake -G "MinGW Makefiles"  -D CMAKE_Fortran_COMPILER=gfortran -D ARCH32=OFF -D GUI=ON -D CMAKE_INSTALL_PREFIX=%CRYSFML%\gfortran -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+For Gfortran use: "mingw32-make install"
+-----------------------------------------------------------------------OK for debug
+
+Building CrysFML08 only for console mode  
+========================================
+# Console Only for ifx (oneAPI) in debug mode
+cmake -G "NMake Makefiles"  -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifx -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifx_debug -D CRYSFML_PREFIX=LibC  ..\..\.
+
+# Console Only for ifx (oneAPI) in release mode
+cmake -G "NMake Makefiles"  -D ARCH32=OFF -D CMAKE_Fortran_COMPILER=ifx -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifx_release  ..\..\.
+
+# Console Only for Ifort in debug mode
+cmake -G "NMake Makefiles"  -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifort64_debug -D CRYSFML_PREFIX=LibC  ..\..\.
+# Console Only for Ifort in release mode
+cmake -G "NMake Makefiles"  -D ARCH32=OFF GUI=OFF -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifort64 -D CRYSFML_PREFIX=LibC  ..\..\.
+
+# Console Only for Ifort in release mode HDF5
+cmake -G "NMake Makefiles"  -D USE_HDF=ON -D ARCH32=OFF GUI=OFF -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\ifort64 -D CRYSFML_PREFIX=LibC  ..\..\.
+
+# Console Only for gfortran in debug mode
+cmake -G "MinGW Makefiles"  -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=gfortran -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\gfortran_debug -D CRYSFML_PREFIX=LibC  ..\..\.
+# Console Only for gfortran in release mode
+cmake -G "MinGW Makefiles"  -D ARCH32=OFF GUI=OFF -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=gfortran -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\gfortran_release -D CRYSFML_PREFIX=LibC ..\..\.
+
+ 
+Example for SXTALSOFT on Windows
+================================
+Assure that CRYSMFL_LIB and WCRYSMFL_LIB are both set to the proper platform (64 bits or 32 bits), only 64 bits will be developed from now.
+cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=C:\SXtalSoft\DistSXT\Windows ..\.
+cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_BUILD_TYPE=Debug  -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=C:\SXtalSoft\DistSXT\Windows\debug ..\..\.
+
+WARNING: When you get in troubles you have to remove completely all files and directories created by cmake in c:\CrysFML\Build\ifort_XXXX
+         and repeat the command(s) above.
+
+======================
+examples for gfortran:
+======================
+64-bits gfortran
+cmake -G "MinGW Makefiles"  -D CMAKE_Fortran_COMPILER=gfortran -D ARCH32=OFF -DGUI=OFF -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\gfortran -D CRYSFML_PREFIX=LibC ..\..\.
+cmake -G "MinGW Makefiles"  -D CMAKE_Fortran_COMPILER=gfortran -D ARCH32=OFF -DGUI=OFF -DCMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=%CRYSFML08%\gfortran_debug -D CRYSFML_PREFIX=LibC  ..\..\.
+
+ - Once the above steps worked properly the only thing to do is execute the command:
+   "nmake install" or in the case of "MinGW Makefiles" execute the command: "mingw32-make install"
+
+ - Each time you modify a file of the library you go to the appropriate directory and
+   execute again: "nmake install" or "mingw32-make install", the system will recopile only the appropriate files taking
+   into account the dependencies.
+
+
+For building a series of program based on CrysFML we have to set the environment variables telling to cmake where the lib is.
+Examples CRYSFML08_LIB=%CRYSFML08%\ifort\LibC
+         WCRYSFML08_LIB=%CRYSFML08%\ifort\LibW
+
+    or better:  LIB=%LIB%;%CRYSFML08%\ifort\LibC;%CRYSFML08%\ifort\LibW
+
+For installing the programs in a particular place we have to invoke
+  cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%PROGCFML%\DistFPS  -DGUI=ON      ..\..\.
+
+  cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%ESMERALDA%\DistLS  -DGUI=ON      ..\.
+
+  cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%SXTALSOFT%\DistSXT\Windows  -DGUI=ON      ..\.
+
+
+  CMAKE use in LINUX
+  ==================
+  Usage
+
+  cmake [options] <path-to-source>
+  cmake [options] <path-to-existing-build>
+
+Options
+  -C <initial-cache>          = Pre-load a script to populate the cache.
+  -D <var>:<type>=<value>     = Create a cmake cache entry.
+  -U <globbing_expr>          = Remove matching entries from CMake cache.
+  -G <generator-name>         = Specify a build system generator.
+  -T <toolset-name>           = Specify toolset name if supported by
+                                generator.
+  -Wno-dev                    = Suppress developer warnings.
+  -Wdev                       = Enable developer warnings.
+  -E                          = CMake command mode.
+  -i                          = Run in wizard mode.
+  -L[A][H]                    = List non-advanced cached variables.
+  --build <dir>               = Build a CMake-generated project binary tree.
+  -N                          = View mode only.
+  -P <file>                   = Process script mode.
+  --find-package              = Run in pkg-config like mode.
+  --graphviz=[file]           = Generate graphviz of dependencies, see
+                                CMakeGraphVizOptions.cmake for more.
+  --system-information [file] = Dump information about this system.
+  --debug-trycompile          = Do not delete the try_compile build tree.
+                                Only useful on one try_compile at a time.
+  --debug-output              = Put cmake in a debug mode.
+  --trace                     = Put cmake in trace mode.
+  --warn-uninitialized        = Warn about uninitialized values.
+  --warn-unused-vars          = Warn about unused variables.
+  --no-warn-unused-cli        = Don't warn about command line options.
+  --check-system-vars         = Find problems with variable usage in system
+                                files.
+  --help-command cmd [file]   = Print help for a single command and exit.
+  --help-command-list [file]  = List available listfile commands and exit.
+  --help-commands [file]      = Print help for all commands and exit.
+  --help-compatcommands [file]= Print help for compatibility commands.
+  --help-module module [file] = Print help for a single module and exit.
+  --help-module-list [file]   = List available modules and exit.
+  --help-modules [file]       = Print help for all modules and exit.
+  --help-custom-modules [file]= Print help for all custom modules and exit.
+  --help-policy cmp [file]    = Print help for a single policy and exit.
+  --help-policies [file]      = Print help for all policies and exit.
+  --help-property prop [file] = Print help for a single property and exit.
+  --help-property-list [file] = List available properties and exit.
+  --help-properties [file]    = Print help for all properties and exit.
+  --help-variable var [file]  = Print help for a single variable and exit.
+  --help-variable-list [file] = List documented variables and exit.
+  --help-variables [file]     = Print help for all variables and exit.
+  --copyright [file]          = Print the CMake copyright and exit.
+  --help,-help,-usage,-h,-H,/?= Print usage information and exit.
+  --help-full [file]          = Print full help and exit.
+  --help-html [file]          = Print full help in HTML format.
+  --help-man [file]           = Print full help as a UNIX man page and exit.
+  --version,-version,/V [file]= Show program name/version banner and exit.
+
+Generators
+
+The following generators are available on this platform:
+  Unix Makefiles              = Generates standard UNIX makefiles.
+  Ninja                       = Generates build.ninja files (experimental).
+  CodeBlocks - Ninja          = Generates CodeBlocks project files.
+  CodeBlocks - Unix Makefiles = Generates CodeBlocks project files.
+  Eclipse CDT4 - Ninja        = Generates Eclipse CDT 4.0 project files.
+  Eclipse CDT4 - Unix Makefiles
+                              = Generates Eclipse CDT 4.0 project files.
+  KDevelop3                   = Generates KDevelop 3 project files.
+  KDevelop3 - Unix Makefiles  = Generates KDevelop 3 project files.
+  Sublime Text 2 - Ninja      = Generates Sublime Text 2 project files.
+  Sublime Text 2 - Unix Makefiles
+                              = Generates Sublime Text 2 project files.
+
+
+
+ The following works provided that ifort is in the path:
+ ======================================================
+ cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=gfortran -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML08/GFortran64 ../../.
+ cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=gfortran -D ARCH32=OFF -DCMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=$CRYSFML08/GFortran64_debug ../../.
+
+ cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML08/ifort64 -D CRYSFML_PREFIX=LibC ../../.
+ cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -DCMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=$CRYSFML08/ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
+
+For cases in which Linux is embeded in Windows (no winteracter)
+cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=gfortran -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML08/Linux_gfortran -D CRYSFML_PREFIX=LibC  ../../.
+
+ make -j4 -l4
+ install
+
+ However Winteracter is not found ....
+
+ For working only with console programs:
+ cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML08/ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
+ cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifx -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML08/ifx_release ../../.
+ cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=gfortran -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML08/GFortran -D CRYSFML_PREFIX=LibC ../../.
+
+ To get Winteracter working do:
+ ------------------------------
+
+sudo apt-get remove synaptic
+  559  sudo apt install synaptic
+  601  sudo apt install libxp-dev
+  603* sudo apt remove libxp-dev
+  605  sudo apt install libmotif-dev
+  606  sudo apt install libmotif-common
+
+sudo apt install libxmu-dev
+sudo apt install libxp-dev
+sudo apt install libsm-dev --> install SM and iCE
+sudo apt install libxft-dev --> install xft and png
+sudo apt install libjpeg-dev
+

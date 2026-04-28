@@ -1,0 +1,4 @@
+options install --prefix ifort_fpm_release
+options --compiler ifort
+options --flag "-fpp -O2 -heap-arrays -nologo -fPIC"
+option  --profile release

@@ -1,0 +1,77 @@
+Kagome layer
+Isotropic AF interactions between nearest neighbours
+!NA(sites)  JCod    Z
+      3      0      3
+!Site Neighb   Dsing_Anis      Dir
+   1    4         10       0   0   1 :: Mn1    0.50000 0.00000 0.5
+!      Nav   Av  Bv  Cv     J
+        2     0   0   0   -10
+        3     0   0   0   -10
+        2    -1  -1   0   -10
+        3    -1   0   0   -10
+2 4 10 0 0 1                          :: Mn2    0.00000 0.50000 0.5
+        1   0  0  0   -10
+        3   0  0  0   -10
+        1   1  1  0   -10
+        3   0  1  0   -10
+3 4 10 0 0 1                         :: Mn2    0.50000 0.50000 0.5
+        1   0  0  0   -10
+        2   0  0  0   -10
+        1   1  0  0   -10
+        2   0 -1  0   -10
+! Ni Nf  Spin
+   1  3     5
+ !  a    b      c   alpha beta  gamma
+  8.0   8.0    4.0    90   90   120
+!
+SpinModel    Heisenberg
+Title  Simulation of clasical Kagome lattice with isotropic exchange and planar single ion anisotropy
+!  Simulation box
+Ncells    6 6 1
+
+!  Initial configuration
+InitConf  R
+! boundary conditions
+Boundary  Periodic
+! Scaling
+Scale     cell
+!  Sites for output during simulation
+Sites   1 2 3
+!         T_ini   Coef  T_final
+schedule    500   0.95    0.5
+!  Magnetic Field (Zero-Field cooled)
+hfield    0  1  0  0
+!  Number of MC cycles and thermalization
+mcyc   1500  200
+print  E
+averages
+
+!Apply a magnetic field along 1 0 0
+!up to 200 kOe in steps of 2 kOe at
+!a fixed temperature of 0.5 K
+continue F
+fchange 1 0 0   0.0  2.0  200.0
+mcyc   1500  200
+print E
+averages
+
+!Heat under a field of 200 kOe
+!up to 300K
+continue T
+tchange A 1.0 300.0
+hfield  200.0  1 0 0
+mcyc   1500  200
+print E
+averages
+!
+!Cool with a "multiplicative" (logarithmic) schedule
+!down to 0.5K under a field of 200 kOe along 100
+continue T
+tchange M  0.9  0.5
+hfield  200  1 0 0
+mcyc   1500  200
+print E
+averages
+
+!Output configurations without rotations
+cryst   0  0 0 0

@@ -1,0 +1,42 @@
+Title  PbSO4 (experimental Jvi=-11 |F|) Neutrons
+!        a            b          c     alpha    beta   gamma
+Cell   8.485454   5.402319   6.964360  90.000  90.000  90.000
+!     Space Group
+Spgr  P n m a
+!                  x        y        z        B        occ    Spin Charge
+Atom  Pb   PB   0.227    0.25000  0.16754  1.35290   1.00000   0.0   2.0      #color 0 0 1 1
+Atom  S    S    0.3467   0.25000  0.68360  0.89361   1.00000   0.0   6.0      #color 1 1 0 1
+Atom  O1   O    0.90712  0.25000  0.59675  0.57221   1.00000   0.0  -2.0      #color 0 1 1 1
+Atom  O2   O    0.78635  0.25000  0.77278  0.99996   1.00000   0.0  -2.0      #color 1 0 1 1
+Atom  O3   O    0.08021  0.02965  0.71211  1.07399   2.00000   0.0  -2.0      #color 1 0 0 1
+
+! Codes for refinement
+Vary xyz 0  1  0  1
+!
+HKL-OBS  pb_neu.int
+MIN-DSPACING   1.5
+WAVE  1.912
+RADIATION NEUTRONS
+FST_CMD  conn S O 0.0 1.8 ; poly S
+
+OPTIMIZE    bond-valence 0.15  FoFc-Powder 0.85
+LOCAL_OPTIMIZATION
+
+! Simulated Annealing conditions
+SIM_ANN
+
+!       Name of the cost function
+CostNam  FoFc_Pow+BVS
+
+!         T_ini     anneal     num_temps
+TemParM     3.0       0.95       80
+
+!         Nalgor  Nconf nm_cycl   num_therm   accept%
+Algor_T     0       6   120        0        10.0
+
+!         Value of Seed (if SeedVAL = 0, random seed)
+SeedVAL     0
+!
+Threshold   25.0
+!         Treatment of initial configuration
+InitCON   RAN

@@ -1,0 +1,7 @@
+Upstream repository: https://code.ill.fr/scientific-software/crysfml2008.git
+Vendored branch: master
+Vendored commit: 2b37a2f55568704eb48e4ba6d7e66c9558d10879
+Vendored on: 2026-04-28
+
+This directory is a tracked vendored copy of the upstream CrysFML sources.
+It is intentionally kept as normal repository content, not as a Git submodule.

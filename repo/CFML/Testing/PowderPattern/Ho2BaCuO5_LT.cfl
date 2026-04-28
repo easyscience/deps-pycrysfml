@@ -1,0 +1,42 @@
+Title  Ho2BaCuO5
+!        a           b          c     alpha    beta   gamma
+Cell 12.177598  11.323529   7.122767  90.000  90.000  90.000
+!     Space Group
+!From standard
+SHUB  P2_1'/c :: -a-c,a,-b;3/4,0,0
+! 
+!generators -x+1/2,-y,z+1/2,-1;-x,-y+1/2,-z,-1                   
+!                      x           y              z           B        occ   Spin Charge
+Atom Ho1_1  JHO3   0.28692(20)   0.12500       0.1167(3)     0.58(6)  Moment:  7.4566    0.5358    0.8398
+Atom Ho1_2  JHO3   0.28692(20)   0.62500       0.1167(3)     0.58(6)  Moment: -2.5919   -0.5358    3.0902
+Atom Ho2_1  JHO3   0.07457(11)   0.12500       0.3963(2)     0.95(6)  Moment:  0.8997    0.0526   -8.6368
+Atom Ho2_2  JHO3   0.07457(11)   0.62500       0.3963(2)     0.95(6)  Moment:  0.9688   -0.0526   -8.7583
+Atom Cu_1   MCU2   0.66008       0.12500       0.7106(4)     1.15(7)  Moment: -0.6126    0.0000    0.5162
+Atom Cu_2   MCU2   0.66008       0.62500       0.7106(4)     1.15(7)  Moment:  0.5555    0.0000    0.3827
+Atom Ba_1   BA     0.9061(4)     0.12500       0.9273(5)     0.63(9)    
+Atom Ba_2   BA     0.9061(4)     0.62500       0.9273(5)     0.63(9)    
+Atom O1_1   O      0.4334(2)     0.9959(2)     0.1663(2)     1.22(6)    
+Atom O1_2   O      0.4334(2)     0.4959(2)     0.1663(2)     1.22(6)    
+Atom O1_3   O      0.9334(2)     0.2541(2)     0.3337(2)     1.22(6)    
+Atom O1_4   O      0.9334(2)     0.7541(2)     0.3337(2)     1.22(6)    
+Atom O2_1   O      0.22743(18)   0.75305       0.35570       1.27(7)    
+Atom O2_2   O      0.22743(18)   0.25305       0.35570       1.27(7)    
+Atom O2_3   O      0.72743(18)   0.49695       0.14430       1.27(7)    
+Atom O2_4   O      0.72743(18)   0.99695       0.14430       1.27(7)    
+Atom O3_1   O      0.1020(3)     0.12500       0.0814(5)     1.22(9)    
+Atom O3_2   O      0.1020(3)     0.62500       0.0814(5)     1.22(9)    
+
+UVWX    1.689272  -1.090878 0.343690  0.00
+POWFILE  HoCu_LT.xys
+PATTERN   10.00        0.1      90.00
+LAMBDA    2.524
+SIZE_L    99000
+BACKGD   10
+
+!! UVWX   u v w x    (four real values defining the resolution of the instrument TCH Pseudo-Voigt)
+!! LAMBDA  lambda    (1 real value, wavelength)
+!! JOBTYPE   Neutrons
+!! PATTERN  Tmin  step Tmax  (intial angle, step and final angle for calculations of powder pattern)
+!! SIZE_L   Lorentzian_Size   (one real in angstroms)
+!! POWFILE  name_of_powder_diffraction_data_file
+!! BACKGD   bkg   (1 real, level of background in counts)

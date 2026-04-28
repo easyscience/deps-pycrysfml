@@ -1,0 +1,58 @@
+TITLE  Cs3Cr2Br9
+SPGR   P 63/m m c 
+CELL    7.465001   7.465001  18.618000  90.000000  90.000000 120.000000
+!    Lab  Scatt       x        y       z      Biso     Occ
+ATOM Cs1   CS      0.00000  0.00000  0.25000 0.51145 0.08333
+ATOM Cs2   CS      0.33333  0.66667  0.07543 0.34669 0.16667
+ATOM Cr    CR      0.33333  0.66667  0.83874 0.30124 0.16667
+ATOM Br1   BR     -0.48763 -0.97524  0.25000 0.23890 0.25000
+ATOM Br2   BR     -0.17417 -0.34834  0.09001 0.29358 0.50000
+
+Mag_Structure
+!
+lattiCE -P
+kvect   0.2500000   0.2500000   0.00000
+IRREPS 1   3  
+icomp   0 0 0
+!
+SYMM  x,y,z
+BASR  1 0 0   0 1 0  0 0 1
+SYMM y,x,-z+1
+BASR  0 1 0   1 0 0  0 0 -1
+SYMM x,y,-z+3/2
+BASR  1 0 0   0 1 0  0 0 -1
+SYMM y,x,z-1/2
+BASR  0 1 0   1 0 0  0 0 1
+matom Cr   MCR3   0.33333   0.66667   0.83816   0.02231   1.00000
+bfcoef     1  1   0.00000   0.00000   1.12064   0.00000
+End_Mag_Structure
+
+! Codes for refinement
+vary C1_Cr 0 4 0.01 1 C2_Cr  0 4 0.01 1  C3_Cr  0 4 0.01 1
+vary MagPh_Cr 0 1 0.2 1
+!
+F2Mag_data CCB.int
+
+WAVE  1.912
+RADIATION NEUTRONS
+
+OPTIMIZE F2mag
+
+! Simulated Annealing conditions
+SIM_ANN
+
+!       Name of the cost function
+CostNam  General_Cost
+
+!         T_ini     anneal     num_temps
+TemParM     3.0       0.95       80
+
+!         Nalgor  Nconf nm_cycl   num_therm   accept%
+Algor_T     0       6   100        0        10.0
+
+!         Value of Seed (if SeedVAL = 0, random seed)
+SeedVAL     0
+!
+Threshold   20.0
+!         Treatment of initial configuration
+InitCON   RAN

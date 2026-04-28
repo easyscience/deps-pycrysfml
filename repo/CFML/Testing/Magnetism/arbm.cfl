@@ -1,0 +1,35 @@
+TITLE   Ho2BaNiO5 (Symmetry op. of Gk)
+SPGR   I m m m
+CELL     3.754168   5.729970  11.269413  90.000000  90.000000  90.000000
+!    Lab  Scatt       x        y       z      Biso     Occ
+ATOM BA    BA      0.50000  0.50000  0.00000 0.51197 0.12500
+ATOM HO    HO      0.50000  0.00000  0.20255 0.51197 0.25000
+ATOM NI    NI      0.00000  0.00000  0.00000 0.51197 0.12500
+ATOM O1    O       0.00000  0.24362  0.14953 0.51197 0.50000
+ATOM O2    O       0.50000  0.00000  0.00000 0.51197 0.12500
+
+Mag_Structure
+!
+lattiCE F
+kvect   0.5000000   0.0000000   0.3753210
+magdom  u,v,w, 0.0  : 1.0
+SYMM  x,y,z
+MSYM  u,v,w, 0.0
+MSYM  u,v,w, 0.0
+SYMM  -x,y,-z
+MSYM  -u,v,-w, 0.0
+MSYM  u,-v,w, 0.0
+SYMM  -x,-y,-z
+MSYM  u,v,w, 0.0
+MSYM  -u,-v,-w, 0.0
+SYMM   x,-y, z
+MSYM  u,-v,w, 0.0
+MSYM  -u,v,-w, 0.0
+matom HO  JHO3     0.50000  0.00000  0.20255   0.51197 0.5000
+skp       1  1     0.127   0.000   4.993   0.000   4.378   0.000    0.00000
+matom NI  MNI2     0.00000  0.00000  0.00000   0.51197 0.2500
+skp       1  2     0.585   0.000  -1.286    0.000   1.000   0.000    0.00000
+!
+End_Mag_Structure
+
+

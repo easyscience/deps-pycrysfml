@@ -1,0 +1,13 @@
+Title Structure Model for Sr-Mn-O (Electron microscopy)
+!   Unit cell parameters:  a, b, c, Alpha, Beta, Gamma
+Cell  12.815102  12.815102   5.438160  90.00000  90.00000  90.00000
+!     Space Group
+Spgr  P 4  
+!  Atom-strings in the order: Label, Species, x, y, z, Biso, Occ [,2*Spin, charge]
+Atom Sr1  Sr+2         0.0      0.0      0.0    0.52  0.125
+Atom Sr2  Sr+2         0.5      0.147    0.5    0.52  0.5
+Atom Mn1  Mn+4         0.300    0.0      0.5    0.60  0.5
+Atom Mn2  Mn+4         0.207    0.207    0.5    0.60  0.5
+Atom Mn3  Mn+3         0.388    0.388    0.0    0.60  0.5
+Atom Mn4  Mn+3         0.700    0.00     0.0    0.60  0.5
+Transf   a+b,-a+b,c;0,0,0
