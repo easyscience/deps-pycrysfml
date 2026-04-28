@@ -12,6 +12,9 @@ static-lib-name = 'CrysFML08' # without 'lib' prefix on unix-based platforms
 [cfml.dir]
 repo = 'repo/CFML'
 repo-src = 'repo/CFML/Src'
+repo-pyapi = 'repo/CFML/PythonAPI'
+repo-pyapi-fortran = 'repo/CFML/PythonAPI/Fortran'
+repo-pyapi-python = 'repo/CFML/PythonAPI/Python'
 repo-tests = 'repo/CFML/Testing'
 repo-database = 'repo/CFML/Src/Databases/magnetic_data.txt'
 build = 'build/CFML'
@@ -29,7 +32,7 @@ url = 'https://code.ill.fr/scientific-software/crysfml2008.git'
 branch = 'master'
 
 [cfml.scripts]
-pyapigen = 'repo/CFML/Scripts/PythonAPI/apigen.py'
+pyapigen = 'repo/CFML/Src/python_scripts/apigen.py'
 
 #############################################
 # Python API for CrysFML Fortran 2008 Library

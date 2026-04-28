@@ -1086,6 +1086,8 @@ def copy_powder_mod_to_pycfml_repo():
 
 def create_pycfml_src_dir():
     src_dir = CONFIG['pycfml']['dir']['build-src']
+    fortran_dir = CONFIG['pycfml']['dir']['build-src-fortran']
+    python_dir = CONFIG['pycfml']['dir']['build-src-python']
     lines = []
     msg = _echo_msg(f"Deleting src dir '{src_dir}'")
     lines.append(msg)
@@ -1094,6 +1096,14 @@ def create_pycfml_src_dir():
     msg = _echo_msg(f"Creating src dir '{src_dir}'")
     lines.append(msg)
     cmd = f'mkdir -p {src_dir}'
+    lines.append(cmd)
+    msg = _echo_msg(f"Creating src dir '{fortran_dir}'")
+    lines.append(msg)
+    cmd = f'mkdir -p {fortran_dir}'
+    lines.append(cmd)
+    msg = _echo_msg(f"Creating src dir '{python_dir}'")
+    lines.append(msg)
+    cmd = f'mkdir -p {python_dir}'
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
@@ -1116,25 +1126,22 @@ def create_pycfml_build_dir():
 
 def create_pycfml_src():
     project_name = CONFIG['pycfml']['log-name']
-    apigen_relpath = CONFIG['cfml']['scripts']['pyapigen']
-    apigen_parent_relpath = Path(apigen_relpath).parent.as_posix()
-    apigen_file = Path(apigen_relpath).name
-    build_relpath = CONFIG['pycfml']['dir']['build-src']
-    build_abspath = os.path.join(_project_path(), build_relpath)
+    from_fortran_relpath = CONFIG['cfml']['dir']['repo-pyapi-fortran']
+    from_fortran_abspath = os.path.join(_project_path(), from_fortran_relpath)
+    to_fortran_relpath = CONFIG['pycfml']['dir']['build-src-fortran']
+    to_fortran_abspath = os.path.join(_project_path(), to_fortran_relpath)
+    from_python_relpath = CONFIG['cfml']['dir']['repo-pyapi-python']
+    from_python_abspath = os.path.join(_project_path(), from_python_relpath)
+    to_python_relpath = CONFIG['pycfml']['dir']['build-src-python']
+    to_python_abspath = os.path.join(_project_path(), to_python_relpath)
     lines = []
-    msg = _echo_msg(f"Entering Python API gen dir '{apigen_parent_relpath}'")
+    msg = _echo_msg(f"Copying {project_name} Fortran API sources from '{from_fortran_relpath}' to '{to_fortran_relpath}'")
     lines.append(msg)
-    cmd = f'cd {apigen_parent_relpath}'
+    cmd = f'cp -R {from_fortran_abspath}/. {to_fortran_abspath}'
     lines.append(cmd)
-    msg = _echo_msg(f"Creating {project_name} source code with '{apigen_file}'")
+    msg = _echo_msg(f"Copying {project_name} Python API sources from '{from_python_relpath}' to '{to_python_relpath}'")
     lines.append(msg)
-    cmd = CONFIG['template']['run-python']
-    cmd = cmd.replace('{PATH}', apigen_file)
-    cmd = cmd.replace('{OPTIONS}', f'--verbose False --scripts False --build {build_abspath}')
-    lines.append(cmd)
-    msg = _echo_msg(f"Exiting build dir '{apigen_parent_relpath}'")
-    lines.append(msg)
-    cmd = f'cd {_project_path()}'
+    cmd = f'cp -R {from_python_abspath}/. {to_python_abspath}'
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
