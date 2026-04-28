@@ -244,6 +244,33 @@ def _force_download_cfml_repo():
         force_download_cfml_repo = ARGS.force_download_cfml_repo
     return force_download_cfml_repo
 
+def _cfml_git_branch():
+    branch = CONFIG['cfml']['git']['branch']
+    if ARGS.cfml_branch:
+        branch = ARGS.cfml_branch
+    return branch
+
+def _cfml_git_commit():
+    if ARGS.cfml_commit:
+        return ARGS.cfml_commit
+    return None
+
+def _vendored_cfml_metadata_lines(out_path: str, url: str, branch: str):
+    metadata_path = os.path.join(out_path, 'VENDORED_FROM.txt')
+    lines = []
+    lines.append(f'VENDORED_CFML_COMMIT=$(git -C "{out_path}" rev-parse HEAD)')
+    lines.append(f'cat > "{metadata_path}" <<EOF')
+    lines.append(f'Upstream repository: {url}')
+    lines.append(f'Vendored branch: {branch}')
+    lines.append('Vendored commit: $VENDORED_CFML_COMMIT')
+    lines.append('Vendored on: $(date +%Y-%m-%d)')
+    lines.append('')
+    lines.append('This directory is a tracked vendored copy of the upstream CrysFML sources.')
+    lines.append('It is intentionally kept as normal repository content, not as a Git submodule.')
+    lines.append('EOF')
+    lines.append(f'rm -rf "{out_path}/.git"')
+    return lines
+
 def _print_wheel_dir():
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
     print(wheel_dir)
@@ -509,6 +536,14 @@ def parsed_args():
     parser.add_argument("--force-download-cfml-repo",
                         action='store_true',
                         help="delete and re-download repo/CFML even when local sources already exist")
+    parser.add_argument("--cfml-branch",
+                        default=None,
+                        type=str,
+                        help="branch to use when refreshing vendored repo/CFML")
+    parser.add_argument("--cfml-commit",
+                        default=None,
+                        type=str,
+                        help="commit to use when refreshing vendored repo/CFML")
     parser.add_argument("--print-wheel-dir",
                         action='store_true',
                         help="print pycfml wheel directory name")
@@ -543,7 +578,7 @@ def clear_main_script():
         file = Path(path)
         file.parent.mkdir(exist_ok=True, parents=True)
     with open(path, 'w') as file:
-        pass
+        file.write('set -e\n')
 
 def append_to_main_script(obj: str | list):
     path = _main_script_path()
@@ -621,7 +656,8 @@ def create_cfml_repo_dir():
 def download_cfml_repo():
     project_name = CONFIG['cfml']['log-name']
     url = CONFIG['cfml']['git']['url']
-    branch = CONFIG['cfml']['git']['branch']
+    branch = _cfml_git_branch()
+    commit = _cfml_git_commit()
     out_dir = CONFIG['cfml']['dir']['repo']
     out_path = os.path.abspath(out_dir)
     src_dir = CONFIG['cfml']['dir']['repo-src']
@@ -636,12 +672,17 @@ def download_cfml_repo():
         lines.append('  exit 1')
         lines.append('fi')
     else:
-        msg = _echo_msg(f"Downloading {project_name} ('{branch}' branch) to '{out_dir}' from {url}")
+        if commit:
+            msg = _echo_msg(f"Downloading {project_name} (branch '{branch}', commit '{commit}') to '{out_dir}' from {url}")
+        else:
+            msg = _echo_msg(f"Downloading {project_name} ('{branch}' branch) to '{out_dir}' from {url}")
         lines.append(msg)
         cmd = CONFIG['template']['clone-repo']
         cmd = cmd.replace('{BRANCH}', branch)
         cmd = cmd.replace('{URL}', url)
         cmd = cmd.replace('{OUT_PATH}', out_path)
+        if commit:
+            cmd = cmd + f' && git -C "{out_path}" fetch --depth 1 --filter=blob:none origin "{commit}" && git -C "{out_path}" checkout --detach FETCH_HEAD'
         lines.append('for ATTEMPT in 1 2 3; do')
         lines.append(f'  {_echo_cmd()} "{MSG_COLOR}:::::: Clone attempt $ATTEMPT/3{COLOR_OFF}"')
         lines.append(f'  {cmd} && break')
@@ -653,6 +694,7 @@ def download_cfml_repo():
         lines.append('    exit 1')
         lines.append('  fi')
         lines.append('done')
+        lines.extend(_vendored_cfml_metadata_lines(out_path, url, branch))
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
     append_to_main_script(lines)
@@ -1554,6 +1596,10 @@ if __name__ == '__main__':
     ARGS = parsed_args()
     PYPROJECT = loaded_pyproject()
     CONFIG = loaded_config('pybuild.toml')
+
+    if (ARGS.cfml_branch or ARGS.cfml_commit) and not ARGS.force_download_cfml_repo:
+        _print_error_msg('Use --cfml-branch/--cfml-commit only together with --force-download-cfml-repo')
+        exit(1)
 
     if ARGS.print_wheel_dir:  # NEED FIX. Maybe save extras to toml as in EDA?
         _print_wheel_dir()
