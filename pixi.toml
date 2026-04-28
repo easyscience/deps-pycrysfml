@@ -45,40 +45,7 @@ args = ["commit", { arg = "branch", default = "master" }]
 description = "Refresh vendored CFML from a specific commit"
 
 [tasks.wheel-build]
-cmd = '''
-{% if pixi.is_osx %}export SDKROOT="${SDKROOT:-$(xcrun --show-sdk-path 2>/dev/null || true)}" &&
-export MACOSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET:-$(sw_vers -productVersion | sed 's/\..*/.0/')}" &&
-{% endif %}
-scripts/print_build_variables.sh &&
-scripts/create_cfml_repo_dir.sh &&
-scripts/create_cfml_build_dir.sh &&
-scripts/create_cfml_dist_dir.sh &&
-scripts/create_pycfml_src_dir.sh &&
-scripts/create_pycfml_build_dir.sh &&
-scripts/create_pycfml_dist_dir.sh &&
-scripts/download_cfml_repo.sh &&
-scripts/rename_global_deps_file.sh &&
-scripts/build_cfml_modules_obj.sh &&
-scripts/delete_renamed_global_deps_file.sh &&
-scripts/build_cfml_static_lib.sh &&
-scripts/move_built_to_cfml_dist.sh &&
-scripts/build_cfml_test_programs.sh &&
-scripts/create_pycfml_src.sh &&
-scripts/build_pycfml_modules_obj.sh &&
-scripts/build_pycfml_lib_obj.sh &&
-scripts/build_pycfml_shared_obj_or_dynamic_lib.sh &&
-scripts/copy_built_to_pycfml_dist.sh &&
-scripts/change_runpath_for_built_pycfml.sh &&
-scripts/copy_extra_libs_to_pycfml_dist.sh &&
-scripts/copy_py_api_files_to_pycfml_dist.sh &&
-scripts/copy_init_file_to_pycfml_dist.sh &&
-scripts/copy_cfml_databases_to_pycfml_dist.sh &&
-scripts/validate_pyproject_toml.sh &&
-scripts/create_pycfml_python_wheel.sh &&
-scripts/rename_pycfml_python_wheel.sh &&
-scripts/detect_abi3_violations.sh &&
-scripts/check_wheel_contents.sh
-'''
+cmd = "scripts/wheel_build.sh"
 depends-on = ["scripts"]
 description = "Build and validate the local wheel without installing it"
 

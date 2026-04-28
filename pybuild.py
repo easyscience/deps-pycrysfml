@@ -48,6 +48,11 @@ def _main_script_path():
     path = os.path.join(_scripts_path(), name)
     return path
 
+def _wheel_build_script_path():
+    name = 'wheel_build.sh'
+    path = os.path.join(_scripts_path(), name)
+    return path
+
 def _echo_cmd():
     if _enable_backslash_escapes():
         return 'echo -e'
@@ -595,6 +600,15 @@ def append_to_main_script(obj: str | list):
 def add_main_script_header(txt: str):
     header = _echo_header(txt)
     append_to_main_script(header)
+
+def create_wheel_build_script():
+    main_script_path = _main_script_path()
+    wheel_build_script_path = _wheel_build_script_path()
+    with open(main_script_path, 'r') as source_file:
+        lines = source_file.readlines()
+    with open(wheel_build_script_path, 'w') as target_file:
+        target_file.writelines(lines)
+    _fix_file_permissions(wheel_build_script_path)
 
 def print_build_variables():
     lines = []
@@ -1681,6 +1695,8 @@ if __name__ == '__main__':
     rename_pycfml_python_wheel()
     detect_abi3_violations()
     check_wheel_contents()
+
+    create_wheel_build_script()
 
     add_main_script_header(f"Install {pyCFML} from Python package wheel")
     install_pycfml_from_wheel()
