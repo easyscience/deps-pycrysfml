@@ -15,5 +15,6 @@ macos = "14.0"
 
 [tasks]
 scripts = "python pybuild.py --create-scripts --enable-backslash-escapes"
+scripts-fresh = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo"
 build = "scripts/main.sh"
 benchmark = "scripts/run_pycfml_functional_tests_with_benchmarks_save.sh"

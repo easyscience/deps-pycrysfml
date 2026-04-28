@@ -238,6 +238,12 @@ def _enable_backslash_escapes():
         enable_backslash_escapes = ARGS.enable_backslash_escapes
     return enable_backslash_escapes
 
+def _force_download_cfml_repo():
+    force_download_cfml_repo = False
+    if ARGS.force_download_cfml_repo:
+        force_download_cfml_repo = ARGS.force_download_cfml_repo
+    return force_download_cfml_repo
+
 def _print_wheel_dir():
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
     print(wheel_dir)
@@ -500,6 +506,9 @@ def parsed_args():
     parser.add_argument("--enable-backslash-escapes",
                         action='store_true',
                         help="enable interpret backslash escapes (needed for GitHub CI)")
+    parser.add_argument("--force-download-cfml-repo",
+                        action='store_true',
+                        help="delete and re-download repo/CFML even when local sources already exist")
     parser.add_argument("--print-wheel-dir",
                         action='store_true',
                         help="print pycfml wheel directory name")
@@ -589,11 +598,18 @@ def create_cfml_repo_dir():
     repo_path = os.path.join(_project_path(), repo_dir)
     repo_src_dir = CONFIG['cfml']['dir']['repo-src']
     repo_src_path = os.path.join(_project_path(), repo_src_dir)
+    project_name = CONFIG['cfml']['log-name']
     lines = []
-    msg = _echo_msg(f"Preparing source dir '{repo_dir}'")
-    lines.append(msg)
-    cmd = f'if [ -d "{repo_src_path}" ]; then {_echo_cmd()} "{MSG_COLOR}:::::: Reusing existing local {CONFIG['cfml']['log-name']} sources in {repo_dir}{COLOR_OFF}"; else mkdir -p "{repo_path}"; fi'
-    lines.append(cmd)
+    if _force_download_cfml_repo():
+        msg = _echo_msg(f"Deleting source dir '{repo_dir}' because force download is enabled")
+        lines.append(msg)
+        cmd = f'rm -rf "{repo_path}"'
+        lines.append(cmd)
+    else:
+        msg = _echo_msg(f"Preparing source dir '{repo_dir}'")
+        lines.append(msg)
+        cmd = f'if [ -d "{repo_src_path}" ]; then {_echo_cmd()} "{MSG_COLOR}:::::: Reusing existing local {project_name} sources in {repo_dir}{COLOR_OFF}"; else mkdir -p "{repo_path}"; fi'
+        lines.append(cmd)
     msg = _echo_msg(f"Ensuring source dir '{repo_dir}' exists")
     lines.append(msg)
     cmd = f'mkdir -p "{repo_path}"'
@@ -611,9 +627,10 @@ def download_cfml_repo():
     src_dir = CONFIG['cfml']['dir']['repo-src']
     src_path = os.path.abspath(src_dir)
     lines = []
-    msg = _echo_msg(f"Checking for existing local {project_name} sources in '{out_dir}'")
-    lines.append(msg)
-    lines.append(f'if [ -d "{src_path}" ]; then {_echo_cmd()} "{MSG_COLOR}:::::: Using local {project_name} sources from {out_dir}{COLOR_OFF}"; exit 0; fi')
+    if not _force_download_cfml_repo():
+        msg = _echo_msg(f"Checking for existing local {project_name} sources in '{out_dir}'")
+        lines.append(msg)
+        lines.append(f'if [ -d "{src_path}" ]; then {_echo_cmd()} "{MSG_COLOR}:::::: Using local {project_name} sources from {out_dir}{COLOR_OFF}"; exit 0; fi')
     msg = _echo_msg(f"Downloading {project_name} ('{branch}' branch) to '{out_dir}' from {url}")
     lines.append(msg)
     cmd = CONFIG['template']['clone-repo']
