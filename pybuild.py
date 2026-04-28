@@ -143,8 +143,11 @@ def _python_version_full():  # full version, e.g., '3.11.6'
 def _python_version_short():  # short version, e.g., '311'
     return sysconfig.get_config_var('py_version_nodot')
 
-def _python_tag():  # tag, e.g., 'py311'
-    return f'py{_python_version_short()}'
+def _python_tag():  # tag, e.g., 'cp311'
+    return f'cp{_python_version_short()}'
+
+def _python_abi_tag():  # tag, e.g., 'cp311'
+    return f'cp{_python_version_short()}'
 
 def _python_site_packages():
     site_packages = site.getsitepackages()
@@ -182,7 +185,7 @@ def _initial_python_wheel_tags():
 def _new_python_wheel_tags():
     return {
         'python_tag': _python_tag(),
-        'abi_tag': 'none',
+        'abi_tag': _python_abi_tag(),
         'platform_tag': _platform_tag_github_ci()
     }
 
@@ -674,7 +677,7 @@ def create_pycfml_build_script():
             ('validate_pyproject_toml.sh', False),
             ('create_pycfml_python_wheel.sh', False),
             ('rename_pycfml_python_wheel.sh', False),
-            ('detect_abi3_violations.sh', False),
+            ('repair_pycfml_python_wheel_metadata.sh', False),
             ('check_wheel_contents.sh', False),
         ]),
     ]
@@ -712,7 +715,7 @@ def print_build_variables():
     lines.append(msg)
     msg = _echo_msg(f"Python version: {_python_version_full()}")
     lines.append(msg)
-    msg = _echo_msg(f"Python tag: {_python_tag()}")
+    msg = _echo_msg(f"Python wheel tag: {_python_tag()}-{_python_abi_tag()}")
     lines.append(msg)
     msg = _echo_msg(f"Python site packages: {_python_site_packages()}")
     lines.append(msg)
@@ -1555,6 +1558,7 @@ def rename_pycfml_python_wheel():
     lines.append(msg)
     cmd = CONFIG['template']['rename-wheel']
     cmd = cmd.replace('{PYTHON_TAG}', _python_tag())  # https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/
+    cmd = cmd.replace('{ABI_TAG}', _python_abi_tag())
     cmd = cmd.replace('{PLATFORM_TAG}', _platform_tag_github_ci())
     cmd = cmd.replace('{PATH}', '"$WHEEL_PATH"')
     lines.append(cmd)
@@ -1562,13 +1566,38 @@ def rename_pycfml_python_wheel():
     _write_lines_to_file(lines, script_name)
     append_to_main_script(lines)
 
-def detect_abi3_violations():
+def repair_pycfml_python_wheel_metadata():
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
     lines = _find_wheel_lines()
-    msg = _echo_msg(f"Scanning Python extensions in built python wheel from '{wheel_dir}' for abi3 violations")
+    msg = _echo_msg(f"Repairing built python wheel metadata in '{wheel_dir}'")
     lines.append(msg)
-    cmd = 'abi3audit "$WHEEL_PATH"'
-    lines.append(cmd)
+    lines.append('UNPACK_DIR=$(mktemp -d)')
+    lines.append('python3 -m wheel unpack --dest "$UNPACK_DIR" "$WHEEL_PATH" >/dev/null')
+    lines.append('UNPACKED_WHEEL_DIR=$(find "$UNPACK_DIR" -mindepth 1 -maxdepth 1 -type d | head -n 1)')
+    lines.append('[ -n "$UNPACKED_WHEEL_DIR" ] || { echo ":::::: ERROR: Could not unpack wheel metadata"; exit 1; }')
+    lines.append('WHEEL_METADATA_PATH=$(find "$UNPACKED_WHEEL_DIR" -type f -path "*.dist-info/WHEEL" | head -n 1)')
+    lines.append('[ -n "$WHEEL_METADATA_PATH" ] || { echo ":::::: ERROR: Could not locate WHEEL metadata"; exit 1; }')
+    lines.append('if ! WHEEL_METADATA_PATH="$WHEEL_METADATA_PATH" python3 - <<\'PY\'')
+    lines.append('import os')
+    lines.append('from pathlib import Path')
+    lines.append('')
+    lines.append('path = Path(os.environ["WHEEL_METADATA_PATH"])')
+    lines.append('text = path.read_text()')
+    lines.append('old = "Root-Is-Purelib: true"')
+    lines.append('new = "Root-Is-Purelib: false"')
+    lines.append('if new in text:')
+    lines.append('    raise SystemExit(0)')
+    lines.append('if old not in text:')
+    lines.append('    raise SystemExit(f"Could not find expected metadata marker in {path}")')
+    lines.append('path.write_text(text.replace(old, new, 1))')
+    lines.append('PY')
+    lines.append('then')
+    lines.append('    rm -rf "$UNPACK_DIR"')
+    lines.append('    exit 1')
+    lines.append('fi')
+    lines.append('rm -f "$WHEEL_PATH"')
+    lines.append(f'python3 -m wheel pack --dest-dir "{_wheel_dir_path()}" "$UNPACKED_WHEEL_DIR" >/dev/null')
+    lines.append('rm -rf "$UNPACK_DIR"')
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
     append_to_main_script(lines)
@@ -1780,7 +1809,7 @@ if __name__ == '__main__':
     validate_pyproject_toml()
     create_pycfml_python_wheel()
     rename_pycfml_python_wheel()
-    detect_abi3_violations()
+    repair_pycfml_python_wheel_metadata()
     check_wheel_contents()
 
     create_wheel_build_script()

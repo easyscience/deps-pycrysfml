@@ -49,7 +49,6 @@ ci = [
   'build',
   'wheel',
   'check-wheel-contents',
-  'abi3audit',
   'colorama'
 ]
 test = [
