@@ -69,7 +69,7 @@ no-default-lib.linux = 'patchelf --no-default-lib {PATH}.{EXT}'
 dependent-lib.change.macos = 'install_name_tool -change {OLD} {NEW} {PATH}.{EXT}'
 build-wheel = 'python3 -m build --wheel --outdir {PATH}'
 rename-wheel = 'python3 -m wheel tags --python-tag {PYTHON_TAG} --platform-tag {PLATFORM_TAG} --remove {PATH}'
-install-wheel = 'python3 -m pip install {PACKAGE} --force-reinstall --find-links={PATH}' # Dependencies "{PACKAGE}[test]" are installed via ci script
+install-wheel = 'pip --python $(command -v python3) install --force-reinstall {PATH}'
 run-python = 'python3 {PATH} {OPTIONS}'
 run-tests = 'pytest {PATH} --color=yes --benchmark-disable'
 run-benchmarks.base = 'pytest {PATH} --color=yes --benchmark-only --benchmark-storage="file://./.benchmarks/{PROJECT}/{RUNNER}/{COMPILER}/{PROCESSOR}" --benchmark-warmup=on --benchmark-columns="median, iqr, ops"'
