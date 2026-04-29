@@ -11,6 +11,6 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_scattering_tables
+        >>> from crysfml import cfml_scattering_tables
         >>> cfml_scattering_tables.get_covalent_radius('Fe',2)
         0.7599999904632568

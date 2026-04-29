@@ -1,7 +1,7 @@
 @echo off
 
 set CWD=%CD%
-set BUILD_DIR=..\..\..\..\build\pycrysfml\ifort_release
+set BUILD_DIR=..\..\..\..\build\crysfml\ifort_release
 set CRYSFML08_INSTALL=C:\Users\katcho\libs\crysfml08\ifort_release
 set PYTHON_INSTALL=C:\Users\katcho\AppData\Local\Programs\Python\Python314
 set OPT=/c /fpp /nologo /Qdiag-disable:10448 /libs:dll
@@ -107,15 +107,15 @@ rem /FORCE:MULTIPLE
 del *.obj *.mod *.smod *.exp *.lib
 
 rem # Build the python package
-rem # PyCrysFML directory
-if not exist pycrysfml (
-    mkdir pycrysfml
+rem # pyCFML directory
+if not exist crysfml (
+    mkdir crysfml
 )
-move crysfml08lib.dll pycrysfml\crysfml08lib.pyd
-copy Python\* pycrysfml\
+move crysfml08lib.dll crysfml\crysfml08lib.pyd
+copy Python\* crysfml\
 for %%F in (%LIBS%) do (
     echo Copiando %%F a %DEST%
-    copy %%F pycrysfml\
+    copy %%F crysfml\
 )
 
 rem # File setup.py
@@ -123,7 +123,7 @@ rem # File setup.py
 echo from setuptools import setup, find_packages
 echo import os
 echo setup^(
-echo ^    name='pycrysfml',
+echo ^    name='crysfml',
 echo ^    version='1.0.0',
 echo ^    description='Python wrapper of the CrysFML08 library',
 echo ^    author='Nebil A. Katcho, Juan Rodriguez Carvajal',
@@ -137,12 +137,12 @@ echo ^)
 
 rem # File MANIFEST.in
 (
-echo include pycrysfml/*.pyd
-echo include pycrysfml/*.dll
+echo include crysfml/*.pyd
+echo include crysfml/*.dll
 ) > MANIFEST.in
 
 rem # Generate the wheel
 python setup.py bdist_wheel
 cd dist
-pip install pycrysfml-1.0.0-py3-none-any.whl --force-reinstall --no-deps
+pip install crysfml-1.0.0-py3-none-any.whl --force-reinstall --no-deps
 cd %CWD%

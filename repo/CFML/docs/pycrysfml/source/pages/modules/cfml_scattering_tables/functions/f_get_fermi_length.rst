@@ -9,6 +9,6 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_scattering_tables
+        >>> from crysfml import cfml_scattering_tables
         >>> cfml_scattering_tables.get_fermi_length('Fe')
         0.9449999928474426

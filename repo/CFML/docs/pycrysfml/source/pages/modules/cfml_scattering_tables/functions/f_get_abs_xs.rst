@@ -9,6 +9,6 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_scattering_tables
+        >>> from crysfml import cfml_scattering_tables
         >>> cfml_scattering_tables.get_abs_xs('Fe')
         2.559999942779541

@@ -12,19 +12,19 @@ set CRYSFML08_INSTALL=""
 cd %CRYSFML08_INSTALL%
 mkdir build
 cd build
-mkdir pycrysfml
+mkdir crysfml
 for %%F in (%LIBS%) do (
   echo Copiando %%F 
-  copy %%F pycrysfml\
+  copy %%F crysfml\
 )
-copy ..\pycrysfml\* pycrysfml\
+copy ..\crysfml\* crysfml\
 
 rem # File setup.py
 (
 echo from setuptools import setup, find_packages
 echo import os
 echo setup^(
-echo ^    name='pycrysfml',
+echo ^    name='crysfml',
 echo ^    version='1.0.0',
 echo ^    description='Python wrapper of the CrysFML08 library',
 echo ^    author='Nebil A. Katcho, Juan Rodriguez Carvajal',
@@ -38,12 +38,12 @@ echo ^)
 
 rem # File MANIFEST.in
 (
-echo include pycrysfml/*.pyd
-echo include pycrysfml/*.dll
+echo include crysfml/*.pyd
+echo include crysfml/*.dll
 ) > MANIFEST.in
 
 rem # Generate the wheel
 python setup.py bdist_wheel
 cd dist
-pip install pycrysfml-1.0.0-py3-none-any.whl --force-reinstall --no-deps
+pip install crysfml-1.0.0-py3-none-any.whl --force-reinstall --no-deps
 cd %CWD%

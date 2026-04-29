@@ -10,7 +10,7 @@ python = "3.14.*"
 
 [feature.dev.pypi-dependencies]
 pip = '*'
-pycrysfml = { path = '.', editable = true, extras = ['ci', 'test'] }
+crysfml = { path = '.', editable = true, extras = ['ci', 'test'] }
 
 [feature.wheeltest.pypi-dependencies]
 pip = '*'

@@ -65,7 +65,7 @@ jobs:
         uses: enhantica/drafterino@v2
         with:
           config: |
-            title: 'pycrysfml $COMPUTED_VERSION'
+            title: 'crysfml $COMPUTED_VERSION'
             tag: 'v$COMPUTED_VERSION'
             note-template: '- $PR_TITLE (#$PR_NUMBER)'
 

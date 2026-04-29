@@ -9,7 +9,7 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_scattering_tables
+        >>> from crysfml import cfml_scattering_tables
         >>> row = cfml_scattering_tables.get_anomalous_scfac(26)
         >>> for k in row:
         ...   print(f'{k :>6}: {row[k]}')

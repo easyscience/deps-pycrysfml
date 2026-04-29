@@ -144,9 +144,9 @@ endif()
 
 # Python API
 if (PYTHON_API)
-    install(TARGETS crysfml08lib DESTINATION ${CMAKE_INSTALL_PREFIX}/pycrysfml)
+    install(TARGETS crysfml08lib DESTINATION ${CMAKE_INSTALL_PREFIX}/crysfml)
     file(GLOB PY_FILES ${CMAKE_CURRENT_SOURCE_DIR}/PythonAPI/Python/*.py)
-    install(FILES ${PY_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/pycrysfml)
+    install(FILES ${PY_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/crysfml)
 endif()
 
 

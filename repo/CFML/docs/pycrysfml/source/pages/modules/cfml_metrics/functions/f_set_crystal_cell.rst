@@ -18,7 +18,7 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_metrics
+        >>> from crysfml import cfml_metrics
         >>> import numpy as np
         >>> vcell = np.array([4.0,4.0,7.0],dtype=np.float32)
         >>> vang = np.array([90.0,90.0,120.0],dtype=np.float32)

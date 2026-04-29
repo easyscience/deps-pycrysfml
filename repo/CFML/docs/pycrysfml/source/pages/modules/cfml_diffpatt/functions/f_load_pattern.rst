@@ -16,7 +16,7 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_diffpatt
+        >>> from crysfml import cfml_diffpatt
         >>> pat = cfml_diffpatt.load_pattern("pbso4.dat",mode="d1a")
         >>> for k in pat:
         ...   print(f'{k :>16}: {pat[k]}')

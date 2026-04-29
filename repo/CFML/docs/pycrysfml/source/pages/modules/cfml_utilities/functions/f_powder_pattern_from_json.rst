@@ -12,7 +12,7 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_utilities
+        >>> from crysfml import cfml_utilities
         >>> import json
         >>> # Build a dictionary from a json file
         >>> with open('SrTiO3.json') as f:

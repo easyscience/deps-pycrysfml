@@ -29,9 +29,9 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_metrics
-        >>> from pycrysfml import cfml_gspacegroups
-        >>> from pycrysfml import cfml_reflections
+        >>> from crysfml import cfml_metrics
+        >>> from crysfml import cfml_gspacegroups
+        >>> from crysfml import cfml_reflections
         >>> import numpy as np
         >>> vcell = np.array([4.0,5.0,6.0],dtype=np.float32)
         >>> vang = np.array([90.0,90.0,90.0],dtype=np.float32)

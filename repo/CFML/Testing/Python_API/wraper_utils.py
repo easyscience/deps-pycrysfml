@@ -338,7 +338,7 @@ def write_api_init(procs : dict,nprocs : int) -> None:
                 f.write(f"{' ':>12}c_funloc(py_{p}))\n")
 
         f.write(f"\n{' ':>8}! Build mod_Def\n")
-        f.write(f"{' ':>8}m = mod_Def%init(\"pycrysfml\",&\n")
+        f.write(f"{' ':>8}m = mod_Def%init(\"crysfml\",&\n")
         f.write(f"{' ':>12}\"A Python API for CrysFML08\",method_Table)")
         f.write(f"\n{' ':>4}end function Init\n")
         f.write(f"\nend module api_init\n")

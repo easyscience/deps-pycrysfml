@@ -15,8 +15,8 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_diffpatt
-        >>> from pycrysfml import cflm_bckpeaks
+        >>> from crysfml import cfml_diffpatt
+        >>> from crysfml import cflm_bckpeaks
         >>> pat = cfml_diffpatt.load_pattern('03-LFP_Discover.dat',mode='xysigma')
         >>> pkb = cfml_bckpeaks.automatic_peak_background_search(pat,10.0,80.0,'peaks')
         >>> for k in pkb:

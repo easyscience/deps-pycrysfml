@@ -3,30 +3,30 @@ import sys
 
 # Tests
 
-def test__import_pycrysfml():
-    msg = 'import pycrysfml'
+def test__import_crysfml():
+    msg = 'import crysfml'
     try:
-        import pycrysfml
+        import crysfml
         print(f"::::: Succeeded to '{msg}'")
         assert True
     except Exception as e:
         print(f"::::: Failed to '{msg}': {e}")
         assert False
 
-def _test__from_pycrysfml_import_crysfml08lib():
-    msg = 'from pycrysfml import crysfml08lib'
+def _test__from_crysfml_import_crysfml08lib():
+    msg = 'from crysfml import crysfml08lib'
     try:
-        from pycrysfml import crysfml08lib
+        from crysfml import crysfml08lib
         print(f"::::: Succeeded to '{msg}'")
         assert True
     except Exception as e:
         print(f"::::: Failed to '{msg}': {e}")
         assert False
 
-def test__from_pycrysfml_import_cfml_py_utilities():
-    msg = 'from pycrysfml import cfml_py_utilities'
+def test__from_crysfml_import_cfml_py_utilities():
+    msg = 'from crysfml import cfml_py_utilities'
     try:
-        from pycrysfml import cfml_py_utilities
+        from crysfml import cfml_py_utilities
         print(f"::::: Succeeded to '{msg}'")
         assert True
     except Exception as e:
@@ -36,5 +36,5 @@ def test__from_pycrysfml_import_cfml_py_utilities():
 # Debug
 
 if __name__ == '__main__':
-    test__import_pycrysfml()
-    test__from_pycrysfml_import_cfml_py_utilities()
+    test__import_crysfml()
+    test__from_crysfml_import_cfml_py_utilities()

@@ -4,7 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pycrysfml import cfml_utilities
+from crysfml import cfml_utilities
 
 
 STUDY_DICT_PM3M = {

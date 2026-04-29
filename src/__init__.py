@@ -4,7 +4,7 @@ import sys
 
 
 # Set package version
-__version__ = importlib.metadata.version("pycrysfml")
+__version__ = importlib.metadata.version("crysfml")
 
 _pkg_dir = os.path.dirname(__file__)
 _db_dir = os.path.join(_pkg_dir, 'Databases')

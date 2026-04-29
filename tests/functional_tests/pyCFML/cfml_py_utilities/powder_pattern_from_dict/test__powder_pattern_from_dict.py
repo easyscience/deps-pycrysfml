@@ -15,7 +15,7 @@ from tests.helpers import (chi_squared,
                            dat_to_ndarray,
                            sub_to_ndarray)
 
-from pycrysfml import cfml_py_utilities
+from crysfml import cfml_py_utilities
 
 
 PLOT_CHARTS_IN_TESTS = bool(int(os.environ.get('PLOT_CHARTS_IN_TESTS', '0')))
@@ -49,7 +49,7 @@ def plot_charts(desired_x:np.ndarray,
         plt.plot(actual_x, actual_y, linestyle='dotted')
         plt.plot(desired_x, actual_y - desired_y - vertical_shift)
     #plt.xlim(75000, 76000)
-    plt.legend(["FullProf", "PyCrysFML"])
+    plt.legend(["FullProf", "crysfml"])
     plt.title(f'{inspect.stack()[1].function}, chi2={chi2:.1f}')
     plt.show()
 

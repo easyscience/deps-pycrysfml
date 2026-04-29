@@ -9,7 +9,7 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_symmetry_tables
+        >>> from crysfml import cfml_symmetry_tables
         >>> row = cfml_symmetry_tables.get_spgr_info(100)
         >>> for k in row:
         ...   print(f'{k :>10}: {row[k]}')

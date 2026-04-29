@@ -9,6 +9,6 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_scattering_tables
+        >>> from crysfml import cfml_scattering_tables
         >>> cfml_scattering_tables.get_atomic_vol('Fe')
         7.099999904632568

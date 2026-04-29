@@ -101,20 +101,20 @@ gfortran -fPIC -shared -o crysfml08lib.so *.o -L $CRYSFML08_DIR/lib -L $PYTHON_D
 rm *.o *.mod *.smod
 
 # Build the python package
-# PyCrysFML directory
-if [ ! -d pycrysfml ]; then
-    mkdir pycrysfml
+# pyCFML directory
+if [ ! -d crysfml ]; then
+    mkdir crysfml
 fi
-mv crysfml08lib.so pycrysfml/
-cp Python/* pycrysfml/
-cp $LIB_GFORTRAN pycrysfml/
-cp $LIB_QUADMATH pycrysfml/
-cp $LIB_PYTHON   pycrysfml/
+mv crysfml08lib.so crysfml/
+cp Python/* crysfml/
+cp $LIB_GFORTRAN crysfml/
+cp $LIB_QUADMATH crysfml/
+cp $LIB_PYTHON   crysfml/
 # File setup.py
 echo "from setuptools import setup, find_packages" > setup.py
 echo "import os" >> setup.py
 echo "setup(" >> setup.py
-echo "        name='pycrysfml'," >> setup.py
+echo "        name='crysfml'," >> setup.py
 echo "        version='1.0.0'," >> setup.py
 echo "        description='Python wrapper of the CrysFML08 library'," >> setup.py
 echo "        author='Nebil A. Katcho, Juan Rodriguez Carvajal'," >> setup.py
@@ -125,10 +125,10 @@ echo "                'numpy'," >> setup.py
 echo "        ]," >> setup.py
 echo ")" >> setup.py
 # File MANIFEST.in
-echo "include pycrysfml/*dylib" > MANIFEST.in
-echo "include pycrysfml/*so" >> MANIFEST.in
+echo "include crysfml/*dylib" > MANIFEST.in
+echo "include crysfml/*so" >> MANIFEST.in
 # Generate the wheel
 python setup.py bdist_wheel
 # Install
 cd dist
-pip install pycrysfml-1.0.0-py3-none-any.whl --force-reinstall --no-deps
+pip install crysfml-1.0.0-py3-none-any.whl --force-reinstall --no-deps

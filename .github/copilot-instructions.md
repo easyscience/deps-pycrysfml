@@ -11,7 +11,7 @@
 
 - Treat [.github/workflows/build-release.yml] as the canonical build
   pipeline for release-mode wheel builds in this repository.
-- `build-release.yml` is used to build pycrysfml with the release-mode
+- `build-release.yml` is used to build crysfml with the release-mode
   options from `pybuild.toml`, run tests against the built wheel, and
   upload wheel artifacts to the workflow run for local validation.
 - The intended release flow is staged: merging `develop` into `master`

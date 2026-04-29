@@ -554,6 +554,24 @@ packages:
   - pytest-xdist ; extra == 'test-no-images'
   - wurlitzer ; extra == 'test-no-images'
   requires_python: '>=3.11'
+- pypi: ./
+  name: crysfml
+  version: 0.4.0+devdirty32
+  sha256: ea0355fbdbef07fe0b64e9567083c82c3332d927add4b58af1e44c89f70e95fb
+  requires_dist:
+  - numpy
+  - build ; extra == 'ci'
+  - check-wheel-contents ; extra == 'ci'
+  - colorama ; extra == 'ci'
+  - toml ; extra == 'ci'
+  - validate-pyproject[all] ; extra == 'ci'
+  - wheel ; extra == 'ci'
+  - deepdiff ; extra == 'test'
+  - matplotlib ; extra == 'test'
+  - pygit2 ; extra == 'test'
+  - pytest ; extra == 'test'
+  - pytest-benchmark ; extra == 'test'
+  requires_python: '>=3.11,<3.15'
 - pypi: https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl
   name: cycler
   version: 0.12.1
@@ -1410,24 +1428,6 @@ packages:
   version: '3.0'
   sha256: b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992
   requires_python: '>=3.10'
-- pypi: ./
-  name: pycrysfml
-  version: 0.4.0+devdirty20
-  sha256: 96be8c7eabb7c4b44feff24fef31aa6ecd828dded5682256c65f6c1c61efe6c4
-  requires_dist:
-  - numpy
-  - build ; extra == 'ci'
-  - check-wheel-contents ; extra == 'ci'
-  - colorama ; extra == 'ci'
-  - toml ; extra == 'ci'
-  - validate-pyproject[all] ; extra == 'ci'
-  - wheel ; extra == 'ci'
-  - deepdiff ; extra == 'test'
-  - matplotlib ; extra == 'test'
-  - pygit2 ; extra == 'test'
-  - pytest ; extra == 'test'
-  - pytest-benchmark ; extra == 'test'
-  requires_python: '>=3.11,<3.15'
 - pypi: https://files.pythonhosted.org/packages/f3/0a/fd7d723f8f8153418fb40cf9c940e82004fce7e987026b08a68a36dd3fe7/pydantic-2.13.3-py3-none-any.whl
   name: pydantic
   version: 2.13.3

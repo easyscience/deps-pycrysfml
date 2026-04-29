@@ -1,7 +1,7 @@
 [project]
-name = 'pycrysfml'
+name = 'crysfml'
 dynamic = ['version']
-description = 'Python bindings for the CrysFML2008 crystallographic library'
+description = 'Python access to the CrysFML2008 crystallographic Fortran library'
 #keywords = ['crystallography', 'diffraction', 'fortran', 'python-bindings']
 authors = [
   {name = 'Juan Rodríguez-Carvajal', email = 'jrc@ill.fr'},
@@ -76,5 +76,5 @@ match = ['v*']
 default-tag = 'v0.0.0'
 
 [tool.hatch.build.targets.wheel]
-packages = ['dist/pyCFML/pycrysfml']
+packages = ['dist/pyCFML/crysfml']
 artifacts = ['*.py', '*.so', '*.so.*', '*.dylib', '*.pyd', '*.dll', '*.txt']

@@ -1,6 +1,6 @@
 import json
 import traceback
-from pycrysfml import cfml_py_utilities
+from crysfml import cfml_py_utilities
 
 json_file='Al2O3_cw.json'
 

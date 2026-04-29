@@ -17,7 +17,7 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_bckpeaks
+        >>> from crysfml import cfml_bckpeaks
         >>> cfml_bckpeaks.set_pkb_conditions(pk_th=1.0,iter=5)
         >>> pkb = cfml_bckpeaks.get_pkb_conditions()
         >>> for k in pkb:

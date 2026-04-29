@@ -9,7 +9,7 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_symmetry_tables
+        >>> from crysfml import cfml_symmetry_tables
         >>> row = cfml_symmetry_tables.get_shubnikov_info(1000)
         >>> for k in row:
         ...   print(f'{k :>10}: {row[k]}')

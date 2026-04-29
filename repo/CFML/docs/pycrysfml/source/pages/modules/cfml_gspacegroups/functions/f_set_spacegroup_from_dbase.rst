@@ -34,7 +34,7 @@
 
     .. code-block:: python
 
-        >>> from pycrysfml import cfml_gspacegroups
+        >>> from crysfml import cfml_gspacegroups
         >>> sg = cfml_gspacegroups.set_spacegroup_from_dbase("Pn'ma","shubn",setting="-c,b,a;0,0,0")
         >>> for k in sg:
         ...   print(f'{k :>16}: {sg[k]}')
