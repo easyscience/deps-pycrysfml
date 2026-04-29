@@ -13,18 +13,24 @@
   pipeline for release-mode wheel builds in this repository.
 - `build-release.yml` is used to build crysfml with the release-mode
   options from `pybuild.toml`, run tests against the built wheel, and
-  upload wheel artifacts to the workflow run for local validation.
+  upload validated wheel artifacts to the workflow run for local validation
+  and later release staging.
 - The intended release flow is staged: merging `develop` into `master`
   via pull request should result in a successful `build-release.yml`
   run on `master`, after which `release-notes.yml` should create or
-  update the draft GitHub release and push the release tag for the same
-  commit.
+  update the draft GitHub release for that commit.
 - Publishing that draft GitHub release should be treated as the event
   that triggers `pypi-publish.yml`. That publish workflow must consume
   the wheels already staged on the GitHub release rather than rebuilding
   different artifacts unless explicitly requested.
-- Treat tag-triggered runs of `build-release.yml` as the source of the
-  exact-version wheels that are uploaded to the GitHub draft release.
+- Treat `release-notes.yml` as the stage that drafts or updates the
+  GitHub release on merges to `master` with the suggested tag, release
+  title, and release notes, while leaving remote tag creation to manual
+  release publication from the GitHub UI.
+- Treat `build-release.yml` as the stage that computes the same
+  suggested release tag on `master`, creates that tag locally in CI so
+  `versioningit` builds exact-version wheels without pushing a remote
+  tag, and uploads the validated wheels to the GitHub draft release.
 - Treat `pybuild.py` and `pybuild.toml` as the source of truth for the
   generated shell scripts in `scripts/`.
 - Do not edit generated files in `scripts/` directly unless the task is
@@ -40,10 +46,10 @@
   to affect both debug and release pipelines.
 - If release automation is split across multiple workflows, keep the
   contract between them explicit: `build-release.yml` produces validated
-  wheel artifacts, `release-notes.yml` creates or updates the draft
-  release and release tag, tag-triggered release builds upload the
-  exact-version wheels, and `pypi-publish.yml` consumes the published
-  release assets.
+  exact-version wheel artifacts on `master` and stages them on the draft
+  release, `release-notes.yml` maintains the draft release metadata and
+  suggested tag without pushing the remote tag, and `pypi-publish.yml`
+  consumes the published release assets.
 - When changing package metadata, wheel naming, Python-version support,
   or release versioning, update all linked sources of truth together,
   including `pyproject.toml`, workflow assumptions, and release-facing

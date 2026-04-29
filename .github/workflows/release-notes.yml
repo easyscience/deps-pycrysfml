@@ -1,26 +1,18 @@
-# Creates or updates the draft GitHub release after a successful
-# release-mode build on the default branch.
+# Drafts the next release notes when changes are merged into master.
+# The draft suggests the release tag, and the remote tag is created only
+# when the draft release is manually published.
 
 name: Release draft update
 
 on:
-  workflow_run:
-    workflows: ['release-build-and-test']
-    types: [completed]
+  # Runs on pushes targeting the default branch (updates the real draft release)
+  push:
+    branches: [master, main]
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
-# Opt into Node.js 24 for all JavaScript actions.
-# Remove once all referenced actions natively target Node 24.
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   draft-release-notes:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       (github.event.workflow_run.head_branch == 'master' ||
-        github.event.workflow_run.head_branch == 'main'))
     permissions:
       # write permission is required to create a github release
       contents: write
@@ -28,15 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository (workflow run)
-        if: ${{ github.event_name == 'workflow_run' }}
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
-          fetch-depth: 0 # full history with tags to get the version number
-
-      - name: Checkout repository (manual)
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+      - name: Checkout repository
         uses: actions/checkout@v5
         with:
           fetch-depth: 0 # full history with tags to get the version number
@@ -47,18 +31,6 @@ jobs:
         with:
           app-id: ${{ vars.EASYSCIENCE_APP_ID }}
           private-key: ${{ secrets.EASYSCIENCE_APP_KEY }}
-
-      - name: Checkout repository (with bot token)
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
-          fetch-depth: 0
-          token: ${{ steps.bot.outputs.token }}
-
-      - name: Configure git identity
-        run: |
-          git config user.name "easyscience[bot]"
-          git config user.email "${{ vars.EASYSCIENCE_APP_ID }}+easyscience[bot]@users.noreply.github.com"
 
       - name: Drafts the next release notes
         id: draft
@@ -86,17 +58,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
 
-      - name: Create release tag
-        env:
-          TAG_NAME: ${{ steps.draft.outputs.tag_name }}
-        run: |
-          if git ls-remote --exit-code --tags origin "refs/tags/${TAG_NAME}" >/dev/null 2>&1; then
-            echo "Tag ${TAG_NAME} already exists on origin"
-          else
-            git tag "${TAG_NAME}" HEAD
-            git push origin "${TAG_NAME}"
-          fi
-
       - name: Create GitHub draft release
         uses: softprops/action-gh-release@v2
         with:
@@ -104,6 +65,6 @@ jobs:
           tag_name: ${{ steps.draft.outputs.tag_name }}
           name: ${{ steps.draft.outputs.release_name }}
           body: ${{ steps.draft.outputs.release_notes }}
-          target_commitish: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          target_commitish: ${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
