@@ -2,7 +2,7 @@
 name = 'pycrysfml'
 dynamic = ['version']
 description = 'Python bindings for the CrysFML2008 crystallographic library'
-keywords = ['crystallography', 'diffraction', 'fortran', 'python-bindings']
+#keywords = ['crystallography', 'diffraction', 'fortran', 'python-bindings']
 authors = [
   {name = 'Juan Rodríguez-Carvajal', email = 'jrc@ill.fr'},
   {name = 'Javier Gonzalez-Platas', email = 'jplatas@ull.edu.es'},
@@ -36,9 +36,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = 'https://github.com/easyscience/deps-pycrysfml'
-Repository = 'https://github.com/easyscience/deps-pycrysfml'
-Issues = 'https://github.com/easyscience/deps-pycrysfml/issues'
+#Homepage = 'https://github.com/easyscience/deps-pycrysfml'
+#Repository = 'https://github.com/easyscience/deps-pycrysfml'
+#Issues = 'https://github.com/easyscience/deps-pycrysfml/issues'
 License = 'https://github.com/easyscience/deps-pycrysfml/blob/master/LICENSE'
 'Upstream CrysFML' = 'https://code.ill.fr/scientific-software/CrysFML2008'
 

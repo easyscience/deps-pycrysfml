@@ -28,10 +28,10 @@ print(pycrysfml.__version__)
 
 ## Links
 
-- Repository: [github.com/easyscience/deps-pycrysfml](https://github.com/easyscience/deps-pycrysfml)
-- Issues: [github.com/easyscience/deps-pycrysfml/issues](https://github.com/easyscience/deps-pycrysfml/issues)
-- Upstream CrysFML2008: [code.ill.fr/scientific-software/CrysFML2008](https://code.ill.fr/scientific-software/CrysFML2008)
+- Upstream CrysFML2008: 
+  [code.ill.fr/scientific-software/CrysFML2008](https://code.ill.fr/scientific-software/CrysFML2008)
 
 ## License
 
-See the [LICENSE](https://github.com/easyscience/deps-pycrysfml/blob/master/LICENSE) for the terms that apply to this distribution, including the non-military-use restriction.
+See the [LICENSE](https://github.com/easyscience/deps-pycrysfml/blob/master/LICENSE) for the 
+terms that apply to this distribution. 
