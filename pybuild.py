@@ -133,6 +133,12 @@ def _platform_tag_github_ci():  # sysconf always returns 'macosx_10_9_universal2
         version = '.'.join(version[:2])  # ['14', '0'] => '14.0'; ['12', '0', '5'] => '12.0'
         machine = platform.mac_ver()[2]  # e.g., 'arm64'
         tag = f'macosx-{version}-{machine}'
+    elif _platform() == 'linux':
+        libc_name, libc_version = platform.libc_ver()
+        version = libc_version.split('.')
+        if libc_name == 'glibc' and len(version) >= 2:
+            machine = sysconfig.get_platform().split('-')[-1]
+            tag = f'manylinux_{version[0]}_{version[1]}_{machine}'
     tag = tag.replace('-', '_')
     tag = tag.replace('.', '_')
     return tag
