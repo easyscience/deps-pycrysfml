@@ -1408,7 +1408,7 @@ def change_runpath_for_built_pycfml():
 def copy_extra_libs_to_pycfml_dist():
     def _copy_resolved_lib_lines(display_name: str, resolve_cmd: str):
         local_lines = []
-        local_lines.append(f'_resolved_path="$({resolve_cmd})"')
+        local_lines.append(f'_resolved_path=$({resolve_cmd})')
         local_lines.append('if [ -z "$_resolved_path" ] || [ ! -f "$_resolved_path" ]; then')
         local_lines.append(f'  {_echo_cmd()} "{ERROR_COLOR}:::::: ERROR: Failed to resolve runtime library \'{display_name}\' for compiler {_compiler_name()}{COLOR_OFF}"')
         local_lines.append('  exit 1')
@@ -1435,11 +1435,11 @@ def copy_extra_libs_to_pycfml_dist():
     lines = []
     if _platform() == 'linux':
         for lib_name in extra_libs:
-            resolve_cmd = f'ldd "{shared_lib_path}" | awk \"$1 == \\\"{lib_name}\\\" && $3 ~ /^\\// {{print $3; exit}}\"'
+            resolve_cmd = f"ldd \"{shared_lib_path}\" | grep -F '{lib_name} => ' | sed -E 's/^[[:space:]]*[^[:space:]]+[[:space:]]+=>[[:space:]]+([^[:space:]]+).*/\\1/' | head -n 1"
             lines.extend(_copy_resolved_lib_lines(lib_name, resolve_cmd))
     elif _platform() == 'macos':
         for lib_name in extra_libs:
-            resolve_cmd = f"otool -L \"{shared_lib_path}\" | awk -v lib=\"{lib_name}\" '$1 ~ /^\\// {{ n = split($1, parts, \"/\"); if (parts[n] == lib) {{ print $1; exit }} }}'"
+            resolve_cmd = f"otool -L \"{shared_lib_path}\" | grep -F '/{lib_name} (' | sed -E 's/^[[:space:]]*([^[:space:]]+).*/\\1/' | head -n 1"
             lines.extend(_copy_resolved_lib_lines(lib_name, resolve_cmd))
     elif _platform() == 'windows' and _compiler_name() == 'gfortran':
         for lib_name in extra_libs:
