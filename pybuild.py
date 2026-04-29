@@ -1,5 +1,4 @@
 import argparse
-import datetime
 import os
 import platform
 import site
@@ -46,6 +45,11 @@ def _scripts_path():
 
 def _main_script_path():
     name = 'main.sh'
+    path = os.path.join(_scripts_path(), name)
+    return path
+
+def _wheel_build_script_path():
+    name = 'wheel_build.sh'
     path = os.path.join(_scripts_path(), name)
     return path
 
@@ -139,8 +143,11 @@ def _python_version_full():  # full version, e.g., '3.11.6'
 def _python_version_short():  # short version, e.g., '311'
     return sysconfig.get_config_var('py_version_nodot')
 
-def _python_tag():  # tag, e.g., 'py311'
-    return f'py{_python_version_short()}'
+def _python_tag():  # tag, e.g., 'cp311'
+    return f'cp{_python_version_short()}'
+
+def _python_abi_tag():  # tag, e.g., 'cp311'
+    return f'cp{_python_version_short()}'
 
 def _python_site_packages():
     site_packages = site.getsitepackages()
@@ -163,7 +170,7 @@ def _python_lib():
 
 def _ifport_lib():
     try:
-        ifport_lib = CONFIG['build'][_platform()][_compiler_name()]
+        ifport_lib = CONFIG['build']['ifport-lib'][_platform()][_compiler_name()]
     except KeyError:
         ifport_lib = ''
     return ifport_lib
@@ -178,27 +185,27 @@ def _initial_python_wheel_tags():
 def _new_python_wheel_tags():
     return {
         'python_tag': _python_tag(),
-        'abi_tag': 'none',
+        'abi_tag': _python_abi_tag(),
         'platform_tag': _platform_tag_github_ci()
     }
 
-def _initial_wheel_name():
-    dist_package_name = PYPROJECT['project']['name']
-    dist_package_version = PYPROJECT['project']['version']
-    python_tag = _initial_python_wheel_tags()['python_tag']
-    abi_tag = _initial_python_wheel_tags()['abi_tag']
-    platform_tag = _initial_python_wheel_tags()['platform_tag']
-    name = f'{dist_package_name}-{dist_package_version}-{python_tag}-{abi_tag}-{platform_tag}.whl'
-    return name
+def _wheel_dir_path():
+    wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
+    return os.path.join(_project_path(), wheel_dir)
 
-def _new_wheel_name():
+def _wheel_file_glob():
     dist_package_name = PYPROJECT['project']['name']
-    dist_package_version = PYPROJECT['project']['version']
-    python_tag = _new_python_wheel_tags()['python_tag']
-    abi_tag = _new_python_wheel_tags()['abi_tag']
-    platform_tag = _new_python_wheel_tags()['platform_tag']
-    name = f'{dist_package_name}-{dist_package_version}-{python_tag}-{abi_tag}-{platform_tag}.whl'
-    return name
+    wheel_dir = _wheel_dir_path()
+    return os.path.join(wheel_dir, f'{dist_package_name}-*.whl')
+
+def _find_wheel_lines(var_name: str = 'WHEEL_PATH'):
+    wheel_glob = _wheel_file_glob()
+    wheel_dir = os.path.dirname(wheel_glob)
+    wheel_pattern = os.path.basename(wheel_glob)
+    lines = []
+    lines.append(f'{var_name}=$(find "{wheel_dir}" -maxdepth 1 -type f -name "{wheel_pattern}" | head -n 1)')
+    lines.append(f'[ -n "${{{var_name}}}" ] || {{ echo ":::::: ERROR: Could not find built wheel in {wheel_dir}"; exit 1; }}')
+    return lines
 
 def _fix_file_permissions(path: str):
     os.chmod(path, 0o777)
@@ -239,21 +246,42 @@ def _enable_backslash_escapes():
         enable_backslash_escapes = ARGS.enable_backslash_escapes
     return enable_backslash_escapes
 
+def _force_download_cfml_repo():
+    force_download_cfml_repo = False
+    if ARGS.force_download_cfml_repo:
+        force_download_cfml_repo = ARGS.force_download_cfml_repo
+    return force_download_cfml_repo
+
+def _cfml_git_branch():
+    branch = CONFIG['cfml']['git']['branch']
+    if ARGS.cfml_branch:
+        branch = ARGS.cfml_branch
+    return branch
+
+def _cfml_git_commit():
+    if ARGS.cfml_commit:
+        return ARGS.cfml_commit
+    return None
+
+def _vendored_cfml_metadata_lines(out_path: str, url: str, branch: str):
+    metadata_path = os.path.join(out_path, 'VENDORED_FROM.txt')
+    lines = []
+    lines.append(f'VENDORED_CFML_COMMIT=$(git -C "{out_path}" rev-parse HEAD)')
+    lines.append(f'cat > "{metadata_path}" <<EOF')
+    lines.append(f'Upstream repository: {url}')
+    lines.append(f'Vendored branch: {branch}')
+    lines.append('Vendored commit: $VENDORED_CFML_COMMIT')
+    lines.append('Vendored on: $(date +%Y-%m-%d)')
+    lines.append('')
+    lines.append('This directory is a tracked vendored copy of the upstream CrysFML sources.')
+    lines.append('It is intentionally kept as normal repository content, not as a Git submodule.')
+    lines.append('EOF')
+    lines.append(f'rm -rf "{out_path}/.git"')
+    return lines
+
 def _print_wheel_dir():
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
     print(wheel_dir)
-
-def _print_release_version():
-    release_version = PYPROJECT['project']['version']
-    release_version = f'v{release_version}'
-    print(release_version)
-
-def _print_release_title():
-    release_version = PYPROJECT['project']['version']
-    dt = datetime.datetime.now()
-    build_date = f'{dt.day} {dt:%b} {dt.year}'  # e.g. 3 Jun 2021
-    release_title = f'Version {release_version} ({build_date})'
-    print(release_title)
 
 def _compiler_name():
     compiler = 'gfortran'  # default
@@ -499,7 +527,7 @@ def parsed_args():
                         help="platform identifier")
     parser.add_argument("--compiler",
                         default="gfortran",
-                        choices=['gfortran', 'nagfor', 'ifx', 'ifort'],
+                        choices=['gfortran', 'ifx'],
                         type=str.lower,
                         help="fortran compiler")
     parser.add_argument("--mode",
@@ -513,15 +541,20 @@ def parsed_args():
     parser.add_argument("--enable-backslash-escapes",
                         action='store_true',
                         help="enable interpret backslash escapes (needed for GitHub CI)")
+    parser.add_argument("--force-download-cfml-repo",
+                        action='store_true',
+                        help="delete and re-download repo/CFML even when local sources already exist")
+    parser.add_argument("--cfml-branch",
+                        default=None,
+                        type=str,
+                        help="branch to use when refreshing vendored repo/CFML")
+    parser.add_argument("--cfml-commit",
+                        default=None,
+                        type=str,
+                        help="commit to use when refreshing vendored repo/CFML")
     parser.add_argument("--print-wheel-dir",
                         action='store_true',
                         help="print pycfml wheel directory name")
-    parser.add_argument("--print-release-version",
-                        action='store_true',
-                        help="print pycfml package release version")
-    parser.add_argument("--print-release-title",
-                        action='store_true',
-                        help="print pycfml package release title")
     return parser.parse_args()
 
 def loaded_pyproject():
@@ -553,7 +586,7 @@ def clear_main_script():
         file = Path(path)
         file.parent.mkdir(exist_ok=True, parents=True)
     with open(path, 'w') as file:
-        pass
+        file.write('set -e\n')
 
 def append_to_main_script(obj: str | list):
     path = _main_script_path()
@@ -570,6 +603,95 @@ def append_to_main_script(obj: str | list):
 def add_main_script_header(txt: str):
     header = _echo_header(txt)
     append_to_main_script(header)
+
+def _script_invocation(script_name: str, source_script: bool = False):
+    if source_script:
+        return f'. "$SCRIPT_DIR/{script_name}"'
+    return f'"$SCRIPT_DIR/{script_name}"'
+
+def _write_sectioned_script(script_name: str, sections: list):
+    lines = ['set -e']
+    lines.append('SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"')
+    for header, steps in sections:
+        lines.extend(_echo_header(header))
+        for step_script, source_script in steps:
+            lines.append(_script_invocation(step_script, source_script))
+    _write_lines_to_file(lines, script_name)
+
+def create_wheel_build_script():
+    main_script_path = _main_script_path()
+    wheel_build_script_path = _wheel_build_script_path()
+    with open(main_script_path, 'r') as source_file:
+        lines = source_file.readlines()
+    with open(wheel_build_script_path, 'w') as target_file:
+        target_file.writelines(lines)
+    _fix_file_permissions(wheel_build_script_path)
+
+def create_cfml_build_script():
+    sections = [
+        ('Print some build-specific variables', [('print_build_variables.sh', True)]),
+        (f'Create scripts, {CFML} and {pyCFML} directories', [
+            ('create_cfml_repo_dir.sh', False),
+            ('create_cfml_build_dir.sh', False),
+            ('create_cfml_dist_dir.sh', False),
+            ('create_pycfml_src_dir.sh', False),
+            ('create_pycfml_build_dir.sh', False),
+            ('create_pycfml_dist_dir.sh', False),
+        ]),
+        (f'Download {CFML} repository', [('download_cfml_repo.sh', False)]),
+        (f'Build {CFML} modules', [
+            ('rename_global_deps_file.sh', False),
+            ('build_cfml_modules_obj.sh', False),
+            ('delete_renamed_global_deps_file.sh', False),
+        ]),
+        (f'Build {CFML} static library', [('build_cfml_static_lib.sh', False)]),
+        (f'Make {CFML} distribution', [('move_built_to_cfml_dist.sh', False)]),
+    ]
+    _write_sectioned_script('cfml_build.sh', sections)
+
+def create_cfml_test_script():
+    sections = [
+        ('Print some build-specific variables', [('print_build_variables.sh', True)]),
+        (f'Create and run {CFML} test programs', [('build_cfml_test_programs.sh', False)]),
+    ]
+    _write_sectioned_script('cfml_test.sh', sections)
+
+def create_pycfml_build_script():
+    sections = [
+        ('Print some build-specific variables', [('print_build_variables.sh', True)]),
+        (f'Create {pyCFML} source code', [('create_pycfml_src.sh', False)]),
+        (f'Build {pyCFML} modules', [('build_pycfml_modules_obj.sh', False)]),
+        (f'Build {pyCFML} shared obj / dynamic library', [
+            ('build_pycfml_lib_obj.sh', False),
+            ('build_pycfml_shared_obj_or_dynamic_lib.sh', False),
+        ]),
+        (f'Make {pyCFML} distribution', [
+            ('copy_built_to_pycfml_dist.sh', False),
+            ('copy_extra_libs_to_pycfml_dist.sh', False),
+            ('change_runpath_for_built_pycfml.sh', False),
+            ('copy_py_api_files_to_pycfml_dist.sh', False),
+            ('copy_init_file_to_pycfml_dist.sh', False),
+            ('copy_cfml_databases_to_pycfml_dist.sh', False),
+        ]),
+        (f'Create Python package wheel of {pyCFML}', [
+            ('validate_pyproject_toml.sh', False),
+            ('create_pycfml_python_wheel.sh', False),
+            ('rename_pycfml_python_wheel.sh', False),
+            ('repair_pycfml_python_wheel_metadata.sh', False),
+            ('check_wheel_contents.sh', False),
+        ]),
+    ]
+    _write_sectioned_script('pycfml_build.sh', sections)
+
+def create_pycfml_test_script():
+    sections = [
+        (f'Install {pyCFML} from Python package wheel', [('install_pycfml_from_wheel.sh', False)]),
+        (f'Run {pyCFML} tests', [
+            ('run_pycfml_unit_tests.sh', False),
+            ('run_pycfml_functional_tests_no_benchmarks.sh', False),
+        ]),
+    ]
+    _write_sectioned_script('pycfml_test.sh', sections)
 
 def print_build_variables():
     lines = []
@@ -593,7 +715,7 @@ def print_build_variables():
     lines.append(msg)
     msg = _echo_msg(f"Python version: {_python_version_full()}")
     lines.append(msg)
-    msg = _echo_msg(f"Python tag: {_python_tag()}")
+    msg = _echo_msg(f"Python wheel tag: {_python_tag()}-{_python_abi_tag()}")
     lines.append(msg)
     msg = _echo_msg(f"Python site packages: {_python_site_packages()}")
     lines.append(msg)
@@ -606,14 +728,23 @@ def print_build_variables():
 def create_cfml_repo_dir():
     repo_dir = CONFIG['cfml']['dir']['repo']
     repo_path = os.path.join(_project_path(), repo_dir)
+    repo_src_dir = CONFIG['cfml']['dir']['repo-src']
+    repo_src_path = os.path.join(_project_path(), repo_src_dir)
+    project_name = CONFIG['cfml']['log-name']
     lines = []
-    msg = _echo_msg(f"Deleting build dir '{repo_dir}'")
+    if _force_download_cfml_repo():
+        msg = _echo_msg(f"Deleting source dir '{repo_dir}' because force download is enabled")
+        lines.append(msg)
+        cmd = f'rm -rf "{repo_path}"'
+        lines.append(cmd)
+    else:
+        msg = _echo_msg(f"Preparing source dir '{repo_dir}'")
+        lines.append(msg)
+        cmd = f'if [ -d "{repo_src_path}" ]; then {_echo_cmd()} "{MSG_COLOR}:::::: Reusing existing local {project_name} sources in {repo_dir}{COLOR_OFF}"; else mkdir -p "{repo_path}"; fi'
+        lines.append(cmd)
+    msg = _echo_msg(f"Ensuring source dir '{repo_dir}' exists")
     lines.append(msg)
-    cmd = f'rm -rf {repo_path}'
-    lines.append(cmd)
-    msg = _echo_msg(f"Creating build dir '{repo_dir}'")
-    lines.append(msg)
-    cmd = f'mkdir -p {repo_path}'
+    cmd = f'mkdir -p "{repo_path}"'
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
@@ -622,17 +753,45 @@ def create_cfml_repo_dir():
 def download_cfml_repo():
     project_name = CONFIG['cfml']['log-name']
     url = CONFIG['cfml']['git']['url']
-    branch = CONFIG['cfml']['git']['branch']
+    branch = _cfml_git_branch()
+    commit = _cfml_git_commit()
     out_dir = CONFIG['cfml']['dir']['repo']
     out_path = os.path.abspath(out_dir)
+    src_dir = CONFIG['cfml']['dir']['repo-src']
+    src_path = os.path.abspath(src_dir)
     lines = []
-    msg = _echo_msg(f"Downloading {project_name} ('{branch}' branch) to '{out_dir}' from {url}")
-    lines.append(msg)
-    cmd = CONFIG['template']['clone-repo']
-    cmd = cmd.replace('{BRANCH}', branch)
-    cmd = cmd.replace('{URL}', url)
-    cmd = cmd.replace('{OUT_PATH}', out_path)
-    lines.append(cmd)
+    if not _force_download_cfml_repo():
+        msg = _echo_msg(f"Checking for existing local {project_name} sources in '{out_dir}'")
+        lines.append(msg)
+        lines.append(f'if [ -d "{src_path}" ]; then {_echo_cmd()} "{MSG_COLOR}:::::: Using local {project_name} sources from {out_dir}{COLOR_OFF}"; else')
+        lines.append(f'  {_echo_cmd()} "{ERROR_COLOR}:::::: ERROR: Vendored {project_name} sources are missing at {src_dir}{COLOR_OFF}"')
+        lines.append(f'  {_echo_cmd()} "{ERROR_COLOR}:::::: ERROR: Restore repo/CFML from the tracked vendored copy or regenerate scripts with --force-download-cfml-repo for a maintainer refresh{COLOR_OFF}"')
+        lines.append('  exit 1')
+        lines.append('fi')
+    else:
+        if commit:
+            msg = _echo_msg(f"Downloading {project_name} (branch '{branch}', commit '{commit}') to '{out_dir}' from {url}")
+        else:
+            msg = _echo_msg(f"Downloading {project_name} ('{branch}' branch) to '{out_dir}' from {url}")
+        lines.append(msg)
+        cmd = CONFIG['template']['clone-repo']
+        cmd = cmd.replace('{BRANCH}', branch)
+        cmd = cmd.replace('{URL}', url)
+        cmd = cmd.replace('{OUT_PATH}', out_path)
+        if commit:
+            cmd = cmd + f' && git -C "{out_path}" fetch --depth 1 --filter=blob:none origin "{commit}" && git -C "{out_path}" checkout --detach FETCH_HEAD'
+        lines.append('for ATTEMPT in 1 2 3; do')
+        lines.append(f'  {_echo_cmd()} "{MSG_COLOR}:::::: Clone attempt $ATTEMPT/3{COLOR_OFF}"')
+        lines.append(f'  {cmd} && break')
+        lines.append(f'  {_echo_cmd()} "{ERROR_COLOR}:::::: Clone attempt $ATTEMPT failed; cleaning up partial checkout{COLOR_OFF}"')
+        lines.append(f'  rm -rf "{out_path}"')
+        lines.append(f'  mkdir -p "{out_path}"')
+        lines.append("  if [ \"$ATTEMPT\" = 3 ]; then")
+        lines.append(f'    {_echo_cmd()} "{ERROR_COLOR}:::::: ERROR: Failed to download {project_name} after 3 attempts{COLOR_OFF}"')
+        lines.append('    exit 1')
+        lines.append('  fi')
+        lines.append('done')
+        lines.extend(_vendored_cfml_metadata_lines(out_path, url, branch))
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
     append_to_main_script(lines)
@@ -656,18 +815,7 @@ def create_cfml_build_dir():
 def rename_global_deps_file():
     src_ext = CONFIG['build']['src-ext']
     src_dir = CONFIG['cfml']['dir']['repo-src']
-    if _platform() == 'macos':
-        platform_suffix = 'MacOS'
-    elif _platform() == 'linux':
-        platform_suffix = 'Linux'
-    elif _platform() == 'windows':
-        platform_suffix = 'Windows'
-    compiler = _compiler_name()
-    if compiler in ['gfortran', 'nagfor']:
-        compiler_suffix = 'GFOR'
-    elif compiler in ['ifort', 'ifx']:
-        compiler_suffix = 'IFOR'
-    from_name = f'CFML_GlobalDeps_{platform_suffix}_{compiler_suffix}.{src_ext}'
+    from_name = CONFIG['cfml']['global-deps'][_platform()][_compiler_name()]
     from_relpath = os.path.join(src_dir, from_name)
     from_abspath = os.path.join(_project_path(), from_relpath)
     to_name = f'CFML_GlobalDeps.{src_ext}'
@@ -885,10 +1033,6 @@ def run_cfml_functional_tests_with_benchmarks():
     msg = _echo_msg(f"Running functional tests with benchmarks from '{relpath}'")
     lines.append(msg)
     cmd = CONFIG['template']['run-benchmarks']['base']
-    if _github_branch() == 'develop':
-        cmd += ' ' + CONFIG['template']['run-benchmarks']['develop-branch']
-    else:
-        cmd += ' ' + CONFIG['template']['run-benchmarks']['non-develop-branch']
     cmd = cmd.replace('{PATH}', abspath)
     cmd = cmd.replace('{PROJECT}', project_name)
     if _github_actions():
@@ -902,34 +1046,10 @@ def run_cfml_functional_tests_with_benchmarks():
     _write_lines_to_file(lines, script_name)
     append_to_main_script(lines)
 
-def copy_powder_mod_to_pycfml_repo():
-    CFML = CONFIG['cfml']['log-name']
-    cfml_repo_dir = CONFIG['cfml']['dir']['repo']
-    cfml_repo_path = os.path.join(_project_path(), cfml_repo_dir)
-    pyCFML = CONFIG['pycfml']['log-name']
-    pycfml_repo_dir = CONFIG['pycfml']['dir2']['repo']
-    pycfml_src_dir = CONFIG['pycfml']['dir2']['repo-src']
-    pycfml_src_path = os.path.join(_project_path(), pycfml_repo_dir, pycfml_src_dir)
-    src_ext = CONFIG['build']['src-ext']
-    lines = []
-    from_relpath = os.path.join('Testing', 'Powder', 'Test_2', 'fortran', 'src', f'powder_mod.{src_ext}')
-    from_abspath = os.path.join(cfml_repo_path, from_relpath)
-    msg = _echo_msg(f"Copying '{from_relpath}' to '{pycfml_repo_dir}/{pycfml_src_dir}'")
-    lines.append(msg)
-    cmd = f'cp {from_abspath} {pycfml_src_path}'
-    lines.append(cmd)
-    from_relpath = os.path.join('Testing', 'Powder', 'Test_3', f'powder_mod_2.{src_ext}')
-    from_abspath = os.path.join(cfml_repo_path, from_relpath)
-    msg = _echo_msg(f"Copying '{from_relpath}' to '{pycfml_repo_dir}/{pycfml_src_dir}'")
-    lines.append(msg)
-    cmd = f'cp {from_abspath} {pycfml_src_path}'
-    lines.append(cmd)
-    script_name = f'{sys._getframe().f_code.co_name}.sh'
-    _write_lines_to_file(lines, script_name)
-    append_to_main_script(lines)
-
 def create_pycfml_src_dir():
     src_dir = CONFIG['pycfml']['dir']['build-src']
+    fortran_dir = CONFIG['pycfml']['dir']['build-src-fortran']
+    python_dir = CONFIG['pycfml']['dir']['build-src-python']
     lines = []
     msg = _echo_msg(f"Deleting src dir '{src_dir}'")
     lines.append(msg)
@@ -938,6 +1058,14 @@ def create_pycfml_src_dir():
     msg = _echo_msg(f"Creating src dir '{src_dir}'")
     lines.append(msg)
     cmd = f'mkdir -p {src_dir}'
+    lines.append(cmd)
+    msg = _echo_msg(f"Creating src dir '{fortran_dir}'")
+    lines.append(msg)
+    cmd = f'mkdir -p {fortran_dir}'
+    lines.append(cmd)
+    msg = _echo_msg(f"Creating src dir '{python_dir}'")
+    lines.append(msg)
+    cmd = f'mkdir -p {python_dir}'
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
@@ -960,25 +1088,22 @@ def create_pycfml_build_dir():
 
 def create_pycfml_src():
     project_name = CONFIG['pycfml']['log-name']
-    apigen_relpath = CONFIG['cfml']['scripts']['pyapigen']
-    apigen_parent_relpath = Path(apigen_relpath).parent.as_posix()
-    apigen_file = Path(apigen_relpath).name
-    build_relpath = CONFIG['pycfml']['dir']['build-src']
-    build_abspath = os.path.join(_project_path(), build_relpath)
+    from_fortran_relpath = CONFIG['cfml']['dir']['repo-pyapi-fortran']
+    from_fortran_abspath = os.path.join(_project_path(), from_fortran_relpath)
+    to_fortran_relpath = CONFIG['pycfml']['dir']['build-src-fortran']
+    to_fortran_abspath = os.path.join(_project_path(), to_fortran_relpath)
+    from_python_relpath = CONFIG['cfml']['dir']['repo-pyapi-python']
+    from_python_abspath = os.path.join(_project_path(), from_python_relpath)
+    to_python_relpath = CONFIG['pycfml']['dir']['build-src-python']
+    to_python_abspath = os.path.join(_project_path(), to_python_relpath)
     lines = []
-    msg = _echo_msg(f"Entering Python API gen dir '{apigen_parent_relpath}'")
+    msg = _echo_msg(f"Copying {project_name} Fortran API sources from '{from_fortran_relpath}' to '{to_fortran_relpath}'")
     lines.append(msg)
-    cmd = f'cd {apigen_parent_relpath}'
+    cmd = f'cp -R {from_fortran_abspath}/. {to_fortran_abspath}'
     lines.append(cmd)
-    msg = _echo_msg(f"Creating {project_name} source code with '{apigen_file}'")
+    msg = _echo_msg(f"Copying {project_name} Python API sources from '{from_python_relpath}' to '{to_python_relpath}'")
     lines.append(msg)
-    cmd = CONFIG['template']['run-python']
-    cmd = cmd.replace('{PATH}', apigen_file)
-    cmd = cmd.replace('{OPTIONS}', f'--verbose False --scripts False --build {build_abspath}')
-    lines.append(cmd)
-    msg = _echo_msg(f"Exiting build dir '{apigen_parent_relpath}'")
-    lines.append(msg)
-    cmd = f'cd {_project_path()}'
+    cmd = f'cp -R {from_python_abspath}/. {to_python_abspath}'
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
@@ -1039,7 +1164,7 @@ def build_pycfml_lib_obj():
 
 def build_pycfml_shared_obj_or_dynamic_lib():
     build_relpath = CONFIG['pycfml']['dir']['build-obj']
-    lib_name = CONFIG['pycfml']['src-name']  # NEED FIX: use CONFIG['pycfml']['dynamic-lib-name']
+    lib_name = CONFIG['pycfml']['src-name']
     lib_ext = CONFIG['build']['shared-lib-ext'][_platform()]
     lines = []
     msg = _echo_msg(f"Entering build dir '{build_relpath}'")
@@ -1117,22 +1242,22 @@ def change_runpath_for_built_pycfml():
     # shared objects step (CONFIG['build-shared']), but it didn't help :(
     # Ubuntu usage examples:
     # sudo find / -iname "libif*"
-    # ls -l dist/pyCFML/pycrysfml
-    # patchelf --print-rpath dist/pyCFML/pycrysfml/crysfml08lib.so
-    # patchelf --set-rpath '$ORIGIN' dist/pyCFML/pycrysfml/crysfml08lib.so
-    # patchelf --print-rpath dist/pyCFML/pycrysfml/crysfml08lib.so
-    # patchelf --no-default-lib dist/pyCFML/pycrysfml/crysfml08lib.so
-    # ldd dist/pyCFML/pycrysfml/crysfml08lib.so
-    # ls -l /opt/hostedtoolcache/Python/3.11.8/x64/lib/python3.11/site-packages/pycrysfml08
-    # ldd /opt/hostedtoolcache/Python/3.11.8/x64/lib/python3.11/site-packages/pycrysfml08/py_cfml_metrics.so
+    # ls -l dist/pyCFML/crysfml
+    # patchelf --print-rpath dist/pyCFML/crysfml/crysfml08lib.so
+    # patchelf --set-rpath '$ORIGIN' dist/pyCFML/crysfml/crysfml08lib.so
+    # patchelf --print-rpath dist/pyCFML/crysfml/crysfml08lib.so
+    # patchelf --no-default-lib dist/pyCFML/crysfml/crysfml08lib.so
+    # ldd dist/pyCFML/crysfml/crysfml08lib.so
+    # ls -l /opt/hostedtoolcache/Python/3.11.8/x64/lib/python3.11/site-packages/crysfml
+    # ldd /opt/hostedtoolcache/Python/3.11.8/x64/lib/python3.11/site-packages/crysfml/crysfml08lib.so
     # macOS usage example:
     # sudo find / -iname "libif*"
-    # ls -l dist/pyCFML/pycrysfml
-    # install_name_tool -rpath /opt/intel/oneapi/compiler/2023.2.0/mac/bin/intel64/../../compiler/lib @loader_path dist/pyCFML/pycrysfml/crysfml08lib.so
-    # install_name_tool -delete_rpath /usr/local/Cellar/gcc/13.2.0/lib/gcc/current dist/pyCFML/pycrysfml/crysfml08lib.so
-    # install_name_tool -change /usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib @rpath/libgfortran.5.dylib dist/pyCFML/pycrysfml/crysfml08lib.so
-    # otool -l dist/pyCFML/pycrysfml/crysfml08lib.so | grep RPATH -A2  # build.rpaths in in pybuild.toml
-    # otool -L dist/pyCFML/pycrysfml/crysfml08lib.so                   # build.dependent-libs in pybuild.toml
+    # ls -l dist/pyCFML/crysfml
+    # install_name_tool -rpath /opt/intel/oneapi/compiler/2023.2.0/mac/bin/intel64/../../compiler/lib @loader_path dist/pyCFML/crysfml/crysfml08lib.so
+    # install_name_tool -delete_rpath /usr/local/Cellar/gcc/13.2.0/lib/gcc/current dist/pyCFML/crysfml/crysfml08lib.so
+    # install_name_tool -change /usr/local/opt/gcc/lib/gcc/current/libgfortran.5.dylib @rpath/libgfortran.5.dylib dist/pyCFML/crysfml/crysfml08lib.so
+    # otool -l dist/pyCFML/crysfml/crysfml08lib.so | grep RPATH -A2  # build.rpaths in in pybuild.toml
+    # otool -L dist/pyCFML/crysfml/crysfml08lib.so                   # build.dependent-libs in pybuild.toml
     try:
         rpaths = CONFIG['build']['rpaths'][_platform()][_processor()][_compiler_name()]
     except KeyError:
@@ -1148,10 +1273,6 @@ def change_runpath_for_built_pycfml():
         return
     project_name = CONFIG['pycfml']['log-name']
     shared_lib_ext = CONFIG['build']['shared-lib-ext'][_platform()]
-    #dist_dir = CONFIG['pycfml']['dir2']['dist']
-    #package_dir = CONFIG['pycfml']['dir2']['dist-package']
-    #package_relpath = os.path.join(dist_dir, package_dir)
-    #package_abspath = os.path.join(_project_path(), dist_dir, package_dir)
     package_relpath = CONFIG['pycfml']['dir']['dist-package'].replace('{PACKAGE_NAME}', PYPROJECT['project']['name'])
     package_abspath = os.path.join(_project_path(), package_relpath)
     #total = 1
@@ -1218,7 +1339,7 @@ def change_runpath_for_built_pycfml():
         cmd = cmd + ' 2>/dev/null || true'  # tolerate if already present
         lines.append(cmd)
         # If the TOML config specifies rpaths with a non-empty 'new' value
-        # (e.g. ifort changing to @loader_path), try to apply those changes;
+        # (e.g. ifx changing to @loader_path), try to apply those changes;
         # fall back to -add_rpath if the old RPATH was already deleted above.
         for rpath in rpaths:
             if rpath.get('new'):
@@ -1285,6 +1406,18 @@ def change_runpath_for_built_pycfml():
     append_to_main_script(lines)
 
 def copy_extra_libs_to_pycfml_dist():
+    def _copy_resolved_lib_lines(display_name: str, resolve_cmd: str):
+        local_lines = []
+        local_lines.append(f'_resolved_path=$({resolve_cmd})')
+        local_lines.append('if [ -z "$_resolved_path" ] || [ ! -f "$_resolved_path" ]; then')
+        local_lines.append(f'  {_echo_cmd()} "{ERROR_COLOR}:::::: ERROR: Failed to resolve runtime library \'{display_name}\' for compiler {_compiler_name()}{COLOR_OFF}"')
+        local_lines.append('  exit 1')
+        local_lines.append('fi')
+        msg = _echo_msg(f"Copying runtime library '{display_name}' to dist dir '{package_relpath}'")
+        local_lines.append(msg)
+        local_lines.append(f'cp "$_resolved_path" "{package_abspath}"')
+        return local_lines
+
     try:
         extra_libs = CONFIG['build']['extra-libs'][_platform()][_processor()][_compiler_name()]
     except KeyError:
@@ -1297,12 +1430,55 @@ def copy_extra_libs_to_pycfml_dist():
     package_relpath = CONFIG['pycfml']['dir']['dist-package'].replace('{PACKAGE_NAME}', PYPROJECT['project']['name'])
     package_abspath = os.path.join(_project_path(), package_relpath)
     lines = []
-    for lib_path in extra_libs:
-        display_lib_path = lib_path.replace('"', '')
-        msg = _echo_msg(f"Copying '{display_lib_path}' to dist dir '{package_relpath}'")
+    if _compiler_name() == 'gfortran':
+        for lib_name in extra_libs:
+            resolve_cmd = f'{_compiler_name()} -print-file-name={lib_name}'
+            lines.extend(_copy_resolved_lib_lines(lib_name, resolve_cmd))
+    elif _compiler_name() == 'ifx':
+        lines.append('_ifx_path="$(command -v ifx 2>/dev/null || true)"')
+        lines.append('if [ -z "$_ifx_path" ]; then')
+        lines.append(f'  {_echo_cmd()} "{ERROR_COLOR}:::::: ERROR: Failed to resolve the ifx compiler while locating Intel runtime libraries{COLOR_OFF}"')
+        lines.append('  exit 1')
+        lines.append('fi')
+        lines.append('_ifx_search_root="$(cd "$(dirname "$_ifx_path")/../../.." && pwd)"')
+        for lib_name in extra_libs:
+            resolve_cmd = f'find "$_ifx_search_root" -name "{lib_name}" -print -quit'
+            lines.extend(_copy_resolved_lib_lines(lib_name, resolve_cmd))
+        if _platform() == 'windows':
+            shared_lib_ext = CONFIG['build']['shared-lib-ext'][_platform()]
+            shared_lib_name = CONFIG['pycfml']['src-name']
+            shared_lib_path = os.path.join(package_abspath, f'{shared_lib_name}.{shared_lib_ext}')
+            lines.append('_dumpbin_path="$(command -v dumpbin 2>/dev/null || true)"')
+            lines.append('if [ -n "$_dumpbin_path" ]; then')
+            lines.append('  declare -a _ifx_pending')
+            lines.append('  declare -A _ifx_seen')
+            lines.append(f'  _ifx_pending=("{shared_lib_path}")')
+            lines.append('  while [ "${#_ifx_pending[@]}" -gt 0 ]; do')
+            lines.append('    _ifx_target="${_ifx_pending[0]}"')
+            lines.append('    _ifx_pending=("${_ifx_pending[@]:1}")')
+            lines.append('    if [ -n "${_ifx_seen["$_ifx_target"]+x}" ]; then')
+            lines.append('      continue')
+            lines.append('    fi')
+            lines.append('    _ifx_seen["$_ifx_target"]=1')
+            lines.append('    while IFS= read -r _ifx_dep; do')
+            lines.append('      [ -n "$_ifx_dep" ] || continue')
+            lines.append('      _ifx_dep_path="$(find "$_ifx_search_root" -iname "$_ifx_dep" -print -quit)"')
+            lines.append('      if [ -z "$_ifx_dep_path" ] || [ ! -f "$_ifx_dep_path" ]; then')
+            lines.append('        continue')
+            lines.append('      fi')
+            lines.append(f'      if [ ! -f "{package_abspath}/$_ifx_dep" ]; then')
+            lines.append(f'        {_echo_cmd()} "{MSG_COLOR}:::::: Copying runtime library \'$_ifx_dep\' to dist dir \'{package_relpath}\'{COLOR_OFF}"')
+            lines.append(f'        cp "$_ifx_dep_path" "{package_abspath}"')
+            lines.append('      fi')
+            lines.append('      _ifx_pending+=("$_ifx_dep_path")')
+            lines.append('    done < <(dumpbin /DEPENDENTS "$_ifx_target" | tr -d "\r" | sed -n -E \'s/^[[:space:]]*([^[:space:]]+\\.dll)[[:space:]]*$/\\1/ip\')')
+            lines.append('  done')
+            lines.append('else')
+            lines.append(f'  {_echo_cmd()} "{MSG_COLOR}:::::: dumpbin not found; skipping recursive Intel DLL dependency discovery{COLOR_OFF}"')
+            lines.append('fi')
+    else:
+        msg = _echo_msg(f"No extra-library copy strategy is configured for platform '{_platform()}' and compiler '{_compiler_name()}'")
         lines.append(msg)
-        cmd = f'cp {lib_path} {package_abspath}'
-        lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
     append_to_main_script(lines)
@@ -1387,39 +1563,61 @@ def create_pycfml_python_wheel():
 def rename_pycfml_python_wheel():
     project_name = CONFIG['pycfml']['log-name']
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
-    wheel_relpath = os.path.join(wheel_dir, _initial_wheel_name())
-    wheel_abspath = os.path.join(_project_path(), wheel_relpath)
-    lines = []
-    msg = _echo_msg(f"Renaming {project_name} python wheel from '{_initial_wheel_name()}' to '{_new_wheel_name()}' in '{wheel_dir}'")
+    lines = _find_wheel_lines()
+    msg = _echo_msg(f"Renaming {project_name} python wheel in '{wheel_dir}'")
     lines.append(msg)
     cmd = CONFIG['template']['rename-wheel']
     cmd = cmd.replace('{PYTHON_TAG}', _python_tag())  # https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/
+    cmd = cmd.replace('{ABI_TAG}', _python_abi_tag())
     cmd = cmd.replace('{PLATFORM_TAG}', _platform_tag_github_ci())
-    cmd = cmd.replace('{PATH}', wheel_abspath)
+    cmd = cmd.replace('{PATH}', '"$WHEEL_PATH"')
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
     append_to_main_script(lines)
 
-def detect_abi3_violations():
+def repair_pycfml_python_wheel_metadata():
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
-    wheel_path = os.path.join(wheel_dir, _new_wheel_name())
-    lines = []
-    msg = _echo_msg(f"Scanning Python extensions in python wheel '{_new_wheel_name()}' for abi3 violations")
+    lines = _find_wheel_lines()
+    msg = _echo_msg(f"Repairing built python wheel metadata in '{wheel_dir}'")
     lines.append(msg)
-    cmd = f'abi3audit {wheel_path}'
-    lines.append(cmd)
+    lines.append('UNPACK_DIR=$(mktemp -d)')
+    lines.append('python3 -m wheel unpack --dest "$UNPACK_DIR" "$WHEEL_PATH" >/dev/null')
+    lines.append('UNPACKED_WHEEL_DIR=$(find "$UNPACK_DIR" -mindepth 1 -maxdepth 1 -type d | head -n 1)')
+    lines.append('[ -n "$UNPACKED_WHEEL_DIR" ] || { echo ":::::: ERROR: Could not unpack wheel metadata"; exit 1; }')
+    lines.append('WHEEL_METADATA_PATH=$(find "$UNPACKED_WHEEL_DIR" -type f -path "*.dist-info/WHEEL" | head -n 1)')
+    lines.append('[ -n "$WHEEL_METADATA_PATH" ] || { echo ":::::: ERROR: Could not locate WHEEL metadata"; exit 1; }')
+    lines.append('if ! WHEEL_METADATA_PATH="$WHEEL_METADATA_PATH" python3 - <<\'PY\'')
+    lines.append('import os')
+    lines.append('from pathlib import Path')
+    lines.append('')
+    lines.append('path = Path(os.environ["WHEEL_METADATA_PATH"])')
+    lines.append('text = path.read_text()')
+    lines.append('old = "Root-Is-Purelib: true"')
+    lines.append('new = "Root-Is-Purelib: false"')
+    lines.append('if new in text:')
+    lines.append('    raise SystemExit(0)')
+    lines.append('if old not in text:')
+    lines.append('    raise SystemExit(f"Could not find expected metadata marker in {path}")')
+    lines.append('path.write_text(text.replace(old, new, 1))')
+    lines.append('PY')
+    lines.append('then')
+    lines.append('    rm -rf "$UNPACK_DIR"')
+    lines.append('    exit 1')
+    lines.append('fi')
+    lines.append('rm -f "$WHEEL_PATH"')
+    lines.append(f'python3 -m wheel pack --dest-dir "{_wheel_dir_path()}" "$UNPACKED_WHEEL_DIR" >/dev/null')
+    lines.append('rm -rf "$UNPACK_DIR"')
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
     append_to_main_script(lines)
 
 def check_wheel_contents():
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
-    wheel_path = os.path.join(wheel_dir, _new_wheel_name())
-    lines = []
-    msg = _echo_msg(f"Checking content of Python wheel '{_new_wheel_name()}'")
+    lines = _find_wheel_lines()
+    msg = _echo_msg(f"Checking content of built python wheel from '{wheel_dir}'")
     lines.append(msg)
-    cmd = f'check-wheel-contents {wheel_path}'
+    cmd = 'check-wheel-contents "$WHEEL_PATH"'
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
@@ -1427,15 +1625,12 @@ def check_wheel_contents():
 
 def install_pycfml_from_wheel():
     project_name = CONFIG['pycfml']['log-name']
-    package_name = PYPROJECT['project']['name']
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
-    wheel_path = os.path.join(_project_path(), wheel_dir)
-    lines = []
+    lines = _find_wheel_lines()
     msg = _echo_msg(f"Installing {project_name} python wheel from '{wheel_dir}'")
     lines.append(msg)
     cmd = CONFIG['template']['install-wheel']
-    cmd = cmd.replace('{PACKAGE}', package_name)
-    cmd = cmd.replace('{PATH}', wheel_path)
+    cmd = cmd.replace('{PATH}', '"$WHEEL_PATH"')
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
@@ -1542,16 +1737,12 @@ if __name__ == '__main__':
     PYPROJECT = loaded_pyproject()
     CONFIG = loaded_config('pybuild.toml')
 
+    if (ARGS.cfml_branch or ARGS.cfml_commit) and not ARGS.force_download_cfml_repo:
+        _print_error_msg('Use --cfml-branch/--cfml-commit only together with --force-download-cfml-repo')
+        exit(1)
+
     if ARGS.print_wheel_dir:  # NEED FIX. Maybe save extras to toml as in EDA?
         _print_wheel_dir()
-        exit(0)
-
-    if ARGS.print_release_version:  # NEED FIX. Maybe save extras to toml as in EDA?
-        _print_release_version()
-        exit(0)
-
-    if ARGS.print_release_title:  # NEED FIX. Maybe save extras to toml as in EDA?
-        _print_release_title()
         exit(0)
 
     if not ARGS.create_scripts:  # NEED FIX. Need proper check if create scripts or print flags are given
@@ -1618,8 +1809,8 @@ if __name__ == '__main__':
 
     add_main_script_header(f"Make {pyCFML} distribution")
     copy_built_to_pycfml_dist()
-    change_runpath_for_built_pycfml()
     copy_extra_libs_to_pycfml_dist()
+    change_runpath_for_built_pycfml()
     copy_py_api_files_to_pycfml_dist()
     copy_init_file_to_pycfml_dist()
     copy_cfml_databases_to_pycfml_dist()
@@ -1628,8 +1819,10 @@ if __name__ == '__main__':
     validate_pyproject_toml()
     create_pycfml_python_wheel()
     rename_pycfml_python_wheel()
-    detect_abi3_violations()
+    repair_pycfml_python_wheel_metadata()
     check_wheel_contents()
+
+    create_wheel_build_script()
 
     add_main_script_header(f"Install {pyCFML} from Python package wheel")
     install_pycfml_from_wheel()
@@ -1639,5 +1832,10 @@ if __name__ == '__main__':
     run_pycfml_functional_tests_no_benchmarks()
     run_pycfml_functional_tests_with_benchmarks_save()
     run_pycfml_functional_tests_with_benchmarks_compare()
+
+    create_cfml_build_script()
+    create_cfml_test_script()
+    create_pycfml_build_script()
+    create_pycfml_test_script()
 
     _print_msg(f'All scripts were successfully created in {_scripts_path()}')

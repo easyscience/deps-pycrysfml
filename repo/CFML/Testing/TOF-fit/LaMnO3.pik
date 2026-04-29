@@ -1,0 +1,29 @@
+=> TITLE: Prueba de TOF-fit
+!    TOF_init       TOF_fin      Nbac Npeak  Ncyc  Inst  Jobt  Cont Weight Corr Constr Percent 
+     16906.2578     18845.0762     2     2   200    10     0     0     0    50     0    20
+   4570.600098  <=  d to T.O.F. coefficient
+!  Global Profile Parameters:
+      0.000000     0      <= Global-alpha0  &  Flag 
+      0.000000     0      <= Global-alpha1  &       
+      0.000000     0      <= Global-alpha2  &       
+      0.000000     0      <= Global-alpha3  &       
+      0.000000     0      <= Global-beta0   &       
+      0.000000     0      <= Global-beta1   &       
+      0.000000     0      <= Global-beta2   &       
+      0.000000     0      <= Global-beta3   &       
+      0.000000     0      <= Global-Sig-2   &       
+      0.000000     0      <= Global-Sig-1   &       
+      0.000000     0      <= Global-Sig-0   &       
+      0.000000     0      <= Global-Sig-Q   &       
+      0.169000     1      <= Global-eta0    &       
+      0.000000     0      <= Global-eta1    &       
+      0.000000     0      <= Global-eta2    &       
+!  Background Parameters:
+!       TOF        Background   Flag 
+    16906.2578      197.7064     1
+    18845.0762      216.5535     1
+!  Reflection Parameters:
+!    TOF-Bragg     Intensity   Shift-sigma   Shift-alpha    Shift-beta     Shift-eta     Flags
+    17554.4590   254309.8125     1344.9266      0.326702      0.033752      0.000000   1 1 1 1 1 0       1
+    18204.8652   492475.3125     1526.3323      0.117023      0.039174      0.000000   1 1 1 1 1 0       2
+!  Chi2 =   0.769128    

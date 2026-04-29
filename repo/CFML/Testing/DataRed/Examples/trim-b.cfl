@@ -1,0 +1,12 @@
+TITLE   Trim-b integer indices
+INPFIL  trim_at_1p8K_integers.hkl
+OUTFIL  trim-i
+WAVE    0.9
+CELL    13.4 28.9 13.30 90 95 90
+gen x,-y,z,-1 
+gen x+1/2,y+1/2,z,1
+gen x,y,z+1/2,-1 
+HKL_T   1
+MAGNETIC
+SPLIT_MAG
+PRINT_ALL

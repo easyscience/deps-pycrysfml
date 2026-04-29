@@ -1,0 +1,137 @@
+{# Sphinx layout template for the sphinxdoc theme. #}
+{%- extends "basic/layout.html" %}
+
+{% block extrahead %}
+{{ super() }}
+{%- if not embedded and pagename == root_doc %}
+<style>.related { display: none; }</style>
+{%- endif %}
+{% endblock %}
+
+{% block header %}
+<div class="pageheader">
+  <img src="{{ pathto('_static/logo.svg', resource=True) }}" alt="logo" />
+  <h1>The FullProf Suite</h1>
+  <div class="menu-toggle"><!-- onclick="document.querySelector('.sphinxsidebar').classList.toggle('show')">--> 
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+{% endblock %}
+
+{%- block relbar1 %}
+<div class="related" role="navigation" aria-label="related navigation">
+  <h3>{{ _('Navigation') }}</h3>
+  <ul>
+    <li><a href="{{ pathto(root_doc)|e }}">Documentation</a> &raquo;</li>
+    {%- for parent in parents %}
+      <li class="nav-item nav-item-{{ loop.index }}"><a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey("U") }}{% endif %}>{{ parent.title }}</a>{{ reldelim1 }}</li>
+    {%- endfor %}
+    <li class="nav-item nav-item-this"><a href="{{ link|e }}">{{ title }}</a></li>
+  </ul>
+</div>
+{% endblock %}
+
+{%- block content %}
+<div class="document">
+  <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+    {%- include "searchfield.html" %}
+    <hr>
+    <div class="sphinxsidebar-navigation__contents">
+      <h3>{{ _('On this page') }}</h3>
+      {{ toc }}
+    </div>
+    <hr>
+    <div class="sphinxsidebar-navigation__pages">
+      <h3>{{ _('Site navigation') }}</h3>
+      {{ toctree(includehidden=True, maxdepth=3, titles_only=True) }}
+    </div>
+  </div>
+  {%- block document %}
+  <div class="body" role="main">
+    {% block body %}{% endblock %}
+  </div>
+  {%- endblock %}
+</div>
+{%- endblock %}
+
+{%- block relbar2 %}{% endblock %}
+
+{%- block footer %}
+<div class="footer" role="contentinfo">
+  {{ copyright_block() }}
+  {% trans sphinx_version=sphinx_version|e %}Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const sidebar = document.querySelector(".sphinxsidebar");
+    const toggle = document.querySelector(".menu-toggle");
+    const links = sidebar.querySelectorAll("a");
+
+    // Función para detectar móvil
+    function isMobile() {
+        return window.innerWidth <= 750;
+    }
+
+    // Toggle sidebar con hamburguesa
+    toggle.addEventListener("click", () => {
+        sidebar.classList.toggle("show");
+    });
+
+    // Cierra sidebar al hacer click en un link solo en móvil
+    sidebar.addEventListener("click", (event) => {
+        const link = event.target.closest("a");
+        if (link && isMobile()) {
+            sidebar.classList.remove("show");
+        }
+    });
+
+    // Asegura sidebar visible si se redimensiona a escritorio
+    window.addEventListener("resize", () => {
+        if (!isMobile()) {
+            sidebar.classList.remove("show");
+        }
+    });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('a[href$=".pdf"]').forEach(a => {
+        a.setAttribute("target", "_blank");
+    });
+});
+</script>
+{% if pagename == "pages/cfl/cfl_main" %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Selecciona la UL generada por el toctree de esa página
+    const toc = document.querySelector('.toctree-wrapper ul');
+
+    if (!toc) return;
+
+    const links = [...toc.querySelectorAll("a")];
+    if (links.length === 0) return;
+
+    // contenedor multicolumna
+    const container = document.createElement('div');
+    container.className = "keyword-columns";
+
+    const ul = document.createElement('ul');
+    container.appendChild(ul);
+
+    links.forEach(link => {
+        const li = document.createElement('li');
+        li.appendChild(link.cloneNode(true));
+        ul.appendChild(li);
+    });
+
+    toc.replaceWith(container);
+});
+</script>
+{% endif %}
+{%- endblock %}
+
+
+

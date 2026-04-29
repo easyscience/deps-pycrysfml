@@ -1,0 +1,77 @@
+  MnFeF5.2H2O
+ Template File created by program SIMBO for MCMAG (Isotropic Interactions)
+!The file should be modified to adapt it to the user needs.
+!NA(sites)  JCod    Z
+     -4      0      4
+!Site Neighb   Dsing_Anis      Dir                Name        x         y         z
+   1    4         0         0   0   0          :: Mn_1    -0.75000   0.00000   1.50000
+!    Nav   Av  Bv  Cv        J
+       3   -1   0   1     -2.9500    J1
+       3   -1   0   2     -2.9500    J2
+       4   -1   0   1     -2.9500    J1
+       4   -2   0   2     -2.9500    J2
+!Site Neighb   Dsing_Anis      Dir                Name        x         y         z
+   2    4         0         0   0   0          :: Mn_2    -0.75000  -0.50000   1.50000
+!    Nav   Av  Bv  Cv        J
+       3   -1   0   1     -2.9500    J1
+       3   -1  -1   2     -2.9500    J2
+       4   -1   0   1     -2.9500    J1
+       4   -2  -1   2     -2.9500    J2
+!Site Neighb   Dsing_Anis      Dir                Name        x         y         z
+   3    6         0         0   0   0          :: Fe_1     0.25000   0.00000   0.00000
+!    Nav   Av  Bv  Cv        J
+       1    1   0  -2     -2.9500    J2
+       1    1   0  -1     -2.9500    J1
+       2    1   0  -1     -2.9500    J1
+       2    1   1  -2     -2.9500    J2
+       4   -1   0   0     -6.0000    J3
+       4    0   0   0     -6.0000    J3
+!Site Neighb   Dsing_Anis      Dir                Name        x         y         z
+   4    6         0         0   0   0          :: Fe_2     0.75000   0.00000   0.00000
+!    Nav   Av  Bv  Cv        J
+       1    1   0  -1     -2.9500    J1
+       1    2   0  -2     -2.9500    J2
+       2    1   0  -1     -2.9500    J1
+       2    2   1  -2     -2.9500    J2
+       3    0   0   0     -6.0000    J3
+       3    1   0   0     -6.0000    J3
+!   Ni    Nf   Spin     ScattFact
+     1     2  5.0000      MMN2
+     3     4  5.0000      MFE3
+!    Primitive unit cell
+!     a          b          c        alpha       beta      gamma
+    7.47500   10.76600    7.33593   42.79526   59.37086   90.00000
+!
+!  The conditions below should be adapted to the problem by the user
+!
+SpinModel    Heisenberg
+
+Title  Simulation of classical Spins:  MNFEF5.2H2O
+
+!  Simulation box
+Ncells    3 3 3
+
+!  Initial configuration (R,I)
+InitConf  R
+
+! boundary conditions (Free,Periodic,Mixed)
+Boundary  Periodic
+
+! Scaling (sample,cell,site,mole)
+Scale     cell
+
+!  Sites for output during simulation
+Sites   1 2 3
+
+!         T_ini   Coef  T_final
+schedule    500   0.95    0.5
+
+!  Magnetic Field
+hfield    0  0  0  1
+
+!  Number of MC cycles and thermalization
+mcyc   5000  500
+
+print  E
+averages
+cryst   1  1 0 0

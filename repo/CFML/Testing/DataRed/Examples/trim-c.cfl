@@ -1,0 +1,13 @@
+TITLE   Trim-c real indices
+INPFIL  trim_at_1p8K_reals.hkl
+OUTFIL  trim-cc
+WAVE    0.9
+CELL    13.4 28.9 6.65 90 95 90
+gen x,-y,z,-1 
+gen x+1/2,y+1/2,z,1
+gen x,y,z+1/2,-1 
+HKL_T   1
+TO_OG  0.000 0.0  0.500
+MAGNETIC
+SPLIT_MAG
+PRINT_ALL

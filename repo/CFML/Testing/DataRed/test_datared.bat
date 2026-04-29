@@ -1,0 +1,13 @@
+DataRed_New bafe.cfl
+DataRed_New bafeK.cfl
+DataRed_New bafe_Cac.cfl
+DataRed_New bafe_Cam.cfl
+cd Examples
+DataRed_New FeCHOO.cfl
+DataRed_New FeCHOO-jan.cfl
+DataRed_New trim-a.cfl
+DataRed_New trim-b.cfl
+DataRed_New trim-c.cfl
+cd ..\Oscar
+DataRed_New Incom-D10.cfl
+cd ..

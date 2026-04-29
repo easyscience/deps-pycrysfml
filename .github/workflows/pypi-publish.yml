@@ -1,0 +1,48 @@
+# Publishes wheel assets from a published GitHub release to PyPI.
+
+name: PyPI publishing
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag to publish from GitHub release assets'
+        required: true
+        type: string
+
+# Opt into Node.js 24 for all JavaScript actions.
+# Remove once all referenced actions natively target Node 24.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  pypi-publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
+
+    steps:
+      - name: Resolve release tag
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == 'release' ]]; then
+            echo "RELEASE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
+          else
+            echo "RELEASE_TAG=${{ inputs.tag_name }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Download wheel assets from GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: gh release download "$RELEASE_TAG" --pattern '*.whl' --dir dist
+
+      # Publish the package to PyPI (from downloaded release assets in dist/).
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: 'dist'

@@ -1,0 +1,4 @@
+options install --prefix gfortran_fpm_release_win
+options --profile release
+options --compiler gfortran
+options --flag "-ffree-line-length-none -fdec-math -fall-intrinsics -static -fPIC -cpp  -I ../../wint/lib.gnu64/8.1"

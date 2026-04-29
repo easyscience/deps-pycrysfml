@@ -1,0 +1,53 @@
+# Prerequisites
+*.d
+
+# Python compiled files
+*.pyc
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# macOS
+.DS_Store
+*~
+
+# Misc
+API
+.venv
+*.stamp
+*.build
+install_manifest.txt
+Makefile
+build-*
+build_*
+gfortran
+ifort
+TAGS
+Src/TAGS

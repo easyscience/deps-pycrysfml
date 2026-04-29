@@ -1,0 +1,4 @@
+options install --prefix ifx_fpm_debug
+options --profile debug
+options --compiler ifx
+options --flag "/fpp /Warn:nointerfaces /static /heap-arrays /traceback /check:noarg_temp_created "

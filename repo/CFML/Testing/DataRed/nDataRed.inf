@@ -1,0 +1,97 @@
+Info about nDataRed
+==================
+The same instructions as in the old DataRed are still valid. The current nDataRed is not totally finished.
+It lacks still testing twins with superspace.
+
+
+Introduction of space group information:
+========================================
+SPGR  P b n m  (as in the old version)
+SPGR  123    !Giving the number of the space group
+SHUB  Pn'ma   !Reading the database of Shubnikov groups in standard setting
+SHUB  Pn'ma :: b,c,a;0,0,0  ! This is Pbn'a reading the database of Shubnikov groups in standard setting
+SSPG  Pnma(0,0,g)0s0    !Reading the superspace database in standard setting
+
+The most general case is providing generators, this is valid for all kind of space groups
+Examples
+   3D Group
+a) Single line: 
+generators  x,y,-z,-1; x,y,z+1/2,-1; -x,-y,-z,1
+b) Several lines
+gen x,y,-z,-1
+gen x,y,z+1/2,-1
+gen -x,-y,-z,1
+
+    5D group
+
+generators  x,y,-z,t,-u,1; x,y,z,t+1/2,u,-1; -x,-y,-z,-t,-u,1
+or
+generators  x1,x2,-x3,x4,-x5,1; x1,x2,x3,x4+1/2,x5,-1; -x1,-x2,-x3,-x4,-x5,1
+or in splitted lines as above
+
+Example:
+=======
+How to put the information of a non-standard setting of a Shubnikov group obtained from the BCS
+
+PCR part:
+C_cc  number:9.40     <--Magnetic Space group symbol (BNS symbol & number)                                                                                                                                                                                      
+Transform to standard: a,b,c;0,0,0                                                                                                                                                                                                                              
+Parent Space Group: Cm     IT_number:    8                                                                                                                                                                                                                      
+Transform from Parent: a,b,2c;0,0,0                                                                                                                                                                                                                             
+! Nsym   Cen  N_Clat N_Ant                                                                                                                                                                                                                                      
+     2     0     1     2                                                                                                                                                                                                                                        
+!                                                                                                                                                                                                                                                               
+! Centring vectors                                                                                                                                                                                                                                              
+   0.50000   0.50000   0.00000                                                                                                                                                                                                                                  
+! Anti-Centring vectors                                                                                                                                                                                                                                         
+   0.00000   0.00000   0.50000                                                                                                                                                                                                                                  
+   0.50000   0.50000   0.50000                                                                                                                                                                                                                                  
+! Symmetry operators                                                                                                                                                                                                                                            
+  1 x,y,z,+1                                                                                                                                                                                                                                                    
+  2 x,-y,z,-1                                                                                                                                                                                                                                                   
+
+This is simplified in nDataRed with the following list of generators:
+
+gen x,-y,z,-1 
+gen x+1/2,y+1/2,z,1
+gen x,y,z+1/2,-1 
+
+The identity is not needed and the second anti-translation is obtained from the first one and the centring translation
+
+New formats and keywords
+========================
+The new format "HKL_T 11" has been introduced (Jana-like format for input reflections)
+The keywords for k-vectors in superspace may be
+NQVEC, NQVECT, NKVECT, NKVEC  followed by the number of k-vectors and the number of Q-coefficients (harmonics)
+QVEC,KVEC, QVECT,KVECT  followed by three real numbers (components of the k-vector in the parent reciprocal lattice),
+a total of NQVEC lines of the above type are needed
+Q_COEFF nk1  nk2 ...    Combination of harmonics mixing the modulation vectors
+
+TO_OG  kx,ky,kz     This is to ask for an output intensity file in FullProf conventional format for magnetic
+                    Shubnikov groups of type 4. The provided unit cell should be the conventional cell of the
+                    paramagnetic group but the operators of the group should be given in the BNS setting of
+                    the magnetic cell. The components [kx,ky,kz] constitute the OG-propagation vector
+
+The keyword MAGNETIC allows to consider that the provided general space group is also that of the magnetic structure
+and the reflections are tested for their character (nuclear, magnetic or mixed).
+
+Example:
+========
+TITLE   FeCHOO 100K 
+INPFIL  2018S036_FeCHOO_100K_0m.hkl
+OUTFIL  FeCHOO
+WAVE    1.54184
+CELL    8.3992 11.8119 8.1627 90 90 90    
+gen -x1+1/2,-x2,x3+1/2,x4+1/2  
+gen -x1,x2+1/2,-x3,-x4+1/2
+gen -x1,-x2,-x3,-x4
+STATISTICS
+NQVECT    1 3
+QVECT     0  0.16604 0
+Q_coeff  1
+Q_coeff  2
+Q_coeff  3
+HKL_T   11
+TRANS   1 0 0 0  0 0 1 0  0 1 0 0   0 0 0 1   ! To tranform the indices of the input data (Notice it is a 4x4 matrix)
+MAGNETIC
+PRINT_ALL

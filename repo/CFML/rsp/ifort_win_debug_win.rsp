@@ -1,0 +1,4 @@
+options install --prefix ifort_fpm_debug_win
+options --profile debug
+options --compiler ifort
+options --flag "/fpp /debug:full /check /static /heap-arrays /check:noarg_temp_created /traceback /nologo /CB /I ../../wint/lib.i64"

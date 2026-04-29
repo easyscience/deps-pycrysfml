@@ -1,0 +1,5 @@
+options install --prefix gfortran_fpm_debug
+options --profile debug
+options --compiler gfortran
+options --flag "-fPIC -frecursive -cpp -Wno-conversion -Wno-character-truncation -Wno-maybe-uninitialized -fdec-math -fbacktrace  -ffree-line-length-none -fall-intrinsics -static"
+ 

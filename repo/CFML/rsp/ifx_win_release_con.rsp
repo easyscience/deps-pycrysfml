@@ -1,0 +1,4 @@
+options install --prefix ifx_fpm_release
+options --profile release
+options --compiler ifx
+options --flag "/fpp /static /heap-arrays /O2 /reentrancy:none"

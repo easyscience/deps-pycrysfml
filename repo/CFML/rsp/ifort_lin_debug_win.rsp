@@ -1,0 +1,4 @@
+options install --prefix ifort_fpm_debug_win
+options --profile debug
+options --compiler ifort
+options --flag "-fpp -I ../../../../usr/local/wint/lib.i64"

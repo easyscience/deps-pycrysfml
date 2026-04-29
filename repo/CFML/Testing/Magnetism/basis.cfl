@@ -1,0 +1,39 @@
+TITLE   Simple Spiral
+SPGR   P -1
+CELL     4.754168   5.729970  6.269413  90.000000  90.000000  90.000000
+!    Lab  Scatt       x        y       z      Biso     Occ
+ATOM Ho    HO      0.21341  0.12000  0.20255 0.51197 1.00000
+ATOM NI    NI      0.00000  0.00000  0.00000 0.51197 0.50000
+
+Mag_Structure
+!
+Magmod   Test of basis functions
+lattiCE P
+kvect   0.5000000   0.0000000   0.053210
+magdom  u,v,w, 0.0  : 1.0
+!      n  nba1  nba2
+IRREPS 2   3     -2
+icomp   0 0 0
+icomp   0 1
+!
+SYMM  x,y,z
+BASR  1 0 0   0 1 0  0 0 1
+BASR  1 1 0   1 -1  0
+BASI  0 0 1   0  0 -1
+!
+SYMM  -x,y,-z
+BASR  -1 0 0   0 -1 0  0 0 1
+BASR  1 -1 0   1  1  0
+BASI  0 0 -1   0  0  1
+!
+matom HO  JHO3     0.21341  0.12000  0.20255 0.51197 1.00000
+bfcoef     1  1     0.50000   1.000   8.0000    0.00000
+!bfcoef     1  2     0.70000   1.800             0.00000
+!
+matom NI  MNI2     0.00000  0.00000  0.00000   0.51197 0.500
+bfcoef     1  1     0.50000   1.000   8.0000    0.00000
+!bfcoef     1  2     0.70000   1.800             0.00000
+!
+End_Mag_Structure
+
+

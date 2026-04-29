@@ -1,0 +1,13 @@
+TITLE Resolution Function of 3T2 obtained from  Si3N4 (lambda=1.2253 angstroms)
+! To be used with IRESO=1 in FullProf.2k (version > 1.6)
+JOBT CW Neutrons
+!     Lambda1    Lambda2   Ratio(I2/I1)
+WAVE  1.225300   1.225300      0.0
+!    NPROF    Shape1    Shape2   Shape3
+PROF    7        0.0       0.0      0.0
+!  Cos(2thM)^2 for polarization = 0 for neutrons
+CTHM  0.0
+!     2theta-min   step   2theta-max
+THRG     2.0       0.05      125.00
+!          Uins     Vins      Wins      Xins      Yins      Zins
+UVWXYZ  0.275264  -0.393932   0.216173   0.00000   0.01140     0.000
