@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - "**"
-    tags:
-      - 'v*'
   pull_request:
     branches:
       - "**"
@@ -15,9 +13,67 @@ on:
 jobs:
 
   ##############################################################################
+  # JOB 0
+  ##############################################################################
+  resolve_release_tag:
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      tag_name: ${{ steps.export.outputs.tag_name }}
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history with tags is required for versioningit
+
+      - name: Setup easyscience[bot]
+        if: ${{ github.event_name == 'push' && (github.ref_name == 'master' || github.ref_name == 'main') }}
+        id: bot
+        uses: ./.github/actions/setup-easyscience-bot
+        with:
+          app-id: ${{ vars.EASYSCIENCE_APP_ID }}
+          private-key: ${{ secrets.EASYSCIENCE_APP_KEY }}
+
+      - name: Draft the next release tag
+        if: ${{ github.event_name == 'push' && (github.ref_name == 'master' || github.ref_name == 'main') }}
+        id: draft
+        uses: enhantica/drafterino@v2
+        with:
+          config: |
+            title: 'crysfml $COMPUTED_VERSION'
+            tag: 'v$COMPUTED_VERSION'
+            note-template: '- $PR_TITLE (#$PR_NUMBER)'
+
+            default-bump: post
+
+            major-bump-labels: ['[scope] significant']
+            minor-bump-labels: ['[scope] enhancement']
+            patch-bump-labels: ['[scope] bug', '[scope] maintenance']
+            post-bump-labels: ['[scope] documentation']
+
+            release-notes:
+              - title: 'Added'
+                labels: ['[scope] significant', '[scope] enhancement']
+              - title: 'Fixed'
+                labels: ['[scope] bug']
+              - title: 'Changed'
+                labels: ['[scope] maintenance', '[scope] documentation']
+        env:
+          GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
+
+      - name: Export release tag
+        id: export
+        shell: bash
+        run: echo "tag_name=${{ steps.draft.outputs.tag_name }}" >> "$GITHUB_OUTPUT"
+
+  ##############################################################################
   # JOB 1
   ##############################################################################
   build:  # current job name
+
+    needs: resolve_release_tag
 
     timeout-minutes: 30
 
@@ -36,6 +92,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full history with tags is required for versioningit
+
+      - name: Create local release tag for exact-version wheel builds
+        if: ${{ needs.resolve_release_tag.outputs.tag_name != '' }}
+        shell: bash
+        run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
 
       - name: Set up Fortran compiler (FC) [all except Windows + gfortran] # except: use pre-installed gfortran
         if: runner.os != 'Windows' || matrix.toolchain.exe != 'gfortran'
@@ -119,7 +180,7 @@ jobs:
   ##############################################################################
   test:  # current job name
 
-    needs: build  # previous job 'build' need to be finished first
+    needs: [resolve_release_tag, build]  # previous job 'build' need to be finished first
 
     if: always()  # start this job even if the previous job failed
 
@@ -140,6 +201,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full history with tags is required for versioningit
+
+      - name: Create local release tag for exact-version wheel tests
+        if: ${{ needs.resolve_release_tag.outputs.tag_name != '' }}
+        shell: bash
+        run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
 
       - name: Set up python environment
         uses: actions/setup-python@v5
@@ -203,9 +269,9 @@ jobs:
   ##############################################################################
   upload-release-assets:
 
-    needs: test
+    needs: [resolve_release_tag, test]
 
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: ${{ github.event_name == 'push' && (github.ref_name == 'master' || github.ref_name == 'main') && needs.resolve_release_tag.outputs.tag_name != '' }}
 
     runs-on: ubuntu-latest
 
@@ -213,6 +279,13 @@ jobs:
       contents: write
 
     steps:
+      - name: Setup easyscience[bot]
+        id: bot
+        uses: ./.github/actions/setup-easyscience-bot
+        with:
+          app-id: ${{ vars.EASYSCIENCE_APP_ID }}
+          private-key: ${{ secrets.EASYSCIENCE_APP_KEY }}
+
       - name: Download built wheels from current workflow run
         uses: actions/download-artifact@v4
         with:
@@ -221,7 +294,12 @@ jobs:
           merge-multiple: true
 
       - name: Upload built wheels to the GitHub draft release
-        shell: bash
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          tag_name: ${{ needs.resolve_release_tag.outputs.tag_name }}
+          files: release-assets/*.whl
+          fail_on_unmatched_files: true
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release upload ${{ github.ref_name }} release-assets/*.whl --clobber --repo ${{ github.repository }}
+          GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
+
