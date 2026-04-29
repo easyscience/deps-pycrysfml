@@ -195,6 +195,7 @@ extra-libs.windows.AMD64.gfortran = [
 ]
 extra-libs.windows.AMD64.ifx = [
     'libifcoremd.dll',
+    'libifportmd.dll',
     'libiomp5md.dll',
     'libmmd.dll',
     'svml_dispmd.dll',
