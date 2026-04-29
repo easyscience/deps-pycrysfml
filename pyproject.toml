@@ -47,6 +47,7 @@ ci = [
   'validate-pyproject[all]',
   'build',
   'wheel',
+  'packaging',
   'check-wheel-contents',
   'colorama'
 ]
