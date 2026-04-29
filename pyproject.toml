@@ -9,8 +9,7 @@ authors = [
   {name = 'Nebil Ayape Katcho', email = 'katcho@ill.fr'}
 ]
 maintainers = [
-  {name = 'Andrew Sazonov', email = 'andrew.sazonov@ess.eu'},
-  {name = 'Elisa Rebolini', email = 'rebolini@ill.fr'},
+  {name = 'Andrew Sazonov', email = 'andrew.sazonov@ess.eu'}
 ]
 readme = 'README.md'
 license = {file = 'LICENSE'}
