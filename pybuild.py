@@ -1444,6 +1444,38 @@ def copy_extra_libs_to_pycfml_dist():
         for lib_name in extra_libs:
             resolve_cmd = f'find "$_ifx_search_root" -name "{lib_name}" -print -quit'
             lines.extend(_copy_resolved_lib_lines(lib_name, resolve_cmd))
+        if _platform() == 'windows':
+            shared_lib_ext = CONFIG['build']['shared-lib-ext'][_platform()]
+            shared_lib_name = CONFIG['pycfml']['src-name']
+            shared_lib_path = os.path.join(package_abspath, f'{shared_lib_name}.{shared_lib_ext}')
+            lines.append('_dumpbin_path="$(command -v dumpbin 2>/dev/null || true)"')
+            lines.append('if [ -n "$_dumpbin_path" ]; then')
+            lines.append('  declare -a _ifx_pending')
+            lines.append('  declare -A _ifx_seen')
+            lines.append(f'  _ifx_pending=("{shared_lib_path}")')
+            lines.append('  while [ "${#_ifx_pending[@]}" -gt 0 ]; do')
+            lines.append('    _ifx_target="${_ifx_pending[0]}"')
+            lines.append('    _ifx_pending=("${_ifx_pending[@]:1}")')
+            lines.append('    if [ -n "${_ifx_seen["$_ifx_target"]+x}" ]; then')
+            lines.append('      continue')
+            lines.append('    fi')
+            lines.append('    _ifx_seen["$_ifx_target"]=1')
+            lines.append('    while IFS= read -r _ifx_dep; do')
+            lines.append('      [ -n "$_ifx_dep" ] || continue')
+            lines.append('      _ifx_dep_path="$(find "$_ifx_search_root" -iname "$_ifx_dep" -print -quit)"')
+            lines.append('      if [ -z "$_ifx_dep_path" ] || [ ! -f "$_ifx_dep_path" ]; then')
+            lines.append('        continue')
+            lines.append('      fi')
+            lines.append(f'      if [ ! -f "{package_abspath}/$_ifx_dep" ]; then')
+            lines.append(f'        {_echo_cmd()} "{MSG_COLOR}:::::: Copying runtime library \'$_ifx_dep\' to dist dir \'{package_relpath}\'{COLOR_OFF}"')
+            lines.append(f'        cp "$_ifx_dep_path" "{package_abspath}"')
+            lines.append('      fi')
+            lines.append('      _ifx_pending+=("$_ifx_dep_path")')
+            lines.append('    done < <(dumpbin /DEPENDENTS "$_ifx_target" | tr -d "\r" | sed -n -E \'s/^[[:space:]]*([^[:space:]]+\\.dll)[[:space:]]*$/\\1/ip\')')
+            lines.append('  done')
+            lines.append('else')
+            lines.append(f'  {_echo_cmd()} "{MSG_COLOR}:::::: dumpbin not found; skipping recursive Intel DLL dependency discovery{COLOR_OFF}"')
+            lines.append('fi')
     else:
         msg = _echo_msg(f"No extra-library copy strategy is configured for platform '{_platform()}' and compiler '{_compiler_name()}'")
         lines.append(msg)
