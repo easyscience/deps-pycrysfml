@@ -24,9 +24,9 @@
   the wheels already staged on the GitHub release rather than rebuilding
   different artifacts unless explicitly requested.
 - Treat `release-notes.yml` as the stage that drafts or updates the
-  GitHub release on `master` with the suggested tag, release title, and
-  release notes, while leaving remote tag creation to manual release
-  publication from the GitHub UI.
+  GitHub release on merges to `master` with the suggested tag, release
+  title, and release notes, while leaving remote tag creation to manual
+  release publication from the GitHub UI.
 - Treat `build-release.yml` as the stage that computes the same
   suggested release tag on `master`, creates that tag locally in CI so
   `versioningit` builds exact-version wheels without pushing a remote
