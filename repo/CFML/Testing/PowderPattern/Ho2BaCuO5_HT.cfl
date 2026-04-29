@@ -1,0 +1,30 @@
+Title  Ho2BaCuO5  HT-phase P_a2_1/c : -a-c,-a,b;0,0,0
+!          a           b          c     alpha    beta   gamma
+Cell   12.173997  11.318541   7.118869  90.000  90.000  90.000
+!   Space Group  Transf. from standard
+SHUB  P_a2_1/c :: -a-c,-a,b;0,0,0
+!                x         y        z        B        occ   Spin Charge
+Atom Ho1_1  JHO3   0.2875(6)     0.12500       0.1142(17)    0.00000     Moment:   -0.0109    0.0000   0.4241 
+Atom Ho2_1  JHO3   0.0728(9)     0.12500       0.3951(11)    0.00000     Moment:    2.8907    0.0000   1.4170 
+Atom Cu_1   MCU2   0.6627(11)    0.12500       0.7111(15)    0.00000     Moment:   -0.6238    0.0000   0.1496 
+Atom Ba_1   BA     0.9005(15)    0.12500       0.9266(18)    0.00000    
+Atom O1_1   O      0.4328(9)     0.9974(9)     0.1648(9)     0.00000    
+Atom O1_2   O      0.9328(9)     0.2526(9)     0.3352(9)     0.00000    
+Atom O2_1   O      0.2299(8)     0.7526(11)    0.3488(18)    0.00000    
+Atom O2_2   O      0.7299(8)     0.4974(11)    0.1512(18)    0.00000    
+Atom O3_1   O      0.1037(13)    0.12500       0.0805(18)    0.00000    
+
+UVWX      1.689272  -1.090878 0.343690  0.00
+POWFILE   HoCu_HT.xys
+PATTERN   10.00   0.1   90.00
+LAMBDA    2.524
+SIZE_L    99000
+BACKGD    10
+  
+!! UVWX   u v w x    (four real values defining the resolution of the instrument TCH Pseudo-Voigt)
+!! LAMBDA  lambda    (1 real value, wavelength)
+!! JOBTYPE   Neutrons  
+!! PATTERN  Tmin  step Tmax  (intial angle, step and final angle for calculations of powder pattern)
+!! SIZE_L   Lorentzian_Size   (one real in angstroms)
+!! POWFILE  name_of_powder_diffraction_data_file
+!! BACKGD   bkg   (1 real, level of background in counts)

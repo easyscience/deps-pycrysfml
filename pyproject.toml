@@ -1,7 +1,8 @@
 [project]
-name = 'pycrysfml'
-version = '0.4.0'
-description = 'Python bindings for the CrysFML2008 crystallographic library'
+name = 'crysfml'
+dynamic = ['version']
+description = 'Python access to the CrysFML2008 crystallographic Fortran library'
+#keywords = ['crystallography', 'diffraction', 'fortran', 'python-bindings']
 authors = [
   {name = 'Juan Rodríguez-Carvajal', email = 'jrc@ill.fr'},
   {name = 'Javier Gonzalez-Platas', email = 'jplatas@ull.edu.es'},
@@ -14,49 +15,66 @@ readme = 'README.md'
 license = {file = 'LICENSE'}
 classifiers = [
   'Development Status :: 4 - Beta',
-  'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
+  'Intended Audience :: Science/Research',
   'Operating System :: MacOS',
   'Operating System :: Microsoft :: Windows',
   'Operating System :: POSIX :: Linux',
+  'Programming Language :: Fortran',
   'Programming Language :: Python :: 3 :: Only',
   'Programming Language :: Python :: 3',
   'Programming Language :: Python :: 3.11',
   'Programming Language :: Python :: 3.12',
   'Programming Language :: Python :: 3.13',
   'Programming Language :: Python :: 3.14',
+  'Topic :: Scientific/Engineering',
+  'Topic :: Software Development :: Libraries :: Python Modules',
 ]
 requires-python = '>=3.11,<3.15'
 dependencies = [
   'numpy',
 ]
 
+[project.urls]
+#Homepage = 'https://github.com/easyscience/deps-pycrysfml'
+#Repository = 'https://github.com/easyscience/deps-pycrysfml'
+#Issues = 'https://github.com/easyscience/deps-pycrysfml/issues'
+License = 'https://github.com/easyscience/deps-pycrysfml/blob/master/LICENSE'
+'Upstream CrysFML' = 'https://code.ill.fr/scientific-software/CrysFML2008'
+
 [project.optional-dependencies]
 ci = [
-  'toml',  # use this as tomllib is only available for python >=3.11
+  'toml',  # pybuild.py currently imports toml rather than tomllib
   'validate-pyproject[all]',
   'build',
   'wheel',
   'check-wheel-contents',
-  'abi3audit',
   'colorama'
 ]
 test = [
   'deepdiff',
-  'pytest>=5.2',
+  'pytest',
   'pytest-benchmark',
   'pygit2',
   'matplotlib'
 ]
 
-[project.urls]
-homepage = 'https://github.com/EasyScience/PyCrysFML'
-source = 'https://github.com/EasyScience/PyCrysFML'
-tracker = 'https://github.com/EasyScience/PyCrysFML/issues'
-
 [build-system]
-requires = ['hatchling']
+requires = ['hatchling', 'versioningit']
 build-backend = 'hatchling.build'
 
+[tool.hatch.version]
+source = 'versioningit'
+
+[tool.versioningit.format]
+distance = '{base_version}+dev{distance}'
+dirty = '{base_version}+dirty{distance}'
+distance-dirty = '{base_version}+devdirty{distance}'
+
+[tool.versioningit.vcs]
+method = 'git'
+match = ['v*']
+default-tag = 'v0.0.0'
+
 [tool.hatch.build.targets.wheel]
-packages = ['dist/pyCFML/pycrysfml']  # NEED FIX: Replace based on scripts.toml - pycfml.dir.dist-package
+packages = ['dist/pyCFML/crysfml']
 artifacts = ['*.py', '*.so', '*.so.*', '*.dylib', '*.pyd', '*.dll', '*.txt']

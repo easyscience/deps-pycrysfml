@@ -4,7 +4,7 @@ from io import StringIO
 import matplotlib.pyplot as plt
 import os
 
-from pycrysfml import cfml_utilities
+from crysfml import cfml_utilities
 
 ################
 # Help functions
@@ -61,9 +61,9 @@ del o_dict['phases'][0]['lbco']['_atom_site'][1]
 del o_dict['phases'][0]['lbco']['_atom_site'][0]
 
 # compute patterns with PyCFML
-y_lbco_pycrysfml = normalize_pattern(compute_pattern(lbco_dict))
-y_lbc_pycrysfml = normalize_pattern(compute_pattern(lbc_dict))
-y_o_pycrysfml = normalize_pattern(compute_pattern(o_dict))
+y_lbco_crysfml = normalize_pattern(compute_pattern(lbco_dict))
+y_lbc_crysfml = normalize_pattern(compute_pattern(lbc_dict))
+y_o_crysfml = normalize_pattern(compute_pattern(o_dict))
 
 # read patterns calculated with FullProf
 x_obs = read_fullprof('lbco.prf', column=0)
@@ -82,18 +82,18 @@ plt.show()
 
 plt.title("Atoms: La, Ba, Co, O. (Simulation)")
 plt.plot(x_obs, y_lbco_fullprof, '-', linewidth=4)
-plt.plot(x_obs, y_lbco_pycrysfml, '-', linewidth=2)
-plt.legend(["Y meas", "Y calc (FullProf)", "Y calc (PyCrysFML)"])
+plt.plot(x_obs, y_lbco_crysfml, '-', linewidth=2)
+plt.legend(["Y meas", "Y calc (FullProf)", "Y calc (crysfml)"])
 plt.show()
 
 plt.title("Atoms: La, Ba, Co. (Simulation)")
 plt.plot(x_obs, y_lbc_fullprof, '-', linewidth=4)
-plt.plot(x_obs, y_lbc_pycrysfml, '-', linewidth=2)
-plt.legend(["Y meas", "Y calc (FullProf)", "Y calc (PyCrysFML)"])
+plt.plot(x_obs, y_lbc_crysfml, '-', linewidth=2)
+plt.legend(["Y meas", "Y calc (FullProf)", "Y calc (crysfml)"])
 plt.show()
 
 plt.title("Atoms: O. (Simulation)")
 plt.plot(x_obs, y_o_fullprof, '-', linewidth=4)
-plt.plot(x_obs, y_o_pycrysfml, '-', linewidth=2)
-plt.legend(["Y meas", "Y calc (FullProf)", "Y calc (PyCrysFML)"])
+plt.plot(x_obs, y_o_crysfml, '-', linewidth=2)
+plt.legend(["Y meas", "Y calc (FullProf)", "Y calc (crysfml)"])
 plt.show()

@@ -1,0 +1,26 @@
+title  Al2O3 Simulation neutron powder constant wavelength
+ FR76 3000 3014 7000 0257 1037 104 - Société : Garanka Sud Est
+phase_Al2O3   1
+  !        a           b          c     alpha    beta   gamma
+  cell  4.754000  4.754000  12.990000  90.000  90.000 120.000  
+  ! Space Group  From standard
+  spgr  R -3                  
+  !    Atom  Typ            X        Y        Z     Biso       Occ      
+  atom   Al   Al      0.00000  0.00000  0.35228  0.40000   0.33333  
+  atom   O    O       0.30640  0.00000  0.25000  0.60000   0.50000 
+  !
+  patterns  1  
+  scale_factors  1.0
+end_phase_Al2O3
+
+pattern_Al2O3_CW  1
+  patt_type   Neutrons Powder CW 
+  profile_function  TCH_pVoigt
+  zero  0.10    
+  uvwxy 0.004133 -0.007618 0.006255 0.018961  0.000000
+  theta_range 1.00 150.00 0.02      
+  lambda 1.540560
+  asym 0.1 0.0    
+end_pattern_Al2O3_CW
+
+calculation_type Pattern_Simulation

@@ -2,19 +2,76 @@
 channels = ["conda-forge"]
 platforms = ["osx-arm64", "win-64", "linux-64"]
 
-[dependencies]
-#python = "3.12.*"
-python = "3.13.*"
-
-[pypi-dependencies]
-pip = '*'
-#pycrysfml = { path = '.', editable = true, extras = ['ci', 'test'] }
-pycrysfml = { version = ">=0.2.1", extras = ['ci', 'test'], index = "https://easyscience.github.io/pypi/" }
-
 [system-requirements]
 macos = "14.0"
 
-[tasks]
-scripts = "python pybuild.py --create-scripts --enable-backslash-escapes"
-build = "scripts/main.sh"
-benchmark = "scripts/run_pycfml_functional_tests_with_benchmarks_save.sh"
+[dependencies]
+python = "3.14.*"
+
+[feature.dev.pypi-dependencies]
+pip = '*'
+crysfml = { path = '.', editable = true, extras = ['ci', 'test'] }
+
+[feature.wheeltest.pypi-dependencies]
+pip = '*'
+pytest = '*'
+pytest-benchmark = '*'
+deepdiff = '*'
+matplotlib = '*'
+
+[environments]
+default = ["dev"]
+wheeltest = ["wheeltest"]
+
+[tasks.scripts]
+cmd = "python pybuild.py --create-scripts --enable-backslash-escapes"
+description = "Generate build and test shell scripts in the dev environment"
+
+[tasks.scripts-fresh]
+cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo"
+description = "Generate scripts for a maintainer CFML refresh from the configured branch"
+
+[tasks.cfml-refresh]
+cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo && scripts/create_cfml_repo_dir.sh && scripts/download_cfml_repo.sh"
+description = "Refresh vendored CFML from the branch configured in pybuild.toml"
+
+[tasks.cfml-refresh-branch]
+cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo --cfml-branch {{ branch }} && scripts/create_cfml_repo_dir.sh && scripts/download_cfml_repo.sh"
+args = [{ arg = "branch", default = "master" }]
+description = "Refresh vendored CFML from a specific branch"
+
+[tasks.cfml-refresh-commit]
+cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo --cfml-branch {{ branch }} --cfml-commit {{ commit }} && scripts/create_cfml_repo_dir.sh && scripts/download_cfml_repo.sh"
+args = ["commit", { arg = "branch", default = "master" }]
+description = "Refresh vendored CFML from a specific commit"
+
+[tasks.cfml-build]
+cmd = "scripts/cfml_build.sh"
+description = "Build CFML modules, static library, and distribution"
+
+[tasks.cfml-test]
+cmd = "scripts/cfml_test.sh"
+description = "Create and run CFML test programs"
+
+[tasks.pycfml-build]
+cmd = "scripts/pycfml_build.sh"
+description = "Build pyCFML, assemble the package, and create the wheel"
+
+[tasks.pycfml-test]
+cmd = "scripts/pycfml_test.sh"
+default-environment = "wheeltest"
+description = "Install the built wheel in the clean environment and run tests"
+
+[tasks.full]
+depends-on = [
+	{ task = "scripts", environment = "default" },
+	{ task = "cfml-build", environment = "default" },
+	{ task = "cfml-test", environment = "default" },
+	{ task = "pycfml-build", environment = "default" },
+	{ task = "pycfml-test", environment = "wheeltest" },
+]
+description = "Run the full local build and test pipeline in the dev environment"
+
+[tasks.benchmark]
+cmd = "scripts/run_pycfml_functional_tests_with_benchmarks_save.sh"
+description = "Save local benchmark results in the dev environment"

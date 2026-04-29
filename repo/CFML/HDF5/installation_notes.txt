@@ -1,0 +1,29 @@
+HDF5 installation with Intel compiler
+
+- Windows
+  
+  Download the pre-built binary distribution from https://www.hdfgroup.org/downloads/hdf5.
+  By default, it is installed in C:\Program Files\HDF_Group\HDF5\x.x.x, where x.x.x represents the version number
+    
+  For compiling, see for example the windows scripts in int3d08/fortran/powder. 
+
+- Linux
+
+  Download the hdf5 source distribution from https://www.hdfgroup.org/downloads/hdf5 for Linux. Distributions for Linux
+  are named centos. Before compiling the hdf5 library, you need to install the library zlib. In Ubuntu, this is done 
+  easily as follows:
+    
+  sudo apt-get install zlib1g-dev
+  
+  Note that before g is number one, not letter l. After the installation, check the folder where the library has been installed.
+  
+  'dpkg -L zlib1g-dev'. 
+  
+  In my case, the library libz.a was stored in /usr/lib/x86_64-linux-gnu/.
+
+  Install a recent version of cmake: https://cmake.org/download/
+  Build the makefiles using the cmake-gui tool. When configuring the build, enable ZLIB support as well as the Fortran build, which 
+  is disabled by default. Run make, and then make install as superuser. HDF5 library will be installed in /usr/local/HDF_Group/HDF5.
+
+
+  

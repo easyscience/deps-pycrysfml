@@ -1,0 +1,9 @@
+!   FILE for FullProf Studio: generated automatically by FullProf 
+!Title: Name: Pyrolusite                                                                                                                                                        
+SpGR P 42/m n m          
+CELL     4.4041     4.4041    2.8765  90.0000  90.0000  90.0000    
+ATOM Mn      Mn       0.00000   0.00000   0.00000  
+ATOM O       O        0.30460   0.30460   0.00000    
+transf  a+b,-a+b,2c;0,0,0
+index 32
+full

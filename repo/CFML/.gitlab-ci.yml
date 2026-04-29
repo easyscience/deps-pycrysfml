@@ -1,0 +1,75 @@
+stages:
+  - docker_pre_clean
+  - make
+  - docker_post_clean
+
+docker_pre_clean:
+  stage: docker_pre_clean
+  script:
+    - ${CI_PROJECT_DIR}/BuildServer/Docker/clean.sh
+  allow_failure: true
+  tags:
+    - docker
+    - sci
+    - ubuntu
+
+docker_post_clean:
+  stage: docker_post_clean
+  script:
+    - ${CI_PROJECT_DIR}/BuildServer/Docker/clean.sh
+  allow_failure: true
+  when: always
+  dependencies: []
+  tags:
+    - docker
+    - sci
+    - ubuntu
+    
+#===============
+#== MAKE SECTION
+#===============
+
+#make:linux_gfortran:
+#  stage: make
+#  script:
+#    - docker build --force-rm -t ci_crysfml_xenial_gfortran_f2008 -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_gfortran_setup_F2008 .
+#    - docker build --force-rm --no-cache -t ci_crysfml_xenial_gfortran_build -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_gfortran_build_F2008 --build-arg CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA} --build-arg CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME} .
+#    - docker run -i -v${PWD}:/artifacts/ ci_crysfml_xenial_gfortran_build
+#  tags:
+#    - docker
+#    - sci
+#    - ubuntu
+
+#make:linux_ifort:
+#  stage: make
+#  script:
+#    - docker build --force-rm -t ci_crysfml_xenial_ifort -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_ifort_setup .
+#    - docker build --force-rm --no-cache -t ci_crysfml_xenial_ifort_build -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_ifort_build_F2008 --build-arg CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA} --build-arg CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME} .
+#    - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof/intel:/opt/intel ci_crysfml_xenial_ifort_build
+#  tags:
+#    - docker
+#    - sci
+#    - ubuntu
+    
+#===============
+
+#make:macos_gfortran:
+#  stage: make
+#  script:
+#    - BuildServer/Unix/build_F2008.sh gfortran
+#  tags:
+#    - sci
+#    - osx-10.13
+    
+#make:macos_ifort:
+#  stage: make
+#  script:
+#    - source /opt/intel/oneapi/setvars.sh
+#    - BuildServer/Unix/build_F2008.sh ifort
+#  tags:
+#    - sci
+#    - osx-10.13
+
+
+
+

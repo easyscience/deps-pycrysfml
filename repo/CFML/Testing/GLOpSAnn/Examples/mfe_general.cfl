@@ -1,0 +1,78 @@
+Title  NiFePO5
+!        a        b        c     alpha    beta   gamma
+Cell   7.1882   6.3924   7.4847  90.000  90.000  90.000
+!     Space Group
+Spgr  P n m a
+!                  x              y             z     B    occ  Spin Charge
+Atom  Ni  Ni    0.00000       0.00000       0.00000  0.74  0.5   2.0   2.0     #Color 0 1 0 1
+Atom  Fe  Fe    0.14429       0.25          0.70739  0.63  0.5   5.0   3.0     #Color 1 1 0 1
+Atom   P  P     0.37179       0.25          0.14238  0.79  0.5   0.0   5.0     #Color 0 1 1 1
+Atom  O1  O     0.39879       0.25          0.64583  0.71  0.5   0.0  -2.0
+Atom  O2  O     0.19413       0.25          0.02529  0.70  0.5   0.0  -2.0
+Atom  O3  O     0.04369       0.25          0.47280  0.83  0.5   0.0  -2.0
+Atom  O4  O     0.36777       0.05659       0.26330  0.77  1.0   0.0  -2.0
+! Codes for refinement
+Vary xyz 0  1  0  1
+!REF_WITHIN  0.2
+!fix x_Fe y_O4
+!Equal y_Fe y_P 0.25
+HKL-OBS  mfe.hkl
+MIN-DSPACING   1.5
+RADIATION  neutrons
+FST_CMD  conn P O 0.0 1.8  ; conn FE O 0.0 2.3 ; poly P
+            !
+OPTIMIZE   Fobs-Fcal 1.0  dis-restr 1
+!OPTIMIZE   Fobs-Fcal 1.0  
+
+!Total number of independent distance restraints:    28
+
+DFIX   3.19620  0.00000  Ni  Ni_3.545
+DFIX   2.90282  0.00000  Ni  Fe_1.554
+DFIX   2.06750  0.00000  Ni  O1_2.554
+DFIX   2.13003  0.00000  Ni  O2
+DFIX   2.04279  0.00000  Ni  O4_2.554
+DFIX   3.23509  0.00000  Fe  P_2.555
+DFIX   3.26965  0.00000  Fe  P_4.455
+DFIX   1.88646  0.00000  Fe  O1
+DFIX   2.07879  0.00000  Fe  O1_4.456
+DFIX   2.40620  0.00000  Fe  O2_1.556
+DFIX   1.89894  0.00000  Fe  O3
+DFIX   2.00590  0.00000  Fe  O4_2.555
+DFIX   1.54884  0.00000  P  O2
+DFIX   1.50666  0.00000  P  O3_4.555
+DFIX   1.53249  0.00000  P  O4
+DFIX   3.19854  0.00000  O1  O2_1.556
+DFIX   2.47939  0.00000  O1  O2_4.555
+DFIX   2.86228  0.00000  O1  O3
+DFIX   3.03853  0.00000  O1  O3_4.556
+DFIX   3.12662  0.00000  O1  O4
+DFIX   2.87844  0.00000  O1  O4_2.555
+DFIX   2.66820  0.00000  O1  O4_3.656
+DFIX   2.51275  0.00000  O2  O3_4.555
+DFIX   2.50199  0.00000  O2  O4
+DFIX   2.80788  0.00000  O2  O4_2.554
+DFIX   3.08801  0.00000  O2  O4_4.455
+DFIX   3.28268  0.00000  O3  O3_3.546
+DFIX   3.06825  0.00000  O3  O4
+DFIX   2.99561  0.00000  O3  O4_2.555
+DFIX   2.50009  0.00000  O3  O4_4.455
+DFIX   2.47271  0.00000  O4  O4_7.555
+! Simulated Annealing conditions
+SIM_ANN
+LOCAL_OPTIMIZATION
+
+!       Name of the cost function
+CostNam  |Fobs-Fcalc|+Dist-restraints
+
+!         T_ini     anneal     num_temps
+TemParM     8.0       0.95       80
+
+!         Nalgor  Nconf nm_cycl   num_therm   accept
+Algor_T     0       5    150         0         0.005
+
+!         Value of Seed (if SeedVAL = 0, random seed)
+SeedVAL     0
+!
+Threshold   10.0
+!         Treatment of initial configuration
+InitCON   RAN

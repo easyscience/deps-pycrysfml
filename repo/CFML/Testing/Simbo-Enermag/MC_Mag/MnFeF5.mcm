@@ -1,0 +1,122 @@
+MnFeF5-2H2O
+Interactions Between Nearest Neighbours
+!NA(sites)  JCod    Z
+     8        0     4
+!Site Neighb   Dsing_Anis      Dir                Name        x         y         z
+
+   1     4       -0.8        1 0 0              :: Mn1
+!    Nav   Av  Bv  Cv        J
+      5     0   0   0      -2.95
+      6    -1   0   0      -2.95
+      7     0  -1  -1      -2.95
+      8    -1  -1  -1      -2.95
+!Site Neighb   Dsing_Anis      Dir                Name        x         y         z
+   2     4       -0.8       1 0 0               :: Mn2
+!    Nav   Av  Bv  Cv        J
+      5     0   0   0      -2.95
+      6     0   0   0      -2.95
+      7     0  -1   0      -2.95
+      8     0  -1   0      -2.95
+!Site Neighb   Dsing_Anis      Dir                Name        x         y         z
+   3     4       -0.8       1 0 0                :: Mn3
+!    Nav   Av  Bv  Cv        J
+      5     0   0   0      -2.95
+      6    -1   0   0      -2.95
+      7     0   0  -1      -2.95
+      8    -1   0  -1      -2.95
+!Site Neighb   Dsing_Anis      Dir                Name        x         y         z
+   4     4       -0.8        1 0 0                :: Mn4
+!    Nav   Av  Bv  Cv        J
+      5     0   0   0      -2.95
+      6     0   0   0      -2.95
+      7     0   0   0      -2.95
+      8     0   0   0      -2.95
+!Site Neighb   Dsing_Anis      Dir                Name        x         y         z
+    5    6          2         0 1 0               :: Fe1
+!    Nav   Av  Bv  Cv        J
+      1   0  0  0  -2.95
+      2   0  0  0  -2.95
+      3   0  0  0  -2.95
+      4   0  0  0  -2.95
+      6   0  0  0  -6
+      6  -1  0  0  -6
+!Site Neighb   Dsing_Anis      Dir                Name        x         y         z
+   6     6          2         0 1 0               :: Fe2
+!    Nav   Av  Bv  Cv        J
+      1     1   0   0      -2.95
+      2     0   0   0      -2.95
+      3     1   0   0      -2.95
+      4     0   0   0      -2.95
+      5     0   0   0      -6
+      5     1   0   0      -6
+!Site Neighb   Dsing_Anis      Dir                Name        x         y         z
+   7     6          2         0 1 0               :: Fe3
+!    Nav   Av  Bv  Cv        J
+      1     0   1   1      -2.95
+      2     0   1   0      -2.95
+      3     0   0   1      -2.95
+      4     0   0   0      -2.95
+      8     0   0   0      -6
+      8    -1   0   0      -6
+!Site Neighb   Dsing_Anis      Dir                Name        x         y         z
+   8     6          2         0 1 0               :: Fe4
+!    Nav   Av  Bv  Cv        J
+      1     1   1   1      -2.95
+      2     0   1   0      -2.95
+      3     1   0   1      -2.95
+      4     0   0   0      -2.95
+      7     0   0   0      -6
+      7     1   0   0      -6
+!   Ni    Nf   Spin     ScattFact
+     1     4  4.2900      MMN2
+     5     8  3.9700      MFE3
+!     a          b          c        alpha       beta      gamma
+    7.475     10.766      6.594       90.0        90.0      90.0
+!
+!  The conditions below should be adapted to the problem by the user
+!
+SpinModel    Heisenberg
+
+Title  Simulation of classical Spins:  MnFeF5.2H2O
+
+!  Simulation box
+Ncells    2 2 1
+
+!  Initial configuration (R,I)
+InitConf  R
+
+! boundary conditions (Free,Periodic,Mixed)
+Boundary  Periodic
+
+! Scaling (sample,cell,site,mole)
+Scale     mole
+
+!  Sites for output during simulation
+Sites   1 3 5
+
+!         T_ini   Coef  T_final
+schedule    100   0.90    1.0
+
+!  Magnetic Field
+hfield    0  0  0  1
+
+!  Number of MC cycles and thermalization
+mcyc   1500  500
+print  E
+averages
+
+continue F
+fchange   1 0 0     0  20  200
+mcyc   1500  500
+print E
+averages
+
+
+continue T
+tchange A   2   16
+hfield  200  1 0 0
+mcyc   2000  800
+print E
+averages
+
+cryst   0  0 0 0

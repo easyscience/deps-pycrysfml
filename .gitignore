@@ -2,6 +2,9 @@
 __pycache__
 .pyc
 
+# pixi
+.pixi/*
+
 # PyInstaller
 build
 *.spec
@@ -10,23 +13,14 @@ build
 .ipynb_checkpoints
 
 # PyCharm
-.idea
+.idea/
 
 # macOS
 .DS_Store
 
 # Build
-.venv
-crysfml*
-pycrysfml*
-build
-dist
-repo
-scripts
-
-# Misc
-.benchmarks/local
-
-# pixi environments
-.pixi/*
-!.pixi/config.toml
+.venv/
+build/
+dist/
+scripts/
+.benchmarks/local/

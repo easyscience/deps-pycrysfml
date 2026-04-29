@@ -1,0 +1,4 @@
+options install --prefix ifort_fpm_release
+options --compiler ifort
+options --flag "/fpp /static /heap-arrays /O3 /reentrancy:none"
+options --profile release

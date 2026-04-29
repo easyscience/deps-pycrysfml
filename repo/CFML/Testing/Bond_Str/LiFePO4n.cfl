@@ -1,0 +1,14 @@
+! Unit cell parameters:  a, b, c, Alpha, Beta, Gamma
+Cell 10.3383  6.0114  4.6952  90.0000  90.0000  90.0000
+! Space group
+Spgr P n m a
+! Atom-strings in the order: Label, Species, x, y, z, Biso, Occ [,2*Spin, charge]
+Atom   Li     Li  0.00000  0.00000  0.00000  2.00000  0.50000     0.00     1.00
+Atom   Fe     Fe  0.28220  0.25000  0.97410  0.87000  0.50000     0.00     2.00
+Atom    P      P  0.09500  0.25000  0.41840  0.51000  0.50000     0.00     5.00
+Atom    O     O1  0.09710  0.25000  0.74300  0.91000  0.50000     0.00    -2.00
+Atom    O     O2  0.45700  0.25000  0.20650  0.91000  0.50000     0.00    -2.00
+Atom    O     O3  0.16550  0.04640  0.28450  0.91000  1.00000     0.00    -2.00
+! BondStr instructions
+ Nx, Ny, Nz, Species, Dmax, Delta(eV): Values within Emin+delta are counted for fractional volume estimation
+BVEL   103    60    47 Li+1   8.00   0.50

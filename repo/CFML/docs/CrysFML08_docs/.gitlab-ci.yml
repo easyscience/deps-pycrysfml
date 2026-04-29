@@ -1,0 +1,16 @@
+image: python:3.12-bullseye
+
+pages:
+  stage: deploy
+  tags: 
+    - docker
+  script:
+    - cd docs
+    - pip install sphinx
+    - sphinx-build -b html . _build/html
+    - mv _build/html ../public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master

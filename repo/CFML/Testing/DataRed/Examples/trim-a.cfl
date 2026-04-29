@@ -1,0 +1,12 @@
+TITLE   Trim 
+INPFIL  trim_at_1p8K_reals.hkl
+OUTFIL  trim-r
+WAVE    0.9
+CELL    13.4 28.9 6.65 90 95 90
+SPGR    C m  
+NQVECT    1 1  
+KVEC      0.000 0.0  0.500
+Q_coeff  1
+HKL_T   1
+MAGNETIC
+PRINT_ALL

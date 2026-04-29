@@ -1,0 +1,40 @@
+MagOpt
+allows simulation and simulated annealing optimization of magnetic structures
+based on spherical polarimetry (multi datasets) and integrated intensity data.
+Additionally a nuclear dataset can be used to normalise magnetic moment (f2nuc_data),
+or to insert nuclear intensities into magnetic positions, if the structural part 
+causing these intensities is not known (f2magnuc_data).
+The nuclear part would be calculated from the nuclear structure as well 
+(nuclear-magnetic interference term is working).
+ 
+Input file *.cfl
+contains
+description of the crystal structure
+WORDS: spgr, cell, atom
+ 
+description of the magnetic structure
+confined within the block
+Mag_Structure
+End_Mag_Structure
+WORDS: lattice,kvect,magcent,symm,msym,matom,skp,magdom
+ 
+description of the codes for refinement
+WORDS: vary, equal
+
+description of the data
+WORDS:
+cryopad_data
+mupad_data
+f2mag_data
+f2nuc_data
+f2magnuc_data
+
+description of the procedure
+WORDS:
+OPTIMIZE
+SIMULATE
+
+description of exp. conditions 
+description of Simulated Annealing conditions
+as in other SA programs with crysfml
+

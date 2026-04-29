@@ -1,0 +1,273 @@
+# This is the manifest file for building CrysFML08 with fpm
+# It is better to comment the part corresponding to executables in order to construct
+# the library totally independent of the programs using it.
+#
+name = "CrysFML08"
+version = "0.1.0"
+license = "LGPL"
+author = "Juan Rodriguez-Carvajal, Javier Gonzalez-Platas, Nebil A. Katcho"
+maintainer = "jrc@ill.eu"
+copyright = "Copyright 2022, Juan Rodriguez-Carvajal, Javier Gonzalez-Platas, Nebil A. Katcho"
+
+[library]
+source-dir = "Src"   
+#include-dir = "ifort64/ODR_sp" 
+
+[build]
+auto-executables = false
+auto-tests = false
+auto-examples = false
+#external-modules = ["real_precision","odrpack95","odr_wrapper"] 
+# In link it is important to put not only the directory but the name of the library without extension
+#link = ["ifort64/ODR_sp/odr_sp"]
+
+[install]
+library = true
+
+# The lines above are enough for building the library using the scripts make_CrysFML_fpm.bat/make_CrysFML_fpm.sh
+#
+#==============================================================================================
+# WARNING! For building the executables uncomment the lines below once the library is installed
+#==============================================================================================
+#
+# Some executables from Testing directory
+#
+#[[executable]]
+#name="Bond_StrN"
+#source-dir="Testing/Bond_Str"
+#main="Bond_StrN.f90"
+#
+#[[executable]]
+#name="io_files"
+#source-dir="Testing/CIFs"
+#main="io_files.f90"
+#
+#[[executable]]
+#name="io_files_ssg"
+#source-dir="Testing/CIFs"
+#main="io_files_ssg.f90"
+#
+#[[executable]]
+#name="nDataRed"
+#source-dir="Testing/DataRed"
+#main="datared.f90"
+#
+#[[executable]]
+#name="Get_Generators_SPG_Symbol"
+#source-dir="Testing/Groups"
+#main="Generators-Symbol.f90"
+#
+#[[executable]]
+#name="groups08"
+#source-dir="Testing/Groups"
+#main="groups08.f90"
+#
+#[[executable]]
+#name="Id_groups"
+#source-dir="Testing/Groups"
+#main="Id_groups.f90"
+#
+#[[executable]]
+#name="read_ssg_database"
+#source-dir="Testing/Groups"
+#main="read_SSG_database.f90"
+#
+#[[executable]]
+#name="Test_SSG_Genk"
+#source-dir="Testing/Groups"
+#main="Test_SSG_Genk.f90"
+#
+#[[executable]]
+#name="Grp230"
+#source-dir="Testing/Grp_230"
+#main="groups_230.f90"
+#
+#[[executable]]
+#name="MHall"
+#source-dir="Testing/Hall_Symbols"
+#main="MHall.f90"
+#
+#[[executable]]
+#name="GetHall"
+#source-dir="Testing/Hall_Symbols"
+#main="GetHall_from_Gener.f90"
+#
+#[[executable]]
+#name="mol2pcr"
+#source-dir="Testing/Molecules"
+#main="mol_tpcr.f90"
+#
+#[[executable]]
+#name="cfl2cif"
+#source-dir="Testing/Similar"
+#main="cfl2cif.f90"
+#
+#[[executable]]
+#name="Similar"
+#source-dir="Testing/Similar"
+#main="Similar.f90"
+#
+#[[executable]]
+#name="read_difPat"
+#source-dir="Testing/test_diffpatt"
+#main="test_read.f90"
+#
+#[[executable]]
+#name="keycod"
+#source-dir="Testing/Keycodes"
+#main="KeyCod.f90"
+#
+##
+## Magnetic package Simbo, EnerMag, Phase_Diagram and MC_Mag
+##
+#[[executable]]
+#name="Simbo"
+#source-dir="Testing/Simbo-Enermag"
+#main="Simbo.f90"
+#
+#[[executable]]
+#name="EnerMag"
+#source-dir="Testing/Simbo-Enermag"
+#main="EnerMag.f90"
+#
+#[[executable]]
+#name="Phase_Diagram"
+#source-dir="Testing/Simbo-Enermag"
+#main="Phase_Diagram.f90"
+#
+#[[executable]]
+#name="MC_Mag"
+#source-dir="Testing/Simbo-Enermag/MC_Mag"
+#main="mc_mag.f90"
+#
+##[[executable]]
+##name="TOF_fit_LMODR"
+##source-dir="Testing/TOF-fit"
+##main="TOF_fitting_LM.f90"
+##
+## Metric
+##
+#[[executable]]
+#name="Get_Conv_Cell"
+#source-dir="Testing/Metrics"
+#main="Get_Conv_Cell.f90"
+#
+#[[executable]]
+#name="search_cellrelations"
+#source-dir="Testing/Metrics"
+#main="search_cellrelations.f90"
+#
+#[[executable]]
+#name="simple_hkl_gen"
+#source-dir="Testing/hkl_gen"
+#main="simple_hkl_gen.f90"
+#
+#[[executable]]
+#name="hkl_gen"
+#source-dir="Testing/hkl_gen"
+#main="hkl_gen.f90"
+#
+##
+## Structure Factors
+##
+#[[executable]]
+#name="Calc_Sfac"
+#source-dir="Testing/StructureFactors"
+#main="Calc_Sfac.f90"
+#
+##
+###
+### Powder Patterns
+###
+#[[executable]]
+#name="Simple_Calc_Powder"
+#source-dir="Testing/PowderPattern"
+#main="Simple_calc_powder.f90"
+#
+#[[executable]]
+#name="Simple_Calc_Mag_Powder"
+#source-dir="Testing/PowderPattern"
+#main="Simple_calc_Mag_powder.f90"
+#
+##
+##[[executable]]
+##name="Calc_Powder"
+##source-dir="Testing/PowderPattern"
+##main="calc_powder.f90"
+##
+##
+###
+### Structures_GlobalOptimization
+###
+#[[executable]]
+#name="nGLOpSAnn"
+#source-dir="Testing/GLOpSAnn/Src"
+#main="GLOpSAnn.f90"
+##
+##
+##
+## Magnetic examples, polarimetry
+##
+#[[executable]]
+#name="MagPolar3D"
+#source-dir="Testing/Magnetism"
+#main="MagPolar3D.f90"
+#
+#[[executable]]
+#name="magref"
+#source-dir="Testing/Magnetism"
+#main="magref.f90"
+#
+##################### Warning! ifx in mode release is unable to compile Schwinger: hn = real(hkl%ref(i)%h,kind=cp)
+#[[executable]]
+#name="Schwinger"
+#source-dir="Testing/Magnetism"
+#main="Schwinger.f90"
+#
+#[[executable]]
+#name="Moment"
+#source-dir="Testing/Magnetism/Moment"
+#main="moment.f90"
+#
+#[[executable]]
+#name="MagOptim"
+#source-dir="Testing/Magnetism/MagOptim_v4"
+#main="MagOptim.f90"
+#
+#
+##
+## Faults Program
+##
+#[[executable]]
+#name="DIFFaX2FAULTS"
+#source-dir="Testing/Faults/DIFFaX2FAULTS"
+#main="DIFFaX2FAULTS.f90"
+#
+#[[executable]]
+#name="Faults"
+#source-dir="Testing/Faults/Src"
+#main="Faults.f90"
+#
+#[[executable]]
+#name="Correct_Cells"
+#source-dir="Testing/PowderPattern"
+#main="corr_cells.f90"
+#
+#[[executable]]
+#name="Laue_Powder"
+#source-dir="Testing/PowderPattern"
+#main="Laue_powder.f90"
+#
+##
+## Single X-tal diffractometry
+##
+#
+#[[executable]]
+#name="d10_flat_cone"
+#source-dir="Testing/SXtal_Diffractometry"
+#main="d10_flat_cone.f90"
+#
+#[[executable]]
+#name="get_UB_from2ref"
+#source-dir="Testing/SXtal_Diffractometry"
+#main="get_UB_from2ref.f90"

@@ -1,0 +1,4 @@
+options install --prefix ifort_fpm_debug
+options --profile debug 
+options --flag "-fpp -debug -check -static -heap-arrays -check noarg_temp_created -traceback -nologo -CB"
+options --compiler ifort

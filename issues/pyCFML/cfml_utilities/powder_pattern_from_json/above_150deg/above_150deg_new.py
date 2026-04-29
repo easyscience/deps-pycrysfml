@@ -2,7 +2,7 @@ import copy
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pycrysfml import cfml_py_utilities
+from crysfml import cfml_py_utilities
 
 ##################
 # Global variables
