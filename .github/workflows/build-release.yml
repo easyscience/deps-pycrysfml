@@ -158,6 +158,10 @@ jobs:
         shell: bash
         run: scripts/pycfml_build.sh
 
+      - name: Validate wheel filenames for PyPI upload
+        shell: bash
+        run: python3 tools/validate_pypi_wheel_filenames.py "${{ steps.wheel_dir.outputs.value }}"
+
       #- name: Fix Python package wheel dependencies
       #  if: runner.os == 'macOS'
       #  shell: bash
