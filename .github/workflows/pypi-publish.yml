@@ -39,7 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
-        run: gh release download "$RELEASE_TAG" --pattern '*.whl' --dir dist
+        run: gh release download "$RELEASE_TAG" --repo "${{ github.repository }}" --pattern '*.whl' --dir dist
 
       # Publish the package to PyPI (from downloaded release assets in dist/).
       - name: Publish to PyPI
