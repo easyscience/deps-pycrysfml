@@ -26,13 +26,10 @@ jobs:
         os: [ubuntu-24.04, windows-2022, macos-14]
         toolchain:
           - { exe: gfortran, compiler: gcc, version: 13 }
-          - { exe: ifort, compiler: intel-classic, version: "2021.10" }
-          - { exe: ifx, compiler: intel, version: "2023.2" }
+          - { exe: ifx, compiler: intel, version: "2025.2" }
         exclude:
           - os: macos-14
-            toolchain: { exe: ifx, compiler: intel, version: "2023.2" } # no support for macOS on arm64
-          - os: macos-14
-            toolchain: { exe: ifort, compiler: intel-classic, version: "2021.10" } # no support for macOS on arm64
+            toolchain: { exe: ifx, compiler: intel, version: "2025.2" } # no support for macOS on arm64
 
     runs-on: ${{ matrix.os }}
 
@@ -57,7 +54,7 @@ jobs:
       - name: Set up Python environment
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.14'
 
       - name: Upgrade package installer for Python
         shell: bash
@@ -140,13 +137,10 @@ jobs:
         os: [ubuntu-24.04, windows-2022, macos-14]
         toolchain:
           - { exe: gfortran, compiler: gcc, version: 13 }
-          - { exe: ifort, compiler: intel-classic, version: "2021.10" }
-          - { exe: ifx, compiler: intel, version: "2023.2" }
+          - { exe: ifx, compiler: intel, version: "2025.2" }
         exclude:
           - os: macos-14
-            toolchain: { exe: ifx, compiler: intel, version: "2023.2" } # no support for macOS on arm64
-          - os: macos-14
-            toolchain: { exe: ifort, compiler: intel-classic, version: "2021.10" } # no support for macOS on arm64
+            toolchain: { exe: ifx, compiler: intel, version: "2025.2" } # no support for macOS on arm64
 
     runs-on: ${{ matrix.os }}
 
@@ -157,7 +151,7 @@ jobs:
       - name: Set up python environment
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.14'
 
       - name: Upgrade package installer for Python
         shell: bash
