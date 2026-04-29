@@ -1429,23 +1429,12 @@ def copy_extra_libs_to_pycfml_dist():
         return
     package_relpath = CONFIG['pycfml']['dir']['dist-package'].replace('{PACKAGE_NAME}', PYPROJECT['project']['name'])
     package_abspath = os.path.join(_project_path(), package_relpath)
-    shared_lib_ext = CONFIG['build']['shared-lib-ext'][_platform()]
-    shared_lib_name = CONFIG['pycfml']['src-name']
-    shared_lib_path = os.path.join(package_abspath, f'{shared_lib_name}.{shared_lib_ext}')
     lines = []
-    if _platform() == 'linux':
-        for lib_name in extra_libs:
-            resolve_cmd = f"ldd \"{shared_lib_path}\" | grep -F '{lib_name} => ' | sed -E 's/^[[:space:]]*[^[:space:]]+[[:space:]]+=>[[:space:]]+([^[:space:]]+).*/\\1/' | head -n 1"
-            lines.extend(_copy_resolved_lib_lines(lib_name, resolve_cmd))
-    elif _platform() == 'macos':
-        for lib_name in extra_libs:
-            resolve_cmd = f"otool -L \"{shared_lib_path}\" | grep -F '/{lib_name} (' | sed -E 's/^[[:space:]]*([^[:space:]]+).*/\\1/' | head -n 1"
-            lines.extend(_copy_resolved_lib_lines(lib_name, resolve_cmd))
-    elif _platform() == 'windows' and _compiler_name() == 'gfortran':
+    if _compiler_name() == 'gfortran':
         for lib_name in extra_libs:
             resolve_cmd = f'{_compiler_name()} -print-file-name={lib_name}'
             lines.extend(_copy_resolved_lib_lines(lib_name, resolve_cmd))
-    elif _platform() == 'windows' and _compiler_name() == 'ifx':
+    elif _compiler_name() == 'ifx':
         lines.append('_ifx_path="$(command -v ifx 2>/dev/null || true)"')
         lines.append('if [ -z "$_ifx_path" ]; then')
         lines.append(f'  {_echo_cmd()} "{ERROR_COLOR}:::::: ERROR: Failed to resolve the ifx compiler while locating Intel runtime libraries{COLOR_OFF}"')
