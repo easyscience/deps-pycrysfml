@@ -12,6 +12,9 @@ on:
   #schedule:
   #  - cron: '*/120 8-18 * * *'  # every 2 hours from 8:00 to 18:00 every day
 
+env:
+  WHEEL_DIR: dist/pyCFML/wheel
+
 jobs:
 
   ##############################################################################
@@ -149,28 +152,23 @@ jobs:
         shell: bash
         run: scripts/cfml_test.sh
 
-      - name: Resolve wheel directory
-        id: wheel_dir
-        shell: bash
-        run: echo "value=$(python3 pybuild.py --print-wheel-dir)" >> "$GITHUB_OUTPUT"
-
       - name: Build crysfml wheel with scikit-build-core
         shell: bash
         run: |
-          rm -rf "${{ steps.wheel_dir.outputs.value }}"
-          mkdir -p "${{ steps.wheel_dir.outputs.value }}"
-          python -m build --wheel --outdir "${{ steps.wheel_dir.outputs.value }}"
+          rm -rf "${{ env.WHEEL_DIR }}"
+          mkdir -p "${{ env.WHEEL_DIR }}"
+          python -m build --wheel --outdir "${{ env.WHEEL_DIR }}"
 
       - name: Validate wheel filenames for PyPI upload
         shell: bash
-        run: python3 tools/validate_pypi_wheel_filenames.py "${{ steps.wheel_dir.outputs.value }}"
+        run: python3 tools/validate_pypi_wheel_filenames.py "${{ env.WHEEL_DIR }}"
 
       #- name: Fix Python package wheel dependencies
       #  if: runner.os == 'macOS'
       #  shell: bash
       #  run: |
       #    pip install delocate
-      #    #delocate-wheel -v ${{ steps.wheel_dir.outputs.value }}/*.whl
+      #    #delocate-wheel -v ${{ env.WHEEL_DIR }}/*.whl
 
       - name: Test built pyCFML wheel
         shell: bash
@@ -180,7 +178,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:  # if name or path modified, remember to UPDATE those in the download step of the next job
           name: pycfml-wheel_${{ matrix.os }}_${{ matrix.python-version }} # name (without .zip) of the zip file to be uploaded
-          path: ${{ steps.wheel_dir.outputs.value }}  # all files from this directory are zipped
+          path: ${{ env.WHEEL_DIR }}  # all files from this directory are zipped
           if-no-files-found: "error"
           compression-level: 0
 
@@ -240,16 +238,11 @@ jobs:
           --bash-syntax
           --enable-backslash-escapes
 
-      - name: Resolve wheel directory
-        id: wheel_dir
-        shell: bash
-        run: echo "value=$(python3 pybuild.py --print-wheel-dir)" >> "$GITHUB_OUTPUT"
-
       - name: Download zipped pyCFML wheel from previous job
         uses: actions/download-artifact@v4
         with:  # name or path are taken from the upload step of the previous job
           name: pycfml-wheel_${{ matrix.os }}_${{ matrix.python-version }}  # name (without .zip) of the zipped artifact uploaded on the previous jobs
-          path: ${{ steps.wheel_dir.outputs.value }}  # directory to extract downloaded zipped artifacts
+          path: ${{ env.WHEEL_DIR }}  # directory to extract downloaded zipped artifacts
 
       - name: Test downloaded pyCFML wheel
         shell: bash
