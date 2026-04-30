@@ -221,9 +221,57 @@ jobs:
   ##############################################################################
   # JOB 3
   ##############################################################################
+  source-rebuild:
+
+    needs: resolve_release_tag
+
+    timeout-minutes: 45
+
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history with tags is required for versioningit
+
+      - name: Create local release tag for exact-version source rebuild validation
+        if: ${{ needs.resolve_release_tag.outputs.tag_name != '' }}
+        shell: bash
+        run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
+
+      - name: Set up Fortran compiler (FC)
+        uses: fortran-lang/setup-fortran@v1
+        with:
+          compiler: gcc
+          version: 13
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Upgrade package installer for Python
+        shell: bash
+        run: python -m pip install --upgrade pip
+
+      - name: Install Python dependences
+        shell: bash
+        run: python tools/install_optional_dependencies.py ci test
+
+      - name: Validate sdist rebuild path
+        shell: bash
+        run: >
+          python tools/validate_sdist_rebuild.py
+          --sdist-dir dist/sdist-validation/sdist
+          --wheel-dir dist/sdist-validation/wheel
+
+  ##############################################################################
+  # JOB 4
+  ##############################################################################
   upload-release-assets:
 
-    needs: [resolve_release_tag, test]
+    needs: [resolve_release_tag, test, source-rebuild]
 
     if: ${{ github.event_name == 'push' && github.ref_name == 'master' && needs.resolve_release_tag.outputs.tag_name != '' }}
 
