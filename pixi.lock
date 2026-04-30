@@ -556,13 +556,14 @@ packages:
   requires_python: '>=3.11'
 - pypi: ./
   name: crysfml
-  version: 0.4.0+devdirty32
-  sha256: ea0355fbdbef07fe0b64e9567083c82c3332d927add4b58af1e44c89f70e95fb
+  version: 0.6.0+devdirty1
+  sha256: 1ffe4bcf93d432d591f87a3c6ace05734c9aa215d6d9bb9d02631d976294d61b
   requires_dist:
   - numpy
   - build ; extra == 'ci'
   - check-wheel-contents ; extra == 'ci'
   - colorama ; extra == 'ci'
+  - packaging ; extra == 'ci'
   - toml ; extra == 'ci'
   - validate-pyproject[all] ; extra == 'ci'
   - wheel ; extra == 'ci'
