@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 
 project(crysfml_packaging LANGUAGES NONE)
 
+option(CRYSFML_ENABLE_CORE_TARGET "Build the repo-owned cfml_core target." ON)
 option(CRYSFML_ENABLE_PYTHON_PACKAGE "Expose the Python package scaffold in the repo-owned build." ON)
 option(CRYSFML_ENABLE_VENDOR_TESTS "Expose vendored CFML test-program manifests in the repo-owned build." OFF)
 option(CRYSFML_ENABLE_VENDOR_ODR "Reserve space for the vendored ODR build in the repo-owned build." OFF)
@@ -59,8 +60,47 @@ crysfml_require_existing_path(CRYSFML_VENDOR_PYTHON_API_ROOT "Vendored pyCFML so
 crysfml_require_existing_path(CRYSFML_CURATED_PACKAGE_INIT "Curated package init")
 crysfml_require_existing_path(CRYSFML_CURATED_DATABASE_FILE "Bundled CFML database")
 
+if(CRYSFML_ENABLE_CORE_TARGET)
+    if(NOT DEFINED CMAKE_Fortran_COMPILER)
+        find_program(CRYSFML_DEFAULT_GFORTRAN_EXECUTABLE NAMES gfortran)
+        if(CRYSFML_DEFAULT_GFORTRAN_EXECUTABLE)
+            set(CMAKE_Fortran_COMPILER
+                "${CRYSFML_DEFAULT_GFORTRAN_EXECUTABLE}"
+                CACHE FILEPATH
+                "Default Fortran compiler for the repo-owned cfml_core target."
+            )
+        endif()
+    endif()
+    enable_language(Fortran)
+endif()
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CfmlSourceManifest.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompilerProfiles.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PyCfmlSourceManifest.cmake")
+
+if(CRYSFML_ENABLE_CORE_TARGET)
+    crysfml_set_default_build_type(Release)
+    crysfml_select_global_deps_source(CRYSFML_SELECTED_GLOBAL_DEPS_SOURCE)
+
+    set(CRYSFML_CORE_BUILD_SOURCES
+        "${CRYSFML_SELECTED_GLOBAL_DEPS_SOURCE}"
+        ${CRYSFML_CORE_SOURCES}
+    )
+
+    add_library(cfml_core STATIC ${CRYSFML_CORE_BUILD_SOURCES})
+    add_library(crysfml::cfml_core ALIAS cfml_core)
+
+    set_target_properties(cfml_core PROPERTIES
+        OUTPUT_NAME CrysFML08
+        POSITION_INDEPENDENT_CODE ON
+        Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/modules/cfml_core"
+    )
+    target_include_directories(cfml_core
+        PUBLIC
+            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/modules/cfml_core>"
+    )
+    crysfml_apply_cfml_core_profile(cfml_core)
+endif()
 
 list(LENGTH CRYSFML_CORE_MODULE_KEYS _crysfml_core_module_count)
 list(LENGTH CRYSFML_CORE_SOURCES _crysfml_core_source_count)
@@ -68,6 +108,9 @@ list(LENGTH CRYSFML_GLOBAL_DEPS_VARIANTS _crysfml_global_deps_count)
 list(LENGTH CRYSFML_VENDOR_TEST_PROGRAM_SOURCES _crysfml_vendor_test_program_count)
 list(LENGTH PYCFML_FORTRAN_SOURCES _pycfml_fortran_source_count)
 list(LENGTH PYCFML_PYTHON_SOURCES _pycfml_python_source_count)
+if(CRYSFML_ENABLE_CORE_TARGET)
+    list(LENGTH CRYSFML_CORE_BUILD_SOURCES _crysfml_core_build_source_count)
+endif()
 
 message(STATUS "Configured repo-owned crysfml transition scaffold")
 message(STATUS "  Vendor root             : ${CRYSFML_VENDOR_ROOT}")
@@ -81,11 +124,18 @@ message(STATUS "  Core source files       : ${_crysfml_core_source_count}")
 message(STATUS "  Vendored test sources   : ${_crysfml_vendor_test_program_count}")
 message(STATUS "  pyCFML Fortran sources  : ${_pycfml_fortran_source_count}")
 message(STATUS "  pyCFML Python sources   : ${_pycfml_python_source_count}")
-message(STATUS "  Build scaffold only     : native targets land in the next migration slice")
+if(CRYSFML_ENABLE_CORE_TARGET)
+    message(STATUS "  Selected global deps    : ${CRYSFML_SELECTED_GLOBAL_DEPS_SOURCE}")
+    message(STATUS "  cfml_core build inputs  : ${_crysfml_core_build_source_count}")
+    message(STATUS "  cfml_core compiler      : ${CMAKE_Fortran_COMPILER_ID}")
+else()
+    message(STATUS "  Build scaffold only     : native targets are disabled")
+endif()
 
 set(CRYSFML_TRANSITION_SCAFFOLD_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt"
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CfmlSourceManifest.cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompilerProfiles.cmake"
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PyCfmlSourceManifest.cmake"
     "${CMAKE_CURRENT_SOURCE_DIR}/docs/proper-build-transition.md"
     "${CRYSFML_CURATED_PACKAGE_INIT}"
