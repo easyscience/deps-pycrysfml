@@ -119,6 +119,153 @@ There should be one source of truth for each concern.
 During transition, `pybuild.py` remains the oracle for parity, not the final
 implementation.
 
+## Platform Release Policy
+
+The proper build must define one release policy per artifact type, not one
+generic "wheel build" step that behaves differently on each host.
+
+### Linux release wheels
+
+Linux wheels must become real manylinux wheels.
+
+- initial release scope: `x86_64` + `gfortran` only
+- preferred compatibility floor: `manylinux_2_17_x86_64`
+- highest acceptable floor without an explicit downstream support decision:
+  `manylinux_2_28_x86_64`
+- never derive the Linux compatibility tag from the host glibc version
+- never publish raw `linux_x86_64` wheels
+- never bundle glibc or other system libraries such as `libc.so.6`, `libm.so.6`,
+  or `libmvec.so.1`
+- build inside a real manylinux container, not directly on a GitHub Ubuntu host
+- run `auditwheel show` on the raw wheel and `auditwheel repair` on the release
+  wheel
+- test the repaired wheel, not the pre-repair wheel
+
+To keep the Linux path understandable and reproducible, prefer a small
+repo-owned manylinux image definition over ad hoc package installation in the CI
+workflow.
+
+That image should contain at least:
+
+- the chosen manylinux base image
+- `gfortran`
+- the Python build prerequisites needed by the backend
+- any native utilities required before `auditwheel repair`
+
+The Linux release path should stay intentionally narrow at first. `ifx` remains
+outside the release scope until the gfortran manylinux path is stable.
+
+### macOS release wheels
+
+macOS wheels should be built on native GitHub macOS runners with native Python,
+then repaired with `delocate`.
+
+- build on native runners only; do not introduce cross-compilation in the first
+  proper-build migration
+- start with one wheel per proven architecture rather than promising
+  `universal2` immediately
+- preserve the currently validated package behavior for bundled Fortran runtime
+  libraries and `@loader_path`-based loading
+- use `delocate-listdeps` and `delocate-wheel` as the release repair steps
+- test the delocated wheel in a fresh environment before artifact promotion
+
+The first proper-build release can keep the currently proven macOS architecture
+scope and widen later only if CI and runtime validation show that it is safe.
+
+### Windows release wheels
+
+Windows wheels should be built on native `windows-2022` runners and repaired
+with `delvewheel`.
+
+- initial release scope: `gfortran` first, matching the current release focus
+- keep `ifx` in debug or development flows until the release wheel behavior is
+  proven separately
+- bundle the runtime DLLs required by the final `.pyd`
+- preserve the curated package init behavior that adds the package directory to
+  DLL resolution on Windows
+- run `delvewheel show` or equivalent dependency inspection before the final
+  repair step
+- test import and basic runtime behavior from a fresh environment after repair
+
+### Non-release compiler paths
+
+Support for `ifx`, `nagfor`, or other compilers can remain available in debug or
+developer validation, but they should not complicate the initial proper release
+contract.
+
+The first proper-build release goal is:
+
+- one correct sdist
+- one correct manylinux Linux wheel path
+- one correct macOS wheel path
+- one correct Windows wheel path
+
+Only after that works should the matrix widen.
+
+## sdist Contract
+
+The sdist must become the canonical source artifact for downstream packagers.
+
+### What the sdist must contain
+
+- root `CMakeLists.txt` and repo-owned CMake include files
+- `pyproject.toml`, `README.md`, and `LICENSE`
+- the curated package files used to build the final wheel
+- vendored CrysFML core sources from `repo/CFML/Src`
+- vendored pyCFML Fortran and Python sources from `repo/CFML/PythonAPI`
+- any build-time metadata needed to derive the same version and build graph from
+  the source artifact
+
+### What the sdist must not contain
+
+- `build/`
+- `dist/`
+- generated `scripts/`
+- `.benchmarks/`
+- local environment folders and caches
+- issue notebooks, exploratory artifacts, or unrelated repository analysis
+
+### sdist validation contract
+
+Each release candidate must prove all of the following:
+
+1. `python -m build --sdist` succeeds from a clean checkout
+2. the produced tarball unpacks into a self-contained source tree
+3. `pip wheel <sdist>` produces a real native wheel, not a metadata-only wheel
+4. the wheel built from the sdist passes at least import smoke tests and the
+   package tests required for release confidence
+
+The sdist should be built once per release from the repository root and then
+published alongside the wheels from the same release pipeline.
+
+## Planned CI Release Topology
+
+The future proper-build CI should separate source creation, wheel creation,
+wheel repair, and release publication.
+
+### Release artifact stages
+
+1. create a validated sdist from the repository root
+2. rebuild a wheel from that sdist in a clean validation environment
+3. build platform wheels from the tagged source tree using cibuildwheel
+4. repair platform wheels with the standard platform tool
+5. test the repaired wheels
+6. stage the validated wheels and sdist on the draft GitHub release
+7. publish those exact staged artifacts to PyPI
+
+### Platform-specific execution model
+
+- Linux: cibuildwheel + manylinux container + `auditwheel repair`
+- macOS: cibuildwheel on native runners + `delocate-wheel`
+- Windows: cibuildwheel on native runners + `delvewheel repair`
+
+### Release artifact ownership
+
+- the sdist is the source-of-truth artifact for downstream packagers
+- repaired wheels are the only wheel artifacts eligible for publication
+- raw wheels are CI intermediates only
+- PyPI publication should consume already validated artifacts, not rebuild them
+
 ## Migration Order
 
 ### Phase 1: Scaffold
@@ -146,12 +293,14 @@ implementation.
 - switch `pyproject.toml` to scikit-build-core
 - build wheels from the CMake install tree
 - remove the current manual wheel renaming and purelib metadata patching
+- ensure the backend emits native wheel metadata correctly without post-build
+  filename surgery
 
 ### Phase 5: Runtime repair
 
-- use auditwheel on Linux
-- use delocate on macOS
-- use delvewheel on Windows
+- use `auditwheel` on Linux after building inside a real manylinux image
+- use `delocate` on macOS after native wheel build
+- use `delvewheel` on Windows after native wheel build
 - delete the handwritten runtime-library copy and RPATH shell logic only after
   wheel parity is proven
 
@@ -160,10 +309,13 @@ implementation.
 - add CI that builds an sdist
 - rebuild a wheel from that sdist in a clean environment
 - run the package tests against the rebuilt wheel
+- make the wheel-from-sdist check mandatory for release readiness
 
 ### Phase 7: Release migration
 
 - move the release wheel matrix to cibuildwheel
+- split Linux into a dedicated manylinux-based release leg instead of host-Ubuntu
+  retagging
 - publish both wheels and a validated sdist to PyPI
 - retire the current script-generated wheel assembly flow
 
@@ -176,7 +328,14 @@ Each phase should have one clear gate before moving on.
   supported release compiler
 - extension target: local wheel imports and unit tests pass
 - wheel semantics: wheel metadata shows a non-pure native wheel
+- Linux release wheel: `auditwheel show` reports a valid manylinux-compatible
+  wheel and `auditwheel repair` succeeds
+- macOS release wheel: `delocate-listdeps` and `delocate-wheel` succeed on the
+  raw wheel
+- Windows release wheel: dependency inspection and `delvewheel repair` succeed
 - source rebuild: `pip wheel crysfml-<version>.tar.gz` produces a usable wheel
+- release publication: PyPI upload consumes the already validated wheels and
+  sdist staged on the draft GitHub release
 
 ## Commit Boundaries
 
@@ -187,6 +346,9 @@ To keep the migration understandable, each commit should do one of these only:
 - add core target
 - add Python extension target
 - switch backend to scikit-build-core
+- add Linux manylinux release path
+- add macOS and Windows repair-based release paths
+- add validated sdist release path
 - migrate wheel repair to standard tools
 - switch release CI to cibuildwheel
 
