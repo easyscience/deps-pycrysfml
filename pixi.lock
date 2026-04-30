@@ -556,22 +556,22 @@ packages:
   requires_python: '>=3.11'
 - pypi: ./
   name: crysfml
-  version: 0.6.0+devdirty1
-  sha256: 1ffe4bcf93d432d591f87a3c6ace05734c9aa215d6d9bb9d02631d976294d61b
+  version: 0.6.0.post1+dev8
+  sha256: 4aa27cca3a1e3b2a1f43d4fba9a70dd3e300ded3857535386d9441662af0b4ca
   requires_dist:
   - numpy
-  - build ; extra == 'ci'
-  - check-wheel-contents ; extra == 'ci'
-  - colorama ; extra == 'ci'
-  - packaging ; extra == 'ci'
   - toml ; extra == 'ci'
   - validate-pyproject[all] ; extra == 'ci'
+  - build ; extra == 'ci'
   - wheel ; extra == 'ci'
+  - packaging ; extra == 'ci'
+  - check-wheel-contents ; extra == 'ci'
+  - colorama ; extra == 'ci'
   - deepdiff ; extra == 'test'
-  - matplotlib ; extra == 'test'
-  - pygit2 ; extra == 'test'
   - pytest ; extra == 'test'
   - pytest-benchmark ; extra == 'test'
+  - pygit2 ; extra == 'test'
+  - matplotlib ; extra == 'test'
   requires_python: '>=3.11,<3.15'
 - pypi: https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl
   name: cycler

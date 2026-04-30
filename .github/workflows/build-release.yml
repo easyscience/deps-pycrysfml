@@ -123,7 +123,7 @@ jobs:
 
       - name: Install Python dependences
         shell: bash
-        run: pip install '.[ci,test]'  # 'ci' and 'test' extras from pyproject.toml
+        run: python tools/install_optional_dependencies.py ci test
 
       - name: Fix reinstalling gcc [macOS]  # needed because of `brew reinstall gcc`
         if: runner.os == 'macOS'
@@ -224,7 +224,7 @@ jobs:
 
       - name: Install Python dependences
         shell: bash
-        run: pip install '.[ci,test]'  # 'ci' and 'test' extras from pyproject.toml
+        run: python tools/install_optional_dependencies.py ci test
 
       - name: Create job step scripts
         shell: bash
