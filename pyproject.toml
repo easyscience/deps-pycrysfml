@@ -61,11 +61,18 @@ test = [
 ]
 
 [build-system]
-requires = ['hatchling', 'versioningit']
-build-backend = 'hatchling.build'
+requires = ['scikit-build-core>=0.11', 'versioningit']
+build-backend = 'scikit_build_core.build'
 
-[tool.hatch.version]
-source = 'versioningit'
+[tool.scikit-build]
+minimum-version = 'build-system.requires'
+experimental = true
+cmake.version = 'CMakeLists.txt'
+wheel.packages = []
+
+[tool.scikit-build.metadata.version]
+provider = 'crysfml_version'
+provider-path = 'tools'
 
 [tool.versioningit.format]
 distance = '{base_version}+dev{distance}'
@@ -76,7 +83,3 @@ distance-dirty = '{base_version}+devdirty{distance}'
 method = 'git'
 match = ['v*']
 default-tag = 'v0.0.0'
-
-[tool.hatch.build.targets.wheel]
-packages = ['dist/pyCFML/crysfml']
-artifacts = ['*.py', '*.so', '*.so.*', '*.dylib', '*.pyd', '*.dll', '*.txt']
