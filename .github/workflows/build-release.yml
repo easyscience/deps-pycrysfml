@@ -227,17 +227,6 @@ jobs:
         shell: bash
         run: python tools/install_optional_dependencies.py ci test
 
-      - name: Create job step scripts
-        shell: bash
-        run: >
-          python3 pybuild.py
-          --create-scripts
-          --platform ${{ runner.os }}
-          --compiler ${{ matrix.toolchain.exe }}
-          --mode release
-          --bash-syntax
-          --enable-backslash-escapes
-
       - name: Download zipped pyCFML wheel from previous job
         uses: actions/download-artifact@v4
         with:  # name or path are taken from the upload step of the previous job
@@ -246,17 +235,17 @@ jobs:
 
       - name: Test downloaded pyCFML wheel
         shell: bash
-        run: scripts/pycfml_test.sh
+        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}" --compiler "${{ matrix.toolchain.exe }}"
 
       - name: Run pyCFML functional tests and compare benchmark results
         if: "!contains(github.event.head_commit.message, '[save benchmark results]')"
         shell: bash
-        run: scripts/run_pycfml_functional_tests_with_benchmarks_compare.sh
+        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}" --compiler "${{ matrix.toolchain.exe }}" --benchmark-mode compare
 
       - name: Run pyCFML functional tests and save benchmark results
         if: "contains(github.event.head_commit.message, '[save benchmark results]')"
         shell: bash
-        run: scripts/run_pycfml_functional_tests_with_benchmarks_save.sh
+        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}" --compiler "${{ matrix.toolchain.exe }}" --benchmark-mode save
 
       - name: Push benchmark results to repository
         if: ${{ github.event_name == 'push' && github.ref_name != 'master' && contains(github.event.head_commit.message, '[save benchmark results]') }}
