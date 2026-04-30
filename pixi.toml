@@ -75,3 +75,33 @@ description = "Run the full local build and test pipeline in the dev environment
 [tasks.benchmark]
 cmd = "scripts/run_pycfml_functional_tests_with_benchmarks_save.sh"
 description = "Save local benchmark results in the dev environment"
+
+[tasks]
+
+#################
+# 🐙️ GitHub Tasks
+#################
+
+repo-wiki = 'gh api -X PATCH repos/easyscience/deps-pycrysfml -f has_wiki=false'
+repo-discussions = 'gh api -X PATCH repos/easyscience/deps-pycrysfml -f has_discussions=true'
+repo-description = "gh api -X PATCH repos/easyscience/deps-pycrysfml -f description='Qt/QML components for building graphical applications'"
+repo-homepage = "gh api -X PATCH repos/easyscience/deps-pycrysfml -f homepage='https://easyscience.github.io/deps-pycrysfml'"
+repo-config = { depends-on = [
+  'repo-wiki',
+  'repo-discussions',
+  'repo-description',
+  'repo-homepage',
+] }
+
+master-protection = 'gh api -X POST repos/easyscience/deps-pycrysfml/rulesets --input .github/configs/rulesets-master.json'
+develop-protection = 'gh api -X POST repos/easyscience/deps-pycrysfml/rulesets --input .github/configs/rulesets-develop.json'
+gh-pages-protection = 'gh api -X POST repos/easyscience/deps-pycrysfml/rulesets --input .github/configs/rulesets-gh-pages.json'
+branch-protection = { depends-on = [
+  'master-protection',
+  'develop-protection',
+  'gh-pages-protection',
+] }
+
+pages-deployment = 'gh api -X POST repos/easyscience/deps-pycrysfml/pages --input .github/configs/pages-deployment.json'
+
+github-labels = 'python tools/update_github_labels.py'

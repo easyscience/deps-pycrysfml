@@ -4,15 +4,16 @@ dynamic = ['version']
 description = 'Python access to the CrysFML2008 crystallographic Fortran library'
 #keywords = ['crystallography', 'diffraction', 'fortran', 'python-bindings']
 authors = [
-  {name = 'Juan Rodríguez-Carvajal', email = 'jrc@ill.fr'},
-  {name = 'Javier Gonzalez-Platas', email = 'jplatas@ull.edu.es'},
-  {name = 'Nebil Ayape Katcho', email = 'katcho@ill.fr'}
+  {name = 'Juan Rodríguez-Carvajal'},
+  {name = 'Javier Gonzalez-Platas'},
+  {name = 'Nebil Ayape Katcho'}
 ]
 maintainers = [
   {name = 'Andrew Sazonov', email = 'andrew.sazonov@ess.eu'}
 ]
 readme = 'README.md'
-license = {file = 'LICENSE'}
+license = 'LicenseRef-LGPL-3.0-or-later-with-ILL-no-military-use'
+license-files = ['LICENSE']
 classifiers = [
   'Development Status :: 4 - Beta',
   'Intended Audience :: Science/Research',
