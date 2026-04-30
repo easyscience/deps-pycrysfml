@@ -18,11 +18,12 @@ The end state is intentionally narrow and understandable:
 
 This branch has moved past the original scaffold-only slice.
 
-It now owns the active release workflow end to end in CI, but it does not yet
-replace every local maintainer path. It also owns the root packaging entry
-point and compiles native code from the vendored sources.
+It now owns the active release workflow end to end in CI and the default local
+maintainer wheel-validation path, but it still keeps explicit legacy fallback
+tasks. It also owns the root packaging entry point and compiles native code
+from the vendored sources.
 
-The current checkpoint does twelve things:
+The current checkpoint does thirteen things:
 
 1. introduces a root CMake entry point owned by this repository
 2. replaces the grouped scaffold manifests with explicit source lists copied
@@ -41,6 +42,9 @@ The current checkpoint does twelve things:
     staging
 12. builds macOS and Windows release wheels on native runners through
     `cibuildwheel`
+13. makes the default maintainer `pixi` wheel and sdist validation tasks
+    repo-owned while keeping the old script-generated path under explicit
+    legacy task names
 
 ## Current Validated Contract
 
@@ -60,15 +64,15 @@ The package contract that must be preserved is:
 - publish binary wheels that are tagged and marked as non-pure
 
 The current release flow now produces a rebuildable source distribution and
-builds every release wheel through repo-owned `cibuildwheel` policy, but local
-maintainer parity is still only partially migrated away from the old
-script-driven flow.
+builds every release wheel through repo-owned `cibuildwheel` policy. The
+default local maintainer path now follows repo-owned wheel and sdist helpers as
+well, but legacy script-generated fallbacks are still present.
 
 ## Current Hybrid State
 
-The branch now spans both worlds: repo-owned packaging and release-wheel CI are
-real, but local maintainer parity is still being proven against the old
-script-driven flow.
+The branch now spans both worlds: repo-owned packaging, release-wheel CI, and
+default maintainer validation are real, but explicit legacy fallbacks are still
+available while parity is being proven.
 
 ### Latest completed slice
 
@@ -100,6 +104,11 @@ script-driven flow.
   repo-owned `[tool.cibuildwheel.windows]` policy on `windows-2022`, repairs it
   with `delvewheel`, re-tests that repaired artifact, and uploads the repaired
   wheel
+- the default maintainer `pixi` tasks `pycfml-build`, `pycfml-test`,
+  `sdist-validate`, and `full` now run repo-owned wheel and sdist helpers
+- the old script-generated maintainer path remains available only through
+  explicit legacy task names such as `pycfml-build-legacy`,
+  `pycfml-test-legacy`, and `full-legacy`
 
 What is already repo-owned:
 
@@ -112,6 +121,10 @@ What is already repo-owned:
 - `pyproject.toml` now carries the repo-owned cibuildwheel policy for Linux
   `manylinux2014` + `auditwheel`, macOS arm64 + `delocate`, and Windows AMD64 +
   `delvewheel`
+- `tools/build_local_wheel.py` now owns the default local wheel build helper
+- `pixi.toml` now points the default maintainer wheel and sdist tasks at
+  repo-owned helpers and includes the backend prerequisites needed for
+  `python -m build --no-isolation`
 - default CI build and test steps that install the built wheel directly through
   `tools/run_installed_wheel_tests.py`
 - release CI source-rebuild validation through `tools/validate_sdist_rebuild.py`
@@ -130,6 +143,7 @@ What has already been validated locally from the repository root:
 - `cmake --build <build-dir> --target pycfml_extension` succeeds for
   `gfortran`
 - `python -m build --wheel --outdir <wheel-dir>` succeeds
+- `python tools/build_local_wheel.py --wheel-dir <wheel-dir>` succeeds
 - `python tools/repair_macos_wheel.py --wheel-dir <wheel-dir>` succeeds on the
   raw macOS wheel and produces a repaired wheel with bundled GNU runtime dylibs
 - `python tools/validate_pypi_wheel_filenames.py <wheel-dir>` succeeds for the
@@ -137,6 +151,10 @@ What has already been validated locally from the repository root:
 - `python tools/run_installed_wheel_tests.py --wheel-dir <wheel-dir>` passes
   for the wheel built from that path
 - `python tools/validate_sdist_rebuild.py` succeeds
+- `pixi run --environment default pycfml-build` succeeds after adding the
+  repo-owned backend prerequisites to the default environment
+- `pixi run --environment wheeltest pycfml-test` passes against the built wheel
+- `pixi run --environment default sdist-validate` succeeds
 - `python -m cibuildwheel --platform linux --print-build-identifiers` resolves
   the intended `cp311` to `cp314` `manylinux_x86_64` build targets from the
   repo-owned Linux cibuildwheel configuration
@@ -154,8 +172,10 @@ What has already been validated locally from the repository root:
 
 What is still hybrid:
 
-- local maintainer `pixi` tasks still call `pybuild.py` and generated
-  `scripts/` for the legacy full pipeline
+- explicit legacy maintainer tasks such as `full-legacy`,
+  `pycfml-build-legacy`, `pycfml-test-legacy`, plus standalone script-oriented
+  helpers like `scripts`, `cfml-build`, and `cfml-test`, still call
+  `pybuild.py` and generated `scripts/`
 - local macOS builds still emit deployment-target mismatch warnings on this
   machine before `delocate` normalizes the repaired wheel tag
 - the Linux manylinux build was not run locally on this machine because no
@@ -489,14 +509,14 @@ To keep the migration understandable, each commit should do one of these only:
 - migrate wheel repair to standard tools
 - switch release CI to cibuildwheel
 
-## Next Follow-Up Changes After Native cibuildwheel Cutover
+## Next Follow-Up Changes After pixi Maintainer Cutover
 
 The next implementation slice should do exactly these things:
 
 1. delete the handwritten runtime-library copy and wheel-tag surgery only after
-   repaired-wheel parity is proven across all release legs
+   repaired-wheel parity is proven across all release and maintainer paths
 2. decide whether `tools/repair_macos_wheel.py` and
    `tools/repair_windows_wheel.py` remain useful as local diagnostic helpers
    now that release CI repairs inside `cibuildwheel`
-3. retire the remaining script-generated maintainer wheel-assembly flow from
-   `pixi` tasks once the repo-owned release path is the only required path
+3. remove or archive the explicit legacy `pixi` and generated-script fallback
+   tasks once maintainers no longer need the old path

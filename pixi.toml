@@ -7,9 +7,13 @@ macos = "14.0"
 
 [dependencies]
 python = "3.14.*"
+ninja = "*"
 
 [feature.dev.pypi-dependencies]
 pip = '*'
+build = '*'
+scikit-build-core = '*'
+versioningit = '*'
 crysfml = { path = '.', editable = true, extras = ['ci', 'test'] }
 
 [feature.wheeltest.pypi-dependencies]
@@ -54,23 +58,44 @@ cmd = "scripts/cfml_test.sh"
 description = "Create and run CFML test programs"
 
 [tasks.pycfml-build]
+cmd = "python tools/build_local_wheel.py --wheel-dir dist/pyCFML/wheel"
+description = "Build a local crysfml wheel from the repository root"
+
+[tasks.pycfml-build-legacy]
 cmd = "scripts/pycfml_build.sh"
-description = "Build pyCFML, assemble the package, and create the wheel"
+description = "Legacy script-driven pyCFML build, package assembly, and wheel creation"
 
 [tasks.pycfml-test]
-cmd = "scripts/pycfml_test.sh"
+cmd = "python tools/run_installed_wheel_tests.py --wheel-dir dist/pyCFML/wheel"
 default-environment = "wheeltest"
 description = "Install the built wheel in the clean environment and run tests"
 
+[tasks.pycfml-test-legacy]
+cmd = "scripts/pycfml_test.sh"
+default-environment = "wheeltest"
+description = "Legacy script-driven wheel install and test path"
+
+[tasks.sdist-validate]
+cmd = "python tools/validate_sdist_rebuild.py --sdist-dir dist/sdist-validation/sdist --wheel-dir dist/sdist-validation/wheel"
+description = "Build an sdist, rebuild a wheel from it, and test the rebuilt wheel"
+
 [tasks.full]
+ depends-on = [
+		{ task = "pycfml-build", environment = "default" },
+		{ task = "pycfml-test", environment = "wheeltest" },
+		{ task = "sdist-validate", environment = "default" },
+	]
+description = "Run the repo-owned local wheel and sdist validation pipeline"
+
+[tasks.full-legacy]
 depends-on = [
-	{ task = "scripts", environment = "default" },
-	{ task = "cfml-build", environment = "default" },
-	{ task = "cfml-test", environment = "default" },
-	{ task = "pycfml-build", environment = "default" },
-	{ task = "pycfml-test", environment = "wheeltest" },
-]
-description = "Run the full local build and test pipeline in the dev environment"
+		{ task = "scripts", environment = "default" },
+		{ task = "cfml-build", environment = "default" },
+		{ task = "cfml-test", environment = "default" },
+		{ task = "pycfml-build-legacy", environment = "default" },
+		{ task = "pycfml-test-legacy", environment = "wheeltest" },
+	]
+description = "Run the legacy script-generated local build and test pipeline"
 
 [tasks.benchmark]
 cmd = "scripts/run_pycfml_functional_tests_with_benchmarks_save.sh"

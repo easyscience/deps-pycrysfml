@@ -41,6 +41,12 @@
 - Treat `pybuild.py` and `pybuild.toml` as the source of truth for the
   generated shell scripts in `scripts/`, but not as the canonical release
   wheel-build path.
+- Treat `pixi run pycfml-build`, `pixi run pycfml-test`,
+  `pixi run sdist-validate`, and `pixi run full` as the default local
+  maintainer validation path for repo-owned wheel and sdist work.
+- Treat `pixi` tasks suffixed with `-legacy`, plus `scripts`, `cfml-build`,
+  and `cfml-test`, as explicit fallback paths for the old script-generated
+  workflow while the transition is being retired.
 - Do not edit generated files in `scripts/` directly unless the task is
   explicitly about the generated output. Change `pybuild.py` or
   `pybuild.toml`, regenerate the scripts, and validate the affected
