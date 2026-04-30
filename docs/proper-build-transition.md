@@ -14,21 +14,30 @@ The end state is intentionally narrow and understandable:
 - one package layout installed by CMake and packed by the backend
 - one sdist contract that can be rebuilt into the same kind of wheel in CI
 
-## Scope Of The First Migration Slice
+## Current Implementation Checkpoint
 
-This first slice is a scaffold only. It does not replace the current release
-workflow and does not compile native code yet.
+This branch has moved past the original scaffold-only slice.
 
-It does three things:
+It still does not replace the current release workflow end to end, but it now
+owns the root packaging entry point and compiles native code from the vendored
+sources.
+
+The current checkpoint does six things:
 
 1. introduces a root CMake entry point owned by this repository
-2. establishes manifest files that will become the native source of truth
-3. freezes the migration target and file layout in one document
+2. replaces the grouped scaffold manifests with explicit source lists copied
+   from the validated `pybuild.toml` ordering
+3. builds `cfml_core` and `pycfml_extension` for `gfortran` only
+4. stages the curated package init, vendored Python helper modules, and bundled
+   database file through CMake install rules
+5. builds wheels through `scikit-build-core` from the repository root
+6. tests installed wheels in CI without generated wheel-test scripts
 
 ## Current Validated Contract
 
-The current working behavior is defined by `pybuild.py`, `pybuild.toml`, and the
-release workflows.
+The validated package contract is currently represented by the repo-owned CMake
+build, `pybuild.py` / `pybuild.toml` as parity references, and the release
+workflows.
 
 The package contract that must be preserved is:
 
@@ -43,6 +52,53 @@ The package contract that must be preserved is:
 
 The current release flow does that correctly enough to ship wheels, but not in a
 way that produces a rebuildable source distribution.
+
+## Current Hybrid State
+
+The branch now spans both worlds: repo-owned packaging is real, but release
+parity is still being proven against the old script-driven flow.
+
+### Latest completed slice
+
+- `build-debug.yml` and `build-release.yml` now build wheels directly from the
+  repository root with `python -m build --wheel`
+- those build jobs now validate the produced wheel with
+  `tools/run_installed_wheel_tests.py`
+- the default CI path no longer generates shell scripts or runs
+  `scripts/cfml_build.sh`, `scripts/cfml_test.sh`, or `scripts/pycfml_test.sh`
+- the second CI job still re-tests the downloaded wheel artifact before release
+  staging
+
+What is already repo-owned:
+
+- explicit CFML and pyCFML source manifests derived from `pybuild.toml`
+- `cfml_core` and `pycfml_extension` targets for `gfortran` only
+- CMake install rules for `src/__init__.py`, vendored Python helper modules,
+  and the bundled magnetic database
+- `pyproject.toml` switched to `scikit-build-core` with a repo-local
+  `versioningit` metadata provider
+- default CI build and test steps that install the built wheel directly through
+  `tools/run_installed_wheel_tests.py`
+- benchmark-only CI test legs removed from the default workflow path
+
+What has already been validated locally from the repository root:
+
+- `cmake -S . -B <build-dir>` succeeds
+- `cmake --build <build-dir> --target cfml_core` succeeds for `gfortran`
+- `cmake --build <build-dir> --target pycfml_extension` succeeds for
+  `gfortran`
+- `python -m build --wheel --outdir <wheel-dir>` succeeds
+- `python tools/run_installed_wheel_tests.py --wheel-dir <wheel-dir>` passes
+  for the wheel built from that path
+
+What is still hybrid:
+
+- local maintainer `pixi` tasks still call `pybuild.py` and generated
+  `scripts/` for the legacy full pipeline
+- runtime-library bundling and platform repair are not yet delegated to
+  `auditwheel`, `delocate`, or `delvewheel`
+- no validated `sdist -> wheel` rebuild path exists in CI yet
+- release publication still stages wheels only, not a validated sdist
 
 ## Vendored CMake Audit
 
@@ -280,50 +336,53 @@ wheel repair, and release publication.
 
 ## Migration Order
 
-### Phase 1: Scaffold
+### Phase 1: Scaffold [landed]
 
 - add root `CMakeLists.txt`
-- add grouped source-manifest include files
+- add source-manifest include files
 - document the target layout and commit boundaries
 
-### Phase 2: Core target
+### Phase 2: Core target [landed]
 
 - enable Fortran in the root project
 - create the `cfml_core` target
 - move compiler options from `pybuild.toml` into target-based CMake profiles
 - preserve the validated release/debug behavior for `gfortran` only
 
-### Phase 3: Python extension target
+### Phase 3: Python extension target [landed]
 
 - create the `pycfml_extension` target linked for `gfortran` only
 - install the vendored helper modules and curated package init into the staged
   package tree
 - install bundled databases with the package
 
-### Phase 4: Wheel semantics
+### Phase 4: Wheel semantics [landed in CI]
 
 - switch `pyproject.toml` to scikit-build-core
 - build wheels from the CMake install tree
-- remove the current manual wheel renaming and purelib metadata patching
-- ensure the backend emits native wheel metadata correctly without post-build
+- replace the default CI script-generated build path with repository-root
+  `python -m build --wheel` plus installed-wheel tests
+- remove the current manual wheel renaming and purelib metadata patching from
+  the active wheel path
+- ensure the backend-emitted wheel metadata remains correct without post-build
   filename surgery
 
-### Phase 5: Runtime repair
+### Phase 5: Runtime repair [pending]
 
 - use `auditwheel` on Linux after building inside a real manylinux image
 - use `delocate` on macOS after native wheel build
 - use `delvewheel` on Windows after native wheel build
 - delete the handwritten runtime-library copy and RPATH shell logic only after
-  wheel parity is proven
+  repair-based wheel parity is proven
 
-### Phase 6: Source rebuild validation
+### Phase 6: Source rebuild validation [pending]
 
 - add CI that builds an sdist
 - rebuild a wheel from that sdist in a clean environment
 - run the package tests against the rebuilt wheel
 - make the wheel-from-sdist check mandatory for release readiness
 
-### Phase 7: Release migration
+### Phase 7: Release migration [pending]
 
 - move the release wheel matrix to cibuildwheel
 - split Linux into a dedicated manylinux-based release leg instead of host-Ubuntu
@@ -364,12 +423,12 @@ To keep the migration understandable, each commit should do one of these only:
 - migrate wheel repair to standard tools
 - switch release CI to cibuildwheel
 
-## First Follow-Up Changes After This Scaffold
+## Next Follow-Up Changes After The Direct CI Wheel Cutover
 
 The next implementation slice should do exactly these things:
 
-1. replace the grouped CFML scaffold manifest with explicit file lists copied
-   from the currently validated `pybuild.toml` ordering
-2. enable Fortran in the root CMake project
-3. introduce `cfml_core` with target-based compile options for gfortran only
-4. validate a clean local static-library build before touching wheel packaging
+1. add repair-based post-processing with `auditwheel`, `delocate`, and
+   `delvewheel` on their respective platforms
+2. add `python -m build --sdist` plus `pip wheel <sdist>` validation in CI
+3. publish both repaired wheels and the validated sdist from the same release
+   pipeline

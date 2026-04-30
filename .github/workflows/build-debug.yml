@@ -70,25 +70,6 @@ jobs:
         shell: bash
         run: echo "MACOSX_DEPLOYMENT_TARGET=$(sw_vers -productVersion)" >> $GITHUB_ENV
 
-      - name: Create build scripts in scripts/scripts
-        shell: bash
-        run: >
-          python3 pybuild.py
-          --create-scripts
-          --platform ${{ runner.os }}
-          --compiler ${{ matrix.toolchain.exe }}
-          --mode debug
-          --bash-syntax
-          --enable-backslash-escapes
-
-      - name: Build CFML and prepare distribution
-        shell: bash
-        run: scripts/cfml_build.sh
-
-      - name: Run CFML test programs
-        shell: bash
-        run: scripts/cfml_test.sh
-
       - name: Build crysfml wheel with scikit-build-core
         shell: bash
         run: |
@@ -103,9 +84,9 @@ jobs:
           pip install delocate
           #delocate-wheel -v ${{ env.WHEEL_DIR }}/*.whl
 
-      - name: Test built pyCFML wheel
+      - name: Test built crysfml wheel
         shell: bash
-        run: scripts/pycfml_test.sh
+        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}"
 
       - name: Upload zipped Python package wheel of pyCFML for next job
         uses: actions/upload-artifact@v4

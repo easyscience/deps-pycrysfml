@@ -12,9 +12,9 @@
 - Treat [.github/workflows/build-release.yml] as the canonical build
   pipeline for release-mode wheel builds in this repository.
 - `build-release.yml` is used to build crysfml with the release-mode
-  options from `pybuild.toml`, run tests against the built wheel, and
-  upload validated wheel artifacts to the workflow run for local validation
-  and later release staging.
+  options from the repo-owned CMake path via `python -m build --wheel`,
+  run tests against the built wheel, and upload validated wheel artifacts
+  to the workflow run for local validation and later release staging.
 - The intended release flow is staged: merging `develop` into `master`
   via pull request should result in a successful `build-release.yml`
   run on `master`, after which `release-notes.yml` should create or
@@ -32,15 +32,17 @@
   `versioningit` builds exact-version wheels without pushing a remote
   tag, and uploads the validated wheels to the GitHub draft release.
 - Treat `pybuild.py` and `pybuild.toml` as the source of truth for the
-  generated shell scripts in `scripts/`.
+  generated shell scripts in `scripts/`, but not as the canonical release
+  wheel-build path.
 - Do not edit generated files in `scripts/` directly unless the task is
   explicitly about the generated output. Change `pybuild.py` or
   `pybuild.toml`, regenerate the scripts, and validate the affected
   workflow path instead.
 - When changing build, packaging, or release behaviour, validate the
-  complete affected slice: CFML checkout, CFML build, pyCFML generation,
-  wheel build, wheel install, draft-release artifact staging when
-  relevant, and the relevant unit or functional tests.
+  complete affected slice: repository-root wheel build, wheel install,
+  draft-release artifact staging when relevant, the relevant unit or
+  functional tests, and any remaining legacy-script or vendored-program
+  paths that the change still touches.
 - Keep `.github/workflows/build-debug.yml` and
   `.github/workflows/build-release.yml` aligned when a change is meant
   to affect both debug and release pipelines.
