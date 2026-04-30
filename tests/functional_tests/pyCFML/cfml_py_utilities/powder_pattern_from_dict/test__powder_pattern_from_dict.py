@@ -5,8 +5,6 @@ from numpy.testing import assert_almost_equal
 import os
 import sys
 
-from pytest_benchmark.plugin import benchmark
-
 sys.path.append(os.getcwd())  # to access tests/helpers.py
 from tests.helpers import (chi_squared,
                            load_from_json,
@@ -55,11 +53,11 @@ def plot_charts(desired_x:np.ndarray,
 
 # Tests
 
-def test__cw_powder_pattern_from_dict__Al2O3_uvwx_noassym(benchmark):
+def test__cw_powder_pattern_from_dict__Al2O3_uvwx_noassym():
     # input
     project = load_from_json(path_to_input('al2o3_uvwx_no-assym.json'))
     # actual
-    actual_x, actual_y = benchmark(compute_cw_pattern, project)
+    actual_x, actual_y = compute_cw_pattern(project)
     actual_y = actual_y / actual_y.max() * 100  # normalize
     # desired
     desired_x, desired_y = sub_to_ndarray(path_to_desired('al2o3_uvwx_no-assym.sim'))
@@ -74,11 +72,11 @@ def test__cw_powder_pattern_from_dict__Al2O3_uvwx_noassym(benchmark):
     # plot
     plot_charts(desired_x, desired_y, actual_x, actual_y, chi2)
 
-def test__cw_powder_pattern_from_dict__PbSO4(benchmark):
+def test__cw_powder_pattern_from_dict__PbSO4():
     # input
     project = load_from_json(path_to_input('pbso4_cw.json'))
     # actual
-    actual_x, actual_y = benchmark(compute_cw_pattern, project)
+    actual_x, actual_y = compute_cw_pattern(project)
     actual_y = actual_y / actual_y.max() * 100  # normalize
     # desired
     desired_x, desired_y = sub_to_ndarray(path_to_desired('pbso4_cw.sub'))
@@ -95,11 +93,11 @@ def test__cw_powder_pattern_from_dict__PbSO4(benchmark):
     # plot
     plot_charts(desired_x, desired_y, actual_x, actual_y, chi2, skip_last)
 
-def test__cw_powder_pattern_from_dict__PbSO4_custom_x(benchmark):
+def test__cw_powder_pattern_from_dict__PbSO4_custom_x():
     # input
     project = load_from_json(path_to_input('pbso4_cw_custom-x.json'))
     # actual
-    actual_x, actual_y = benchmark(compute_cw_pattern, project)
+    actual_x, actual_y = compute_cw_pattern(project)
     actual_y = actual_y / actual_y.max() * 100  # normalize
     # desired
     desired_x, desired_y = sub_to_ndarray(path_to_desired('pbso4_cw.sub'))
@@ -116,11 +114,11 @@ def test__cw_powder_pattern_from_dict__PbSO4_custom_x(benchmark):
     # plot
     plot_charts(desired_x, desired_y, actual_x, actual_y, chi2, skip_last)
 
-def test__tof_powder_pattern_from_dict__Al2O3(benchmark):
+def test__tof_powder_pattern_from_dict__Al2O3():
     # input
     project = load_from_json(path_to_input('al2o3_tof.json'))
     # actual
-    actual_x, actual_y = benchmark(compute_tof_pattern, project)
+    actual_x, actual_y = compute_tof_pattern(project)
     actual_y = actual_y / actual_y.max() * 100  # normalize
     # desired
     desired_x, desired_y = sub_to_ndarray(path_to_desired('al2o3_tof.sim'))
@@ -135,11 +133,11 @@ def test__tof_powder_pattern_from_dict__Al2O3(benchmark):
     # plot
     plot_charts(desired_x, desired_y, actual_x, actual_y, chi2)
 
-def test__tof_powder_pattern_from_dict__ncaf_custom_x(benchmark):
+def test__tof_powder_pattern_from_dict__ncaf_custom_x():
     # input
     project = load_from_json(path_to_input('ncaf_tof_custom-x.json'))
     # actual
-    actual_x, actual_y = benchmark(compute_tof_pattern, project)
+    actual_x, actual_y = compute_tof_pattern(project)
     actual_y = actual_y / actual_y.max() * 100  # normalize
     # desired
     desired_x, desired_y = dat_to_ndarray(path_to_desired('ncaf_tof.sub'), skip_begin=1, usecols=(0,1))
@@ -154,11 +152,11 @@ def test__tof_powder_pattern_from_dict__ncaf_custom_x(benchmark):
     # plot
     plot_charts(desired_x, desired_y, actual_x, actual_y, chi2)
 
-def test__tof_powder_pattern_from_dict__Si(benchmark):
+def test__tof_powder_pattern_from_dict__Si():
     # input
     project = load_from_json(path_to_input('si_tof.json'))
     # actual
-    actual_x, actual_y = benchmark(compute_tof_pattern, project)
+    actual_x, actual_y = compute_tof_pattern(project)
     actual_y = actual_y / actual_y.max() * 100  # normalize
     # desired
     desired_x, desired_y = sub_to_ndarray(path_to_desired('si_tof.sub'))
@@ -173,11 +171,11 @@ def test__tof_powder_pattern_from_dict__Si(benchmark):
     # plot
     plot_charts(desired_x, desired_y, actual_x, actual_y, chi2)
 
-def test__tof_powder_pattern_from_dict__Si_custom_x(benchmark):
+def test__tof_powder_pattern_from_dict__Si_custom_x():
     # input
     project = load_from_json(path_to_input('si_tof_custom-x.json'))
     # actual
-    actual_x, actual_y = benchmark(compute_tof_pattern, project)
+    actual_x, actual_y = compute_tof_pattern(project)
     actual_y = actual_y / actual_y.max() * 100  # normalize
     # desired
     desired_x, desired_y = sub_to_ndarray(path_to_desired('si_tof.sub'))

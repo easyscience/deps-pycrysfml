@@ -46,14 +46,14 @@ def install_wheel(wheel_path: Path) -> None:
 
 def run_unit_tests() -> None:
     run(
-        [sys.executable, '-m', 'pytest', str(UNIT_TEST_DIR), '--color=yes', '--benchmark-disable'],
+        [sys.executable, '-m', 'pytest', str(UNIT_TEST_DIR), '--color=yes'],
         f'Running unit tests from {UNIT_TEST_DIR.relative_to(REPO_ROOT)}',
     )
 
 
 def run_functional_tests() -> None:
     run(
-        [sys.executable, '-m', 'pytest', str(FUNCTIONAL_TEST_DIR), '--color=yes', '--benchmark-disable'],
+        [sys.executable, '-m', 'pytest', str(FUNCTIONAL_TEST_DIR), '--color=yes'],
         f'Running functional tests from {FUNCTIONAL_TEST_DIR.relative_to(REPO_ROOT)}',
     )
 

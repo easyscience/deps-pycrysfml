@@ -55,7 +55,6 @@ ci = [
 test = [
   'deepdiff',
   'pytest',
-  'pytest-benchmark',
   'pygit2',
   'matplotlib'
 ]
