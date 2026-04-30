@@ -153,7 +153,8 @@ That image should contain at least:
 - any native utilities required before `auditwheel repair`
 
 The Linux release path should stay intentionally narrow at first. `ifx` remains
-outside the release scope until the gfortran manylinux path is stable.
+outside the current repo-owned build scope until the gfortran manylinux path is
+stable and explicitly revisited.
 
 ### macOS release wheels
 
@@ -178,8 +179,8 @@ Windows wheels should be built on native `windows-2022` runners and repaired
 with `delvewheel`.
 
 - initial release scope: `gfortran` first, matching the current release focus
-- keep `ifx` in debug or development flows until the release wheel behavior is
-  proven separately
+- do not add `ifx` to the repo-owned build during the first proper-build
+  migration
 - bundle the runtime DLLs required by the final `.pyd`
 - preserve the curated package init behavior that adds the package directory to
   DLL resolution on Windows
@@ -189,9 +190,12 @@ with `delvewheel`.
 
 ### Non-release compiler paths
 
-Support for `ifx`, `nagfor`, or other compilers can remain available in debug or
-developer validation, but they should not complicate the initial proper release
-contract.
+Support for `ifx`, `nagfor`, or other compilers is explicitly deferred. The
+repo-owned build should implement and validate `gfortran` only until the full
+sdist and wheel path is correct end to end.
+
+Additional compiler support should be treated as a later, separate migration
+phase rather than being threaded through the first proper-build implementation.
 
 The first proper-build release goal is:
 
@@ -279,11 +283,11 @@ wheel repair, and release publication.
 - enable Fortran in the root project
 - create the `cfml_core` target
 - move compiler options from `pybuild.toml` into target-based CMake profiles
-- preserve the validated release/debug behavior for gfortran first
+- preserve the validated release/debug behavior for `gfortran` only
 
 ### Phase 3: Python extension target
 
-- create the `pycfml_extension` target
+- create the `pycfml_extension` target linked for `gfortran` only
 - install the vendored helper modules and curated package init into the staged
   package tree
 - install bundled databases with the package
@@ -324,8 +328,8 @@ wheel repair, and release publication.
 Each phase should have one clear gate before moving on.
 
 - scaffold: `cmake -S . -B <build-dir>` succeeds from the repository root
-- core target: `cmake --build <build-dir> --target cfml_core` succeeds for the
-  supported release compiler
+- core target: `cmake --build <build-dir> --target cfml_core` succeeds for
+  `gfortran`
 - extension target: local wheel imports and unit tests pass
 - wheel semantics: wheel metadata shows a non-pure native wheel
 - Linux release wheel: `auditwheel show` reports a valid manylinux-compatible

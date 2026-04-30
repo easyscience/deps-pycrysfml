@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.25)
 project(crysfml_packaging LANGUAGES NONE)
 
 option(CRYSFML_ENABLE_CORE_TARGET "Build the repo-owned cfml_core target." ON)
+option(CRYSFML_ENABLE_PYCFML_EXTENSION "Build the repo-owned pycfml_extension target." ON)
 option(CRYSFML_ENABLE_PYTHON_PACKAGE "Expose the Python package scaffold in the repo-owned build." ON)
 option(CRYSFML_ENABLE_VENDOR_TESTS "Expose vendored CFML test-program manifests in the repo-owned build." OFF)
 option(CRYSFML_ENABLE_VENDOR_ODR "Reserve space for the vendored ODR build in the repo-owned build." OFF)
@@ -60,7 +61,7 @@ crysfml_require_existing_path(CRYSFML_VENDOR_PYTHON_API_ROOT "Vendored pyCFML so
 crysfml_require_existing_path(CRYSFML_CURATED_PACKAGE_INIT "Curated package init")
 crysfml_require_existing_path(CRYSFML_CURATED_DATABASE_FILE "Bundled CFML database")
 
-if(CRYSFML_ENABLE_CORE_TARGET)
+if(CRYSFML_ENABLE_CORE_TARGET OR CRYSFML_ENABLE_PYCFML_EXTENSION)
     if(NOT DEFINED CMAKE_Fortran_COMPILER)
         find_program(CRYSFML_DEFAULT_GFORTRAN_EXECUTABLE NAMES gfortran)
         if(CRYSFML_DEFAULT_GFORTRAN_EXECUTABLE)
@@ -78,8 +79,11 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CfmlSourceManifest.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompilerProfiles.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PyCfmlSourceManifest.cmake")
 
-if(CRYSFML_ENABLE_CORE_TARGET)
+if(CRYSFML_ENABLE_CORE_TARGET OR CRYSFML_ENABLE_PYCFML_EXTENSION)
     crysfml_set_default_build_type(Release)
+endif()
+
+if(CRYSFML_ENABLE_CORE_TARGET)
     crysfml_select_global_deps_source(CRYSFML_SELECTED_GLOBAL_DEPS_SOURCE)
 
     set(CRYSFML_CORE_BUILD_SOURCES
@@ -99,7 +103,37 @@ if(CRYSFML_ENABLE_CORE_TARGET)
         PUBLIC
             "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/modules/cfml_core>"
     )
-    crysfml_apply_cfml_core_profile(cfml_core)
+    crysfml_apply_gnu_fortran_target_profile(cfml_core)
+endif()
+
+if(CRYSFML_ENABLE_PYCFML_EXTENSION)
+    if(NOT CRYSFML_ENABLE_CORE_TARGET)
+        message(FATAL_ERROR "pycfml_extension requires CRYSFML_ENABLE_CORE_TARGET=ON")
+    endif()
+
+    find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
+
+    add_library(pycfml_extension MODULE ${PYCFML_FORTRAN_SOURCES})
+    add_library(crysfml::pycfml_extension ALIAS pycfml_extension)
+
+    set_target_properties(pycfml_extension PROPERTIES
+        OUTPUT_NAME "${CRYSFML_EXTENSION_MODULE_NAME}"
+        POSITION_INDEPENDENT_CODE ON
+        PREFIX ""
+        Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/modules/pycfml_extension"
+    )
+    if(WIN32)
+        set_target_properties(pycfml_extension PROPERTIES SUFFIX ".pyd")
+    else()
+        set_target_properties(pycfml_extension PROPERTIES SUFFIX ".so")
+    endif()
+
+    target_link_libraries(pycfml_extension
+        PRIVATE
+            crysfml::cfml_core
+            Python::Module
+    )
+    crysfml_apply_gnu_fortran_target_profile(pycfml_extension)
 endif()
 
 list(LENGTH CRYSFML_CORE_MODULE_KEYS _crysfml_core_module_count)
@@ -110,6 +144,9 @@ list(LENGTH PYCFML_FORTRAN_SOURCES _pycfml_fortran_source_count)
 list(LENGTH PYCFML_PYTHON_SOURCES _pycfml_python_source_count)
 if(CRYSFML_ENABLE_CORE_TARGET)
     list(LENGTH CRYSFML_CORE_BUILD_SOURCES _crysfml_core_build_source_count)
+endif()
+if(CRYSFML_ENABLE_PYCFML_EXTENSION)
+    list(LENGTH PYCFML_FORTRAN_SOURCES _pycfml_extension_build_source_count)
 endif()
 
 message(STATUS "Configured repo-owned crysfml transition scaffold")
@@ -128,6 +165,10 @@ if(CRYSFML_ENABLE_CORE_TARGET)
     message(STATUS "  Selected global deps    : ${CRYSFML_SELECTED_GLOBAL_DEPS_SOURCE}")
     message(STATUS "  cfml_core build inputs  : ${_crysfml_core_build_source_count}")
     message(STATUS "  cfml_core compiler      : ${CMAKE_Fortran_COMPILER_ID}")
+endif()
+if(CRYSFML_ENABLE_PYCFML_EXTENSION)
+    message(STATUS "  pycfml_extension inputs : ${_pycfml_extension_build_source_count}")
+    message(STATUS "  Python interpreter      : ${Python_EXECUTABLE}")
 else()
     message(STATUS "  Build scaffold only     : native targets are disabled")
 endif()

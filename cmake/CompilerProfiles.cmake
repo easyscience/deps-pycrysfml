@@ -10,7 +10,7 @@ endfunction()
 function(crysfml_select_global_deps_source out_var)
     if(NOT CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
         message(FATAL_ERROR
-                "cfml_core currently supports GNU Fortran only; got '${CMAKE_Fortran_COMPILER_ID}'")
+                "The repo-owned transition build currently supports GNU Fortran only; got '${CMAKE_Fortran_COMPILER_ID}'")
     endif()
 
     if(WIN32)
@@ -31,13 +31,17 @@ function(crysfml_select_global_deps_source out_var)
 endfunction()
 
 function(crysfml_apply_cfml_core_profile target_name)
+    crysfml_apply_gnu_fortran_target_profile(${target_name})
+endfunction()
+
+function(crysfml_apply_gnu_fortran_target_profile target_name)
     if(NOT TARGET "${target_name}")
         message(FATAL_ERROR "Target '${target_name}' does not exist")
     endif()
 
     if(NOT CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
         message(FATAL_ERROR
-                "cfml_core currently supports GNU Fortran only; got '${CMAKE_Fortran_COMPILER_ID}'")
+                "The repo-owned transition build currently supports GNU Fortran only; got '${CMAKE_Fortran_COMPILER_ID}'")
     endif()
 
     target_compile_options(${target_name}
