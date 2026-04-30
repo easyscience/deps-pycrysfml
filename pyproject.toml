@@ -81,6 +81,15 @@ before-all = [
 ]
 repair-wheel-command = 'auditwheel show {wheel} && auditwheel repair -w {dest_dir} {wheel}'
 
+[tool.cibuildwheel.macos]
+archs = ['arm64']
+repair-wheel-command = 'delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}'
+
+[tool.cibuildwheel.windows]
+archs = ['AMD64']
+before-build = 'pip install delvewheel'
+repair-wheel-command = 'delvewheel repair -w {dest_dir} {wheel}'
+
 [tool.versioningit.format]
 distance = '{base_version}+dev{distance}'
 dirty = '{base_version}+dirty{distance}'

@@ -133,32 +133,29 @@ jobs:
         shell: bash
         run: echo "MACOSX_DEPLOYMENT_TARGET=$(sw_vers -productVersion)" >> $GITHUB_ENV
 
-      - name: Build crysfml wheel with scikit-build-core
+      - name: Select cibuildwheel target
+        shell: bash
+        run: |
+          python_tag="cp$(echo '${{ matrix.python-version }}' | tr -d '.')"
+          if [ "${{ runner.os }}" = 'Windows' ]; then
+            echo "CIBW_BUILD=${python_tag}-win_amd64" >> "$GITHUB_ENV"
+          else
+            echo "CIBW_BUILD=${python_tag}-macosx_arm64" >> "$GITHUB_ENV"
+          fi
+
+      - name: Prepare wheel output directory
         shell: bash
         run: |
           rm -rf "${{ env.WHEEL_DIR }}"
           mkdir -p "${{ env.WHEEL_DIR }}"
-          python -m build --wheel --outdir "${{ env.WHEEL_DIR }}"
 
-      - name: Install delocate for macOS wheel repair
-        if: runner.os == 'macOS'
-        shell: bash
-        run: python -m pip install delocate
-
-      - name: Install delvewheel for Windows wheel repair
-        if: runner.os == 'Windows'
-        shell: bash
-        run: python -m pip install delvewheel
-
-      - name: Repair macOS wheel with delocate
-        if: runner.os == 'macOS'
-        shell: bash
-        run: python tools/repair_macos_wheel.py --wheel-dir "${{ env.WHEEL_DIR }}"
-
-      - name: Repair Windows wheel with delvewheel
-        if: runner.os == 'Windows'
-        shell: bash
-        run: python tools/repair_windows_wheel.py --wheel-dir "${{ env.WHEEL_DIR }}"
+      - name: Build native release wheel with cibuildwheel
+        uses: pypa/cibuildwheel@v3.4.1
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+        with:
+          package-dir: .
+          output-dir: ${{ env.WHEEL_DIR }}
 
       - name: Validate wheel filenames for PyPI upload
         shell: bash

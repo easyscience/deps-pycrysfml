@@ -11,14 +11,14 @@
 
 - Treat [.github/workflows/build-release.yml] as the canonical build
   pipeline for release-mode wheel builds in this repository.
-- `build-release.yml` is used to build crysfml with the release-mode
-  options from the repo-owned CMake path via `python -m build --wheel`,
-  build Linux release wheels inside a dedicated manylinux container via
-  `cibuildwheel`, repair macOS wheels with `delocate`, repair Windows
-  wheels with `delvewheel`, run tests against the final wheel artifacts,
-  validate the `sdist -> wheel` rebuild path, and upload validated wheel
-  and sdist artifacts to the workflow run for local validation and later
-  release staging.
+- `build-release.yml` is used to build crysfml release wheels through the
+  repo-owned `cibuildwheel` policy on all platforms, using a dedicated
+  manylinux container on Linux plus native macOS and Windows runners,
+  repairing wheels with `auditwheel`, `delocate`, and `delvewheel` as
+  appropriate, running tests against the final wheel artifacts,
+  validating the `sdist -> wheel` rebuild path, and uploading validated
+  wheel and sdist artifacts to the workflow run for local validation and
+  later release staging.
 - The intended release flow is staged: merging `develop` into `master`
   via pull request should result in a successful `build-release.yml`
   run on `master`, after which `release-notes.yml` should create or
@@ -34,9 +34,10 @@
 - Treat `build-release.yml` as the stage that computes the same
   suggested release tag on `master`, creates that tag locally in CI so
   `versioningit` builds exact-version wheels without pushing a remote
-  tag, builds Linux release wheels through the manylinux cibuildwheel
-  path, repairs the macOS and Windows wheel artifacts before validation,
-  and uploads the validated wheels and sdist to the GitHub draft release.
+  tag, builds Linux, macOS, and Windows release wheels through
+  `cibuildwheel`, repairs them with the platform-standard repair tool,
+  and uploads the validated wheels and sdist to the GitHub draft
+  release.
 - Treat `pybuild.py` and `pybuild.toml` as the source of truth for the
   generated shell scripts in `scripts/`, but not as the canonical release
   wheel-build path.
