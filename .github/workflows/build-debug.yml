@@ -28,10 +28,6 @@ jobs:
         os: [ubuntu-24.04, windows-2022, macos-14]
         toolchain:
           - { exe: gfortran, compiler: gcc, version: 13 }
-          - { exe: ifx, compiler: intel, version: "2025.2" }
-        exclude:
-          - os: macos-14
-            toolchain: { exe: ifx, compiler: intel, version: "2025.2" } # no support for macOS on arm64
 
     runs-on: ${{ matrix.os }}
 
@@ -139,10 +135,6 @@ jobs:
         os: [ubuntu-24.04, windows-2022, macos-14]
         toolchain:
           - { exe: gfortran, compiler: gcc, version: 13 }
-          - { exe: ifx, compiler: intel, version: "2025.2" }
-        exclude:
-          - os: macos-14
-            toolchain: { exe: ifx, compiler: intel, version: "2025.2" } # no support for macOS on arm64
 
     runs-on: ${{ matrix.os }}
 
