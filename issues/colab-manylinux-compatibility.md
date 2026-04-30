@@ -80,6 +80,64 @@ The current failure mode is most likely:
 3. Colab does not claim compatibility with that floor.
 4. There is no `sdist`, so `pip` has nothing else to try.
 
+## Why Pixi And EasyDiffraction Still Fail
+
+The EasyDiffraction failure is a different compatibility problem from Colab.
+
+Observed Pixi resolver error:
+
+```text
+Because all versions of crysfml have no wheels with a matching platform tag
+(e.g., `manylinux_2_28_x86_64`) ...
+```
+
+This means:
+
+1. Pixi is solving the `linux-64` environment against a Linux compatibility floor around `manylinux_2_28_x86_64`.
+2. Current published `crysfml` Linux wheels are `manylinux_2_35_x86_64` and `manylinux_2_39_x86_64`.
+3. Those wheels are therefore too new for Pixi's default Linux solve target.
+4. The package also does not publish an `sdist`, so Pixi has no source fallback.
+
+This is why both of the following can be true at the same time:
+
+- `pip install crysfml` works on a specific Colab runtime with glibc 2.35.
+- `pixi` still refuses to solve `linux-64` for a downstream project.
+
+## Fast Downstream Workaround
+
+If EasyDiffraction is willing to require glibc 2.35 or newer on Linux, the downstream Pixi project can raise its Linux system requirement.
+
+Example:
+
+```toml
+[system-requirements]
+libc = "2.35"
+```
+
+If that requirement should apply only to a Linux-specific Pixi environment, put the same `system-requirements` entry on a Linux-only feature or environment instead of using `target.linux-64`, since Pixi does not support target-specific `system-requirements` in the same way it supports target-specific dependencies.
+
+That should allow Pixi to accept the existing `manylinux_2_35_x86_64` wheel.
+
+This is only appropriate if EasyDiffraction really wants to drop older glibc-based Linux systems from its supported matrix.
+
+## Correct Repository-Side Fix For Pixi Consumers
+
+If `crysfml` is meant to remain broadly installable as a PyPI dependency in Pixi-managed `linux-64` environments, the Linux release wheel must be published with a lower manylinux floor.
+
+Recommended targets:
+
+- preferred: `manylinux2014_x86_64` / `manylinux_2_17_x86_64`
+- acceptable compromise: `manylinux_2_28_x86_64`
+
+In practice that means:
+
+1. stop treating host-Ubuntu retagging as the Linux release mechanism
+2. build Linux wheels inside a real manylinux container
+3. run `auditwheel repair`
+4. publish the repaired wheel
+
+Publishing an `sdist` would still be useful as a fallback, but it is not a substitute for a compatible manylinux wheel because downstream source builds will require a more complex Fortran-capable build environment.
+
 ## Will Ubuntu 22.04 In The Build Matrix Fix Colab?
 
 Short answer: no, not as a correct release fix.
