@@ -160,4 +160,4 @@ jobs:
 
       - name: Test downloaded pyCFML wheel
         shell: bash
-        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}" --compiler "${{ matrix.toolchain.exe }}"
+        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}"

@@ -235,25 +235,7 @@ jobs:
 
       - name: Test downloaded pyCFML wheel
         shell: bash
-        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}" --compiler "${{ matrix.toolchain.exe }}"
-
-      - name: Run pyCFML functional tests and compare benchmark results
-        if: "!contains(github.event.head_commit.message, '[save benchmark results]')"
-        shell: bash
-        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}" --compiler "${{ matrix.toolchain.exe }}" --benchmark-mode compare
-
-      - name: Run pyCFML functional tests and save benchmark results
-        if: "contains(github.event.head_commit.message, '[save benchmark results]')"
-        shell: bash
-        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}" --compiler "${{ matrix.toolchain.exe }}" --benchmark-mode save
-
-      - name: Push benchmark results to repository
-        if: ${{ github.event_name == 'push' && github.ref_name != 'master' && contains(github.event.head_commit.message, '[save benchmark results]') }}
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: '.benchmarks/pyCFML'
-          message: 'Auto push pyCFML benchmarks : ${{ github.workflow }} : ${{ matrix.os }} : ${{ matrix.python-version }}'
-          pull: '--rebase --autostash'
+        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}"
 
   ##############################################################################
   # JOB 3
