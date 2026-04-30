@@ -22,7 +22,7 @@ It still does not replace the current release workflow end to end, but it now
 owns the root packaging entry point and compiles native code from the vendored
 sources.
 
-The current checkpoint does seven things:
+The current checkpoint does eight things:
 
 1. introduces a root CMake entry point owned by this repository
 2. replaces the grouped scaffold manifests with explicit source lists copied
@@ -33,6 +33,7 @@ The current checkpoint does seven things:
 5. builds wheels through `scikit-build-core` from the repository root
 6. tests installed wheels in CI without generated wheel-test scripts
 7. validates the `sdist -> wheel -> installed-wheel tests` path in release CI
+8. stages the validated `sdist` alongside the wheels for release publication
 
 ## Current Validated Contract
 
@@ -71,6 +72,8 @@ parity is still being proven against the old script-driven flow.
   staging
 - `build-release.yml` now validates the `sdist -> wheel -> installed-wheel
   tests` path through `tools/validate_sdist_rebuild.py`
+- the validated `sdist` now moves through the same draft-release and PyPI
+  publication path as the validated wheels
 
 What is already repo-owned:
 
@@ -83,6 +86,8 @@ What is already repo-owned:
 - default CI build and test steps that install the built wheel directly through
   `tools/run_installed_wheel_tests.py`
 - release CI source-rebuild validation through `tools/validate_sdist_rebuild.py`
+- draft-release staging and PyPI publication that consume both validated wheels
+  and the validated `sdist`
 - benchmark-only CI test legs removed from the default workflow path
 
 What has already been validated locally from the repository root:
@@ -102,7 +107,8 @@ What is still hybrid:
   `scripts/` for the legacy full pipeline
 - runtime-library bundling and platform repair are not yet delegated to
   `auditwheel`, `delocate`, or `delvewheel`
-- release publication still stages wheels only, not a validated sdist
+- release wheels are still host-built artifacts rather than repair-validated
+  platform-release artifacts
 
 ## Vendored CMake Audit
 
@@ -386,7 +392,7 @@ wheel repair, and release publication.
 - run the package tests against the rebuilt wheel
 - make the wheel-from-sdist check mandatory for release readiness
 
-### Phase 7: Release migration [pending]
+### Phase 7: Release migration [partially landed]
 
 - move the release wheel matrix to cibuildwheel
 - split Linux into a dedicated manylinux-based release leg instead of host-Ubuntu
@@ -427,11 +433,11 @@ To keep the migration understandable, each commit should do one of these only:
 - migrate wheel repair to standard tools
 - switch release CI to cibuildwheel
 
-## Next Follow-Up Changes After Source Rebuild Validation
+## Next Follow-Up Changes After Validated sdist Staging
 
 The next implementation slice should do exactly these things:
 
 1. add repair-based post-processing with `auditwheel`, `delocate`, and
    `delvewheel` on their respective platforms
-2. publish both repaired wheels and the validated sdist from the same release
-   pipeline
+2. move the release wheel matrix to platform-appropriate repaired artifacts
+   rather than unrepaired host-built wheels

@@ -266,6 +266,14 @@ jobs:
           --sdist-dir dist/sdist-validation/sdist
           --wheel-dir dist/sdist-validation/wheel
 
+      - name: Upload validated source distribution for release staging
+        uses: actions/upload-artifact@v4
+        with:
+          name: crysfml-sdist
+          path: dist/sdist-validation/sdist/*.tar.gz
+          if-no-files-found: "error"
+          compression-level: 0
+
   ##############################################################################
   # JOB 4
   ##############################################################################
@@ -298,12 +306,20 @@ jobs:
           pattern: pycfml-wheel_*
           merge-multiple: true
 
-      - name: Upload built wheels to the GitHub draft release
+      - name: Download validated source distribution from current workflow run
+        uses: actions/download-artifact@v4
+        with:
+          name: crysfml-sdist
+          path: release-assets
+
+      - name: Upload validated wheels and source distribution to the GitHub draft release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           tag_name: ${{ needs.resolve_release_tag.outputs.tag_name }}
-          files: release-assets/*.whl
+          files: |
+            release-assets/*.whl
+            release-assets/*.tar.gz
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
