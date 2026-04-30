@@ -33,6 +33,11 @@ set(CRYSFML_PACKAGE_NAME
     CACHE STRING
     "Installed Python package name."
 )
+set(CRYSFML_PYTHON_PACKAGE_INSTALL_DIR
+    "${CRYSFML_PACKAGE_NAME}"
+    CACHE PATH
+    "Install-time relative path for the staged Python package root."
+)
 set(CRYSFML_EXTENSION_MODULE_NAME
     "crysfml08lib"
     CACHE STRING
@@ -47,6 +52,11 @@ set(CRYSFML_CURATED_DATABASE_FILE
     "${CRYSFML_VENDOR_SRC_ROOT}/Databases/${CRYSFML_DATABASE_FILENAME}"
     CACHE FILEPATH
     "Bundled CFML database file."
+)
+set(CRYSFML_PACKAGE_DATABASE_INSTALL_DIR
+    "${CRYSFML_PYTHON_PACKAGE_INSTALL_DIR}/Databases"
+    CACHE PATH
+    "Install-time relative path for the bundled CFML database directory."
 )
 
 function(crysfml_require_existing_path path_var description)
@@ -136,6 +146,27 @@ if(CRYSFML_ENABLE_PYCFML_EXTENSION)
     crysfml_apply_gnu_fortran_target_profile(pycfml_extension)
 endif()
 
+if(CRYSFML_ENABLE_PYTHON_PACKAGE)
+    if(CRYSFML_ENABLE_PYCFML_EXTENSION)
+        install(TARGETS pycfml_extension
+            LIBRARY DESTINATION "${CRYSFML_PYTHON_PACKAGE_INSTALL_DIR}"
+            RUNTIME DESTINATION "${CRYSFML_PYTHON_PACKAGE_INSTALL_DIR}"
+        )
+    endif()
+
+    install(FILES
+        "${CRYSFML_CURATED_PACKAGE_INIT}"
+        DESTINATION "${CRYSFML_PYTHON_PACKAGE_INSTALL_DIR}"
+    )
+    install(FILES ${PYCFML_PYTHON_SOURCES}
+        DESTINATION "${CRYSFML_PYTHON_PACKAGE_INSTALL_DIR}"
+    )
+    install(FILES
+        "${CRYSFML_CURATED_DATABASE_FILE}"
+        DESTINATION "${CRYSFML_PACKAGE_DATABASE_INSTALL_DIR}"
+    )
+endif()
+
 list(LENGTH CRYSFML_CORE_MODULE_KEYS _crysfml_core_module_count)
 list(LENGTH CRYSFML_CORE_SOURCES _crysfml_core_source_count)
 list(LENGTH CRYSFML_GLOBAL_DEPS_VARIANTS _crysfml_global_deps_count)
@@ -154,6 +185,7 @@ message(STATUS "  Vendor root             : ${CRYSFML_VENDOR_ROOT}")
 message(STATUS "  Core source root        : ${CRYSFML_VENDOR_SRC_ROOT}")
 message(STATUS "  Python API root         : ${CRYSFML_VENDOR_PYTHON_API_ROOT}")
 message(STATUS "  Package name            : ${CRYSFML_PACKAGE_NAME}")
+message(STATUS "  Package install root    : ${CRYSFML_PYTHON_PACKAGE_INSTALL_DIR}")
 message(STATUS "  Extension module        : ${CRYSFML_EXTENSION_MODULE_NAME}")
 message(STATUS "  Global deps variants    : ${_crysfml_global_deps_count}")
 message(STATUS "  Core module entries     : ${_crysfml_core_module_count}")
@@ -169,8 +201,11 @@ endif()
 if(CRYSFML_ENABLE_PYCFML_EXTENSION)
     message(STATUS "  pycfml_extension inputs : ${_pycfml_extension_build_source_count}")
     message(STATUS "  Python interpreter      : ${Python_EXECUTABLE}")
-else()
+elseif(NOT CRYSFML_ENABLE_CORE_TARGET)
     message(STATUS "  Build scaffold only     : native targets are disabled")
+endif()
+if(CRYSFML_ENABLE_PYTHON_PACKAGE)
+    message(STATUS "  Package data dir        : ${CRYSFML_PACKAGE_DATABASE_INSTALL_DIR}")
 endif()
 
 set(CRYSFML_TRANSITION_SCAFFOLD_SOURCES
