@@ -154,9 +154,12 @@ jobs:
         shell: bash
         run: echo "value=$(python3 pybuild.py --print-wheel-dir)" >> "$GITHUB_OUTPUT"
 
-      - name: Build pyCFML and create wheel
+      - name: Build crysfml wheel with scikit-build-core
         shell: bash
-        run: scripts/pycfml_build.sh
+        run: |
+          rm -rf "${{ steps.wheel_dir.outputs.value }}"
+          mkdir -p "${{ steps.wheel_dir.outputs.value }}"
+          python -m build --wheel --outdir "${{ steps.wheel_dir.outputs.value }}"
 
       - name: Validate wheel filenames for PyPI upload
         shell: bash
