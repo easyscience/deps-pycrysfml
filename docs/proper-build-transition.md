@@ -270,6 +270,14 @@ wheel repair, and release publication.
 - raw wheels are CI intermediates only
 - PyPI publication should consume already validated artifacts, not rebuild them
 
+### Benchmark test simplification note
+
+- benchmark-only CI test legs are optional during the proper-build migration
+- if they continue to complicate the workflows, prefer removing benchmark test
+  steps and keeping correctness-oriented import, unit, and functional tests
+- benchmark collection can remain a local or explicitly opt-in maintenance task
+  instead of a default release-validation requirement
+
 ## Migration Order
 
 ### Phase 1: Scaffold
