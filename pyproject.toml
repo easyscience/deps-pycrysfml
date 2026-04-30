@@ -73,6 +73,14 @@ wheel.packages = []
 provider = 'crysfml_version'
 provider-path = 'tools'
 
+[tool.cibuildwheel.linux]
+archs = ['x86_64']
+manylinux-x86_64-image = 'manylinux2014'
+before-all = [
+  'yum install -y gcc-gfortran git',
+]
+repair-wheel-command = 'auditwheel show {wheel} && auditwheel repair -w {dest_dir} {wheel}'
+
 [tool.versioningit.format]
 distance = '{base_version}+dev{distance}'
 dirty = '{base_version}+dirty{distance}'

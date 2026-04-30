@@ -85,7 +85,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, windows-2022, macos-14]
+        os: [windows-2022, macos-14]
         python-version: ['3.11', '3.12', '3.13', '3.14']
         toolchain:
           - { exe: gfortran, compiler: gcc, version: 13 }
@@ -169,6 +169,78 @@ jobs:
   ##############################################################################
   # JOB 2
   ##############################################################################
+  build-linux-manylinux:
+
+    needs: resolve_release_tag
+
+    timeout-minutes: 60
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: '3.11'
+            cibw-build: 'cp311-manylinux_x86_64'
+          - python-version: '3.12'
+            cibw-build: 'cp312-manylinux_x86_64'
+          - python-version: '3.13'
+            cibw-build: 'cp313-manylinux_x86_64'
+          - python-version: '3.14'
+            cibw-build: 'cp314-manylinux_x86_64'
+
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history with tags is required for versioningit
+
+      - name: Create local release tag for exact-version manylinux wheel builds
+        if: ${{ needs.resolve_release_tag.outputs.tag_name != '' }}
+        shell: bash
+        run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Upgrade package installer for Python
+        shell: bash
+        run: python -m pip install --upgrade pip
+
+      - name: Install Python dependences
+        shell: bash
+        run: python tools/install_optional_dependencies.py ci test
+
+      - name: Build Linux manylinux wheel with cibuildwheel
+        uses: pypa/cibuildwheel@v3.4.1
+        env:
+          CIBW_BUILD: ${{ matrix.cibw-build }}
+        with:
+          package-dir: .
+          output-dir: ${{ env.WHEEL_DIR }}
+
+      - name: Validate wheel filenames for PyPI upload
+        shell: bash
+        run: python3 tools/validate_pypi_wheel_filenames.py "${{ env.WHEEL_DIR }}"
+
+      - name: Test built manylinux wheel
+        shell: bash
+        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}"
+
+      - name: Upload repaired Linux manylinux wheel for next job
+        uses: actions/upload-artifact@v4
+        with:
+          name: pycfml-wheel_linux_x86_64_${{ matrix.python-version }}
+          path: ${{ env.WHEEL_DIR }}
+          if-no-files-found: "error"
+          compression-level: 0
+
+  ##############################################################################
+  # JOB 3
+  ##############################################################################
   test:  # current job name
 
     needs: [resolve_release_tag, build]  # previous job 'build' need to be finished first
@@ -180,7 +252,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, windows-2022, macos-14]
+        os: [windows-2022, macos-14]
         python-version: ['3.11', '3.12', '3.13', '3.14']
         toolchain:
           - { exe: gfortran, compiler: gcc, version: 13 }
@@ -222,7 +294,60 @@ jobs:
         run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}"
 
   ##############################################################################
-  # JOB 3
+  # JOB 4
+  ##############################################################################
+  test-linux-manylinux:
+
+    needs: [resolve_release_tag, build-linux-manylinux]
+
+    if: always()
+
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+        python-version: ['3.11', '3.12', '3.13', '3.14']
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history with tags is required for versioningit
+
+      - name: Create local release tag for exact-version manylinux wheel tests
+        if: ${{ needs.resolve_release_tag.outputs.tag_name != '' }}
+        shell: bash
+        run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
+
+      - name: Set up python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Upgrade package installer for Python
+        shell: bash
+        run: python3 -m pip install --upgrade pip
+
+      - name: Install Python dependences
+        shell: bash
+        run: python tools/install_optional_dependencies.py ci test
+
+      - name: Download repaired manylinux wheel from previous job
+        uses: actions/download-artifact@v4
+        with:
+          name: pycfml-wheel_linux_x86_64_${{ matrix.python-version }}
+          path: ${{ env.WHEEL_DIR }}
+
+      - name: Test downloaded manylinux wheel
+        shell: bash
+        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}"
+
+  ##############################################################################
+  # JOB 5
   ##############################################################################
   source-rebuild:
 
@@ -278,11 +403,11 @@ jobs:
           compression-level: 0
 
   ##############################################################################
-  # JOB 4
+  # JOB 6
   ##############################################################################
   upload-release-assets:
 
-    needs: [resolve_release_tag, test, source-rebuild]
+    needs: [resolve_release_tag, test, test-linux-manylinux, source-rebuild]
 
     if: ${{ github.event_name == 'push' && github.ref_name == 'master' && needs.resolve_release_tag.outputs.tag_name != '' }}
 

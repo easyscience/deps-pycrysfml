@@ -22,7 +22,7 @@ It still does not replace the current release workflow end to end, but it now
 owns the root packaging entry point and compiles native code from the vendored
 sources.
 
-The current checkpoint does nine things:
+The current checkpoint does ten things:
 
 1. introduces a root CMake entry point owned by this repository
 2. replaces the grouped scaffold manifests with explicit source lists copied
@@ -35,6 +35,8 @@ The current checkpoint does nine things:
 7. validates the `sdist -> wheel -> installed-wheel tests` path in release CI
 8. stages the validated `sdist` alongside the wheels for release publication
 9. repairs macOS release wheels with `delocate` before validation and staging
+10. builds Linux release wheels in a dedicated manylinux container via
+    `cibuildwheel`
 
 ## Current Validated Contract
 
@@ -53,8 +55,9 @@ The package contract that must be preserved is:
 - fix runtime search paths on Linux and macOS
 - publish binary wheels that are tagged and marked as non-pure
 
-The current release flow does that correctly enough to ship wheels, but not in a
-way that produces a rebuildable source distribution.
+The current release flow now produces a rebuildable source distribution, but
+release parity is still only partially migrated away from the old
+script-driven flow.
 
 ## Current Hybrid State
 
@@ -63,8 +66,8 @@ parity is still being proven against the old script-driven flow.
 
 ### Latest completed slice
 
-- `build-debug.yml` and `build-release.yml` now build wheels directly from the
-  repository root with `python -m build --wheel`
+- `build-debug.yml` and the macOS / Windows legs of `build-release.yml` now
+  build wheels directly from the repository root with `python -m build --wheel`
 - those build jobs now validate the produced wheel with
   `tools/run_installed_wheel_tests.py`
 - the default CI path no longer generates shell scripts or runs
@@ -80,6 +83,10 @@ parity is still being proven against the old script-driven flow.
   the repaired wheel rather than the raw wheel
 - `tools/validate_pypi_wheel_filenames.py` now accepts `delocate`-normalized
   macOS minimum-version tags instead of a hard-coded macOS-major allowlist
+- the Linux release leg now builds one wheel per Python version inside a
+  `manylinux2014` container via `cibuildwheel`, runs `auditwheel show` and
+  `auditwheel repair`, re-tests the repaired wheel on `ubuntu-24.04`, and
+  re-tests the downloaded artifact on both `ubuntu-22.04` and `ubuntu-24.04`
 
 What is already repo-owned:
 
@@ -89,11 +96,16 @@ What is already repo-owned:
   and the bundled magnetic database
 - `pyproject.toml` switched to `scikit-build-core` with a repo-local
   `versioningit` metadata provider
+- `pyproject.toml` now carries the repo-owned Linux cibuildwheel policy for
+  `manylinux2014`, in-container `gfortran` / `git`, and explicit
+  `auditwheel` repair
 - default CI build and test steps that install the built wheel directly through
   `tools/run_installed_wheel_tests.py`
 - release CI source-rebuild validation through `tools/validate_sdist_rebuild.py`
 - macOS release-wheel repair through `tools/repair_macos_wheel.py` plus
   `delocate`
+- Linux release-wheel build and repair through `cibuildwheel` plus
+  `auditwheel`
 - draft-release staging and PyPI publication that consume both validated wheels
   and the validated `sdist`
 - benchmark-only CI test legs removed from the default workflow path
@@ -112,17 +124,22 @@ What has already been validated locally from the repository root:
 - `python tools/run_installed_wheel_tests.py --wheel-dir <wheel-dir>` passes
   for the wheel built from that path
 - `python tools/validate_sdist_rebuild.py` succeeds
+- `python -m cibuildwheel --platform linux --print-build-identifiers` resolves
+  the intended `cp311` to `cp314` `manylinux_x86_64` build targets from the
+  repo-owned Linux cibuildwheel configuration
 
 What is still hybrid:
 
 - local maintainer `pixi` tasks still call `pybuild.py` and generated
   `scripts/` for the legacy full pipeline
-- Linux and Windows runtime-library bundling and repair are not yet delegated
-  to `auditwheel` and `delvewheel`
-- release wheels are still host-built artifacts on Linux and Windows rather
-  than repair-validated platform-release artifacts
+- Windows runtime-library bundling and repair are not yet delegated to
+  `delvewheel`
+- release wheels are still host-built artifacts on Windows rather than
+  repair-validated platform-release artifacts
 - local macOS builds still emit deployment-target mismatch warnings on this
   machine before `delocate` normalizes the repaired wheel tag
+- the Linux manylinux build was not run locally on this machine because no
+  Docker- or Podman-compatible container runtime is available here
 
 ## Vendored CMake Audit
 
@@ -393,7 +410,8 @@ wheel repair, and release publication.
 
 ### Phase 5: Runtime repair [partially landed]
 
-- use `auditwheel` on Linux after building inside a real manylinux image
+- use `auditwheel` on Linux after building inside a real manylinux image in
+  release CI
 - use `delocate` on macOS after native wheel build in release CI
 - use `delvewheel` on Windows after native wheel build
 - delete the handwritten runtime-library copy and RPATH shell logic only after
@@ -409,8 +427,8 @@ wheel repair, and release publication.
 ### Phase 7: Release migration [partially landed]
 
 - move the release wheel matrix to cibuildwheel
-- split Linux into a dedicated manylinux-based release leg instead of host-Ubuntu
-  retagging
+- split Linux into a dedicated manylinux-based release leg instead of
+  host-Ubuntu retagging in release CI
 - publish both wheels and a validated sdist to PyPI
 - retire the current script-generated wheel assembly flow
 
@@ -447,11 +465,12 @@ To keep the migration understandable, each commit should do one of these only:
 - migrate wheel repair to standard tools
 - switch release CI to cibuildwheel
 
-## Next Follow-Up Changes After macOS Wheel Repair
+## Next Follow-Up Changes After Linux Manylinux Release Cutover
 
 The next implementation slice should do exactly these things:
 
-1. add the Linux manylinux release path with `auditwheel repair`
-2. add the Windows release repair path with `delvewheel`
-3. move the remaining non-macOS release wheel legs to repaired artifacts rather
+1. add the Windows release repair path with `delvewheel`
+2. move the remaining Windows release wheel leg to repaired artifacts rather
    than raw host-built wheels
+3. decide whether the macOS and Windows release legs should also move to
+   `cibuildwheel` for topology consistency

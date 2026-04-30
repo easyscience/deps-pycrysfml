@@ -13,10 +13,11 @@
   pipeline for release-mode wheel builds in this repository.
 - `build-release.yml` is used to build crysfml with the release-mode
   options from the repo-owned CMake path via `python -m build --wheel`,
-  repair macOS wheels with `delocate`, run tests against the final wheel
-  artifact, validate the `sdist -> wheel` rebuild path, and upload
-  validated wheel and sdist artifacts to the workflow run for local
-  validation and later release staging.
+  build Linux release wheels inside a dedicated manylinux container via
+  `cibuildwheel`, repair macOS wheels with `delocate`, run tests against
+  the final wheel artifacts, validate the `sdist -> wheel` rebuild path,
+  and upload validated wheel and sdist artifacts to the workflow run for
+  local validation and later release staging.
 - The intended release flow is staged: merging `develop` into `master`
   via pull request should result in a successful `build-release.yml`
   run on `master`, after which `release-notes.yml` should create or
@@ -32,7 +33,8 @@
 - Treat `build-release.yml` as the stage that computes the same
   suggested release tag on `master`, creates that tag locally in CI so
   `versioningit` builds exact-version wheels without pushing a remote
-  tag, repairs the macOS wheel artifact before validation, and uploads
+  tag, builds Linux release wheels through the manylinux cibuildwheel
+  path, repairs the macOS wheel artifact before validation, and uploads
   the validated wheels and sdist to the GitHub draft release.
 - Treat `pybuild.py` and `pybuild.toml` as the source of truth for the
   generated shell scripts in `scripts/`, but not as the canonical release
@@ -51,10 +53,10 @@
   to affect both debug and release pipelines.
 - If release automation is split across multiple workflows, keep the
   contract between them explicit: `build-release.yml` produces validated
-  exact-version wheel and sdist artifacts on `master` and stages them on the
-  draft release, `release-notes.yml` maintains the draft release metadata and
-  suggested tag without pushing the remote tag, and `pypi-publish.yml`
-  consumes the published release assets.
+  exact-version wheel and sdist artifacts on `master` and stages them on
+  the draft release, `release-notes.yml` maintains the draft release
+  metadata and suggested tag without pushing the remote tag, and
+  `pypi-publish.yml` consumes the published release assets.
 - When changing package metadata, wheel naming, Python-version support,
   or release versioning, update all linked sources of truth together,
   including `pyproject.toml`, workflow assumptions, and release-facing
