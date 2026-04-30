@@ -14,10 +14,11 @@
 - `build-release.yml` is used to build crysfml with the release-mode
   options from the repo-owned CMake path via `python -m build --wheel`,
   build Linux release wheels inside a dedicated manylinux container via
-  `cibuildwheel`, repair macOS wheels with `delocate`, run tests against
-  the final wheel artifacts, validate the `sdist -> wheel` rebuild path,
-  and upload validated wheel and sdist artifacts to the workflow run for
-  local validation and later release staging.
+  `cibuildwheel`, repair macOS wheels with `delocate`, repair Windows
+  wheels with `delvewheel`, run tests against the final wheel artifacts,
+  validate the `sdist -> wheel` rebuild path, and upload validated wheel
+  and sdist artifacts to the workflow run for local validation and later
+  release staging.
 - The intended release flow is staged: merging `develop` into `master`
   via pull request should result in a successful `build-release.yml`
   run on `master`, after which `release-notes.yml` should create or
@@ -34,8 +35,8 @@
   suggested release tag on `master`, creates that tag locally in CI so
   `versioningit` builds exact-version wheels without pushing a remote
   tag, builds Linux release wheels through the manylinux cibuildwheel
-  path, repairs the macOS wheel artifact before validation, and uploads
-  the validated wheels and sdist to the GitHub draft release.
+  path, repairs the macOS and Windows wheel artifacts before validation,
+  and uploads the validated wheels and sdist to the GitHub draft release.
 - Treat `pybuild.py` and `pybuild.toml` as the source of truth for the
   generated shell scripts in `scripts/`, but not as the canonical release
   wheel-build path.

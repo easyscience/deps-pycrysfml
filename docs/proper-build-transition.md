@@ -22,7 +22,7 @@ It still does not replace the current release workflow end to end, but it now
 owns the root packaging entry point and compiles native code from the vendored
 sources.
 
-The current checkpoint does ten things:
+The current checkpoint does eleven things:
 
 1. introduces a root CMake entry point owned by this repository
 2. replaces the grouped scaffold manifests with explicit source lists copied
@@ -37,6 +37,8 @@ The current checkpoint does ten things:
 9. repairs macOS release wheels with `delocate` before validation and staging
 10. builds Linux release wheels in a dedicated manylinux container via
     `cibuildwheel`
+11. repairs Windows release wheels with `delvewheel` before validation and
+    staging
 
 ## Current Validated Contract
 
@@ -87,6 +89,9 @@ parity is still being proven against the old script-driven flow.
   `manylinux2014` container via `cibuildwheel`, runs `auditwheel show` and
   `auditwheel repair`, re-tests the repaired wheel on `ubuntu-24.04`, and
   re-tests the downloaded artifact on both `ubuntu-22.04` and `ubuntu-24.04`
+- the Windows release leg now repairs the built wheel in place through
+  `tools/repair_windows_wheel.py`, re-tests that repaired artifact, and uploads
+  the repaired wheel rather than the raw wheel
 
 What is already repo-owned:
 
@@ -106,6 +111,8 @@ What is already repo-owned:
   `delocate`
 - Linux release-wheel build and repair through `cibuildwheel` plus
   `auditwheel`
+- Windows release-wheel repair through `tools/repair_windows_wheel.py` plus
+  `delvewheel`
 - draft-release staging and PyPI publication that consume both validated wheels
   and the validated `sdist`
 - benchmark-only CI test legs removed from the default workflow path
@@ -127,19 +134,23 @@ What has already been validated locally from the repository root:
 - `python -m cibuildwheel --platform linux --print-build-identifiers` resolves
   the intended `cp311` to `cp314` `manylinux_x86_64` build targets from the
   repo-owned Linux cibuildwheel configuration
+- `python -m delvewheel show -h` and `python -m delvewheel repair -h` succeed
+  locally, confirming the Windows repair command surface used by
+  `tools/repair_windows_wheel.py`
 
 What is still hybrid:
 
 - local maintainer `pixi` tasks still call `pybuild.py` and generated
   `scripts/` for the legacy full pipeline
-- Windows runtime-library bundling and repair are not yet delegated to
-  `delvewheel`
-- release wheels are still host-built artifacts on Windows rather than
-  repair-validated platform-release artifacts
+- Windows release wheels are still built on the host runner rather than through
+  `cibuildwheel`
 - local macOS builds still emit deployment-target mismatch warnings on this
   machine before `delocate` normalizes the repaired wheel tag
 - the Linux manylinux build was not run locally on this machine because no
   Docker- or Podman-compatible container runtime is available here
+- the Windows repaired-wheel path was not exercised on a real wheel locally
+  because no Windows wheel artifact or Windows runner is available on this
+  machine
 
 ## Vendored CMake Audit
 
@@ -413,7 +424,7 @@ wheel repair, and release publication.
 - use `auditwheel` on Linux after building inside a real manylinux image in
   release CI
 - use `delocate` on macOS after native wheel build in release CI
-- use `delvewheel` on Windows after native wheel build
+- use `delvewheel` on Windows after native wheel build in release CI
 - delete the handwritten runtime-library copy and RPATH shell logic only after
   repair-based wheel parity is proven
 
@@ -465,12 +476,13 @@ To keep the migration understandable, each commit should do one of these only:
 - migrate wheel repair to standard tools
 - switch release CI to cibuildwheel
 
-## Next Follow-Up Changes After Linux Manylinux Release Cutover
+## Next Follow-Up Changes After Windows Wheel Repair
 
 The next implementation slice should do exactly these things:
 
-1. add the Windows release repair path with `delvewheel`
-2. move the remaining Windows release wheel leg to repaired artifacts rather
-   than raw host-built wheels
-3. decide whether the macOS and Windows release legs should also move to
+1. decide whether the macOS and Windows release legs should also move to
    `cibuildwheel` for topology consistency
+2. delete the handwritten runtime-library copy and wheel-tag surgery only after
+   repaired-wheel parity is proven across all release legs
+3. retire the remaining script-generated maintainer wheel-assembly flow from
+   `pixi` tasks once the repo-owned release path is the only required path
