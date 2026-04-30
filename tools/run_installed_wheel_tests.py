@@ -39,7 +39,7 @@ def run(command: list[str], description: str) -> None:
 
 def install_wheel(wheel_path: Path) -> None:
     run(
-        [sys.executable, '-m', 'pip', 'install', '--force-reinstall', str(wheel_path)],
+        [sys.executable, '-m', 'pip', 'install', '--force-reinstall', '--no-deps', str(wheel_path)],
         f'Installing wheel {wheel_path.name}',
     )
 

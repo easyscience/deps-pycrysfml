@@ -44,6 +44,9 @@
 - Treat `pixi run pycfml-build`, `pixi run pycfml-test`,
   `pixi run sdist-validate`, and `pixi run full` as the default local
   maintainer validation path for repo-owned wheel and sdist work.
+- Treat `pixi run pycfml-repair-diagnostics-macos` and
+  `pixi run pycfml-repair-diagnostics-windows` as optional native
+  maintainer diagnostics for repaired-wheel parity on those hosts.
 - Treat `pixi` tasks suffixed with `-legacy`, plus `scripts`, `cfml-build`,
   and `cfml-test`, as explicit fallback paths for the old script-generated
   workflow while the transition is being retired.

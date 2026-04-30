@@ -8,6 +8,7 @@ macos = "14.0"
 [dependencies]
 python = "3.14.*"
 ninja = "*"
+numpy = "*"
 
 [feature.dev.pypi-dependencies]
 pip = '*'
@@ -15,6 +16,18 @@ build = '*'
 scikit-build-core = '*'
 versioningit = '*'
 crysfml = { path = '.', editable = true, extras = ['ci', 'test'] }
+
+[feature.repair-macos]
+platforms = ["osx-arm64"]
+
+[feature.repair-macos.pypi-dependencies]
+delocate = '*'
+
+[feature.repair-windows]
+platforms = ["win-64"]
+
+[feature.repair-windows.pypi-dependencies]
+delvewheel = '*'
 
 [feature.wheeltest.pypi-dependencies]
 pip = '*'
@@ -26,6 +39,8 @@ matplotlib = '*'
 [environments]
 default = ["dev"]
 wheeltest = ["wheeltest"]
+repair-macos = ["dev", "repair-macos"]
+repair-windows = ["dev", "repair-windows"]
 
 [tasks.scripts]
 cmd = "python pybuild.py --create-scripts --enable-backslash-escapes"
@@ -78,6 +93,16 @@ description = "Legacy script-driven wheel install and test path"
 [tasks.sdist-validate]
 cmd = "python tools/validate_sdist_rebuild.py --sdist-dir dist/sdist-validation/sdist --wheel-dir dist/sdist-validation/wheel"
 description = "Build an sdist, rebuild a wheel from it, and test the rebuilt wheel"
+
+[tasks.pycfml-repair-diagnostics-macos]
+cmd = "python tools/run_repair_diagnostics.py --wheel-dir dist/pyCFML/wheel"
+default-environment = "repair-macos"
+description = "Repair, validate, and test a locally built wheel on native macOS"
+
+[tasks.pycfml-repair-diagnostics-windows]
+cmd = "python tools/run_repair_diagnostics.py --wheel-dir dist/pyCFML/wheel"
+default-environment = "repair-windows"
+description = "Repair, validate, and test a locally built wheel on native Windows"
 
 [tasks.full]
  depends-on = [
