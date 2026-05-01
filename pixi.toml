@@ -78,7 +78,11 @@ description = "Build a local crysfml wheel from the repository root"
 
 [tasks.pycfml-build-legacy]
 cmd = "scripts/pycfml_build.sh"
-description = "Legacy script-driven pyCFML build, package assembly, and wheel creation"
+description = "Legacy script-generated wheel creation from the repository root"
+
+[tasks.pycfml-dist-legacy]
+cmd = "scripts/pycfml_dist.sh"
+description = "Legacy unpackaged dist/pyCFML assembly with runtime copy and RPATH rewrite"
 
 [tasks.pycfml-test]
 cmd = "python tools/run_installed_wheel_tests.py --wheel-dir dist/pyCFML/wheel"
@@ -117,10 +121,11 @@ depends-on = [
 		{ task = "scripts", environment = "default" },
 		{ task = "cfml-build", environment = "default" },
 		{ task = "cfml-test", environment = "default" },
+		{ task = "pycfml-dist-legacy", environment = "default" },
 		{ task = "pycfml-build-legacy", environment = "default" },
 		{ task = "pycfml-test-legacy", environment = "wheeltest" },
 	]
-description = "Run the legacy script-generated local build and test pipeline"
+description = "Run the legacy script-generated local build, unpackaged dist assembly, and test pipeline"
 
 [tasks.benchmark]
 cmd = "scripts/run_pycfml_functional_tests_with_benchmarks_save.sh"

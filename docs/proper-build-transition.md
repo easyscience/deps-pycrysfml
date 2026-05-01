@@ -23,7 +23,7 @@ maintainer wheel-validation path, but it still keeps explicit legacy fallback
 tasks. It also owns the root packaging entry point and compiles native code
 from the vendored sources.
 
-The current checkpoint does fifteen things:
+The current checkpoint does sixteen things:
 
 1. introduces a root CMake entry point owned by this repository
 2. replaces the grouped scaffold manifests with explicit source lists copied
@@ -50,6 +50,9 @@ The current checkpoint does fifteen things:
 15. keeps the explicit legacy fallback tasks, but stops their wheel path from
     retagging or rewriting wheel metadata now that the backend already emits a
     native wheel
+16. splits the remaining unpackaged `dist/pyCFML` assembly into the explicit
+    `pycfml-dist-legacy` fallback so that `pycfml-build-legacy` no longer
+    hand-copies runtime libraries or rewrites RPATHs before building a wheel
 
 ## Current Validated Contract
 
@@ -123,6 +126,13 @@ available while parity is being proven.
 - the legacy wheel-build step now recreates `dist/pyCFML/wheel` before each
   build and requires exactly one built wheel artifact before validation or
   install, so stale wheels are no longer silently reused
+- the generated `scripts/pycfml_build.sh` / `pycfml-build-legacy` path now
+  performs only repository-root wheel creation and validation; it no longer
+  assembles the unpackaged `dist/pyCFML/crysfml` tree first
+- the remaining handwritten runtime-library copy and RPATH rewrite steps now
+  live only behind the explicit `scripts/pycfml_dist.sh` /
+  `pycfml-dist-legacy` fallback, while `full-legacy` still includes that task
+  so maintainers can exercise the old unpackaged assembly path when needed
 - `tools/run_installed_wheel_tests.py` now reinstalls the built wheel with
   `pip install --force-reinstall --no-deps`, relying on the managed test
   environment instead of live index resolution during validation
@@ -184,7 +194,12 @@ What has already been validated locally from the repository root:
 - `pixi run --environment default sdist-validate` succeeds
 - `pixi run --environment default pycfml-build-legacy` succeeds with the legacy
   task name while validating, rather than mutating, the built wheel filename
-  and wheel metadata
+  and wheel metadata, and without depending on unpackaged `dist/pyCFML`
+  assembly first
+- `pixi run --environment default pycfml-dist-legacy` succeeds after
+  `pixi run --environment default cfml-build`, preserving the old unpackaged
+  `dist/pyCFML` runtime-library copy and RPATH rewrite path as an explicit
+  fallback
 - `pixi run --environment wheeltest pycfml-test-legacy` passes with the legacy
   fallback task after switching its wheel reinstall step to
   `pip install --force-reinstall --no-deps`
@@ -210,12 +225,12 @@ What has already been validated locally from the repository root:
 What is still hybrid:
 
 - explicit legacy maintainer tasks such as `full-legacy`,
-  `pycfml-build-legacy`, `pycfml-test-legacy`, plus standalone script-oriented
-  helpers like `scripts`, `cfml-build`, and `cfml-test`, still call
-  `pybuild.py` and generated `scripts/`
-- that legacy path still hand-copies runtime libraries and rewrites RPATHs in
-  the unpackaged `dist/pyCFML` tree, even though its wheel path no longer
-  retags wheel filenames or rewrites wheel metadata
+  `pycfml-dist-legacy`, `pycfml-build-legacy`, `pycfml-test-legacy`, plus
+  standalone script-oriented helpers like `scripts`, `cfml-build`, and
+  `cfml-test`, still call `pybuild.py` and generated `scripts/`
+- only the explicit `pycfml-dist-legacy` fallback still hand-copies runtime
+  libraries and rewrites RPATHs in the unpackaged `dist/pyCFML` tree; the
+  legacy wheel path no longer does
 - local macOS builds still emit deployment-target mismatch warnings on this
   machine before `delocate` normalizes the repaired wheel tag
 - the Linux manylinux build was not run locally on this machine because no
@@ -549,13 +564,14 @@ To keep the migration understandable, each commit should do one of these only:
 - migrate wheel repair to standard tools
 - switch release CI to cibuildwheel
 
-## Next Follow-Up Changes After Native Repair Diagnostics
+## Next Follow-Up Changes After Splitting Legacy Dist Assembly
 
 The next implementation slice should do exactly these things:
 
-1. delete the remaining handwritten runtime-library copy and RPATH rewrite
-   steps that still exist only for the legacy unpackaged `dist/pyCFML` tree,
-   now that wheel-tag surgery and wheel-metadata rewriting are no longer part
-   of the fallback wheel path
-2. remove or archive the explicit legacy `pixi` and generated-script fallback
-   tasks once maintainers no longer need the old path
+1. remove or archive the explicit legacy `pixi` and generated-script fallback
+   tasks once maintainers no longer need them, starting with
+   `pycfml-dist-legacy`, `pycfml-build-legacy`, `pycfml-test-legacy`, and
+   `full-legacy`
+2. decide whether the remaining unpackaged `dist/pyCFML` assembly should be
+   deleted outright or moved into clearly archival maintainer-only
+   documentation once the legacy fallback tasks are retired

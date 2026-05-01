@@ -53,6 +53,9 @@
 - Treat the legacy generated wheel path as a validation-only fallback for the
   backend-produced wheel filename and native-wheel metadata; do not reintroduce
   custom wheel retagging or wheel-metadata rewrite steps there.
+- Treat `pixi run pycfml-dist-legacy` / `scripts/pycfml_dist.sh` as the only
+  remaining explicit fallback that still assembles unpackaged `dist/pyCFML`
+  with handwritten runtime-library copy and RPATH rewrite logic.
 - Do not edit generated files in `scripts/` directly unless the task is
   explicitly about the generated output. Change `pybuild.py` or
   `pybuild.toml`, regenerate the scripts, and validate the affected

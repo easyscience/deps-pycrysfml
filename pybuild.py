@@ -670,6 +670,19 @@ def create_cfml_test_script():
 def create_pycfml_build_script():
     sections = [
         ('Print some build-specific variables', [('print_build_variables.sh', True)]),
+        (f'Create Python package wheel of {pyCFML}', [
+            ('validate_pyproject_toml.sh', False),
+            ('create_pycfml_python_wheel.sh', False),
+            ('rename_pycfml_python_wheel.sh', False),
+            ('repair_pycfml_python_wheel_metadata.sh', False),
+            ('check_wheel_contents.sh', False),
+        ]),
+    ]
+    _write_sectioned_script('pycfml_build.sh', sections)
+
+def create_pycfml_dist_script():
+    sections = [
+        ('Print some build-specific variables', [('print_build_variables.sh', True)]),
         (f'Create {pyCFML} source code', [('create_pycfml_src.sh', False)]),
         (f'Build {pyCFML} modules', [('build_pycfml_modules_obj.sh', False)]),
         (f'Build {pyCFML} shared obj / dynamic library', [
@@ -684,15 +697,8 @@ def create_pycfml_build_script():
             ('copy_init_file_to_pycfml_dist.sh', False),
             ('copy_cfml_databases_to_pycfml_dist.sh', False),
         ]),
-        (f'Create Python package wheel of {pyCFML}', [
-            ('validate_pyproject_toml.sh', False),
-            ('create_pycfml_python_wheel.sh', False),
-            ('rename_pycfml_python_wheel.sh', False),
-            ('repair_pycfml_python_wheel_metadata.sh', False),
-            ('check_wheel_contents.sh', False),
-        ]),
     ]
-    _write_sectioned_script('pycfml_build.sh', sections)
+    _write_sectioned_script('pycfml_dist.sh', sections)
 
 def create_pycfml_test_script():
     sections = [
@@ -1770,6 +1776,7 @@ if __name__ == '__main__':
 
     create_cfml_build_script()
     create_cfml_test_script()
+    create_pycfml_dist_script()
     create_pycfml_build_script()
     create_pycfml_test_script()
 
