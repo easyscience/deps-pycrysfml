@@ -216,7 +216,7 @@ What has already been validated locally from the repository root:
   for the wheel built from that path without `pytest-benchmark` installed in
   the validation environment
 - `python tools/validate_sdist_rebuild.py` succeeds
-- `pixi run --environment default --frozen vendor-cfml-build` succeeds after
+- `pixi run --environment default --frozen vendor-cfml-stage` succeeds after
   the vendored CFML maintainer path is moved onto `tools/vendor_cfml.py` and
   CMake-native CFML distribution staging
 - `pixi run --environment default --frozen vendor-cfml-test` succeeds against
@@ -249,7 +249,7 @@ What remains environment-specific or maintainer-only:
 
 - vendor-prefixed maintainer helpers such as `vendor-cfml-refresh`,
   `vendor-cfml-refresh-branch`, `vendor-cfml-refresh-commit`,
-  `vendor-cfml-build`, and `vendor-cfml-test` still remain as a maintainer-only
+  `vendor-cfml-stage`, and `vendor-cfml-test` still remain as a maintainer-only
   vendoring surface even though they are now repo-owned and no longer rely on
   generated scripts
 - local macOS builds still emit deployment-target mismatch warnings on this

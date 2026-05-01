@@ -65,7 +65,7 @@ Use these commands only when maintaining the tracked vendored copy under
 `repo/CFML`:
 
 ```bash
-pixi run vendor-cfml-build
+pixi run vendor-cfml-stage
 pixi run vendor-cfml-test
 pixi run vendor-cfml-validate
 pixi run vendor-cfml-refresh
@@ -75,8 +75,21 @@ pixi run vendor-cfml-refresh-commit --branch master --commit <sha>
 
 Guardrails for that workflow:
 
-- `vendor-cfml-build` and `vendor-cfml-test` are the normal non-destructive
-  validation path for vendored CFML.
+- `vendor-cfml-stage` is the normal non-destructive staging step for vendored
+  CFML.
+- `vendor-cfml-stage` configures the repository-root CMake build with
+  `CRYSFML_ENABLE_PYCFML_EXTENSION=OFF`, `CRYSFML_ENABLE_PYTHON_PACKAGE=OFF`,
+  and `CRYSFML_ENABLE_VENDOR_TESTS=OFF`.
+- `vendor-cfml-stage` builds the repo-owned `cfml_core` library and then runs
+  the `cfml_vendor_distribution` target.
+- `vendor-cfml-stage` stages the core library under `dist/CFML/lib` and the
+  generated Fortran module files under `dist/CFML/include`.
+- `vendor-cfml-stage` does not build a Python wheel, does not build the
+  `pycfml_extension` target, and does not build the vendored CFML test
+  programs.
+- `vendor-cfml-test` reruns that CFML-only maintainer path with
+  `CRYSFML_ENABLE_VENDOR_TESTS=ON` and builds the `cfml_vendor_test_programs`
+  target into `dist/CFML/progs`.
 - `vendor-cfml-validate` is the stable one-command entrypoint for that
   non-destructive vendored CFML validation path.
 - `vendor-cfml-refresh*` is destructive and network-dependent. Use it only for

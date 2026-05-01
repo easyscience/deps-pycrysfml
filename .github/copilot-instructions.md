@@ -63,7 +63,7 @@
   maintainer diagnostics for repaired-wheel parity on those hosts.
 - Treat `pixi run vendor-cfml-validate` as the stable one-command
   non-destructive vendored-CFML validation path, and
-  `pixi run vendor-cfml-refresh*`, `pixi run vendor-cfml-build`, and
+  `pixi run vendor-cfml-refresh*`, `pixi run vendor-cfml-stage`, and
   `pixi run vendor-cfml-test` as the remaining vendored-CFML maintenance
   helpers after the repo-owned vendoring helper migration.
 - Treat the old generated pyCFML script path as retired; do not reintroduce

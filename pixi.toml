@@ -76,17 +76,17 @@ cmd = "python tools/vendor_cfml.py refresh --force --branch {{ branch }} --commi
 args = ["commit", { arg = "branch", default = "master" }]
 description = "Refresh vendored CFML from a specific commit"
 
-[tasks.vendor-cfml-build]
-cmd = "python tools/vendor_cfml.py build"
-description = "Configure and stage the vendored CFML library and modules through the repo-owned CMake build"
+[tasks.vendor-cfml-stage]
+cmd = "python tools/vendor_cfml.py stage"
+description = "Configure the repo-owned CFML-only build and stage dist/CFML/lib and dist/CFML/include"
 
 [tasks.vendor-cfml-test]
 cmd = "python tools/vendor_cfml.py test"
-description = "Configure and build vendored CFML test programs through the repo-owned CMake build"
+description = "Configure the repo-owned CFML-only build, restage dist/CFML, and build vendored test programs into dist/CFML/progs"
 
 [tasks.vendor-cfml-validate]
 depends-on = [
-		{ task = "vendor-cfml-build", environment = "default" },
+		{ task = "vendor-cfml-stage", environment = "default" },
 		{ task = "vendor-cfml-test", environment = "default" },
 	]
 description = "Run the non-destructive vendored CFML maintainer validation pipeline"

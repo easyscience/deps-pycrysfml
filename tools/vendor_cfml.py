@@ -136,7 +136,7 @@ def build_target(build_dir: Path, target_name: str) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description='Maintain vendored CFML sources and the CFML-only maintainer build/test path.',
+        description='Maintain vendored CFML sources and the CFML-only maintainer stage/test path.',
     )
     subparsers = parser.add_subparsers(dest='command', required=True)
 
@@ -145,15 +145,29 @@ def parse_args() -> argparse.Namespace:
     refresh_parser.add_argument('--branch', default=DEFAULT_BRANCH, help='Upstream branch to vendor')
     refresh_parser.add_argument('--commit', default=None, help='Specific upstream commit to vendor after cloning the branch tip')
 
-    for command_name in ('build', 'test'):
-        build_parser = subparsers.add_parser(command_name, help=f'Configure and build the vendored CFML {command_name} path')
-        build_parser.add_argument('--build-dir', type=Path, default=DEFAULT_BUILD_DIR, help='Out-of-tree CMake build directory')
-        build_parser.add_argument(
-            '--build-type',
-            choices=['Debug', 'Release', 'RelWithDebInfo', 'MinSizeRel'],
-            default=DEFAULT_BUILD_TYPE,
-            help='CMake build type for the vendored CFML maintainer path',
-        )
+    stage_parser = subparsers.add_parser(
+        'stage',
+        help='Configure the repo-owned CFML-only build and stage dist/CFML outputs',
+    )
+    stage_parser.add_argument('--build-dir', type=Path, default=DEFAULT_BUILD_DIR, help='Out-of-tree CMake build directory')
+    stage_parser.add_argument(
+        '--build-type',
+        choices=['Debug', 'Release', 'RelWithDebInfo', 'MinSizeRel'],
+        default=DEFAULT_BUILD_TYPE,
+        help='CMake build type for the vendored CFML maintainer path',
+    )
+
+    test_parser = subparsers.add_parser(
+        'test',
+        help='Configure the repo-owned CFML-only build and build vendored CFML test programs',
+    )
+    test_parser.add_argument('--build-dir', type=Path, default=DEFAULT_BUILD_DIR, help='Out-of-tree CMake build directory')
+    test_parser.add_argument(
+        '--build-type',
+        choices=['Debug', 'Release', 'RelWithDebInfo', 'MinSizeRel'],
+        default=DEFAULT_BUILD_TYPE,
+        help='CMake build type for the vendored CFML maintainer path',
+    )
 
     return parser.parse_args()
 
