@@ -375,11 +375,17 @@ jobs:
         shell: bash
         run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
 
-      - name: Set up Fortran compiler (FC)
-        uses: fortran-lang/setup-fortran@v1
-        with:
-          compiler: gcc
-          version: 13
+      #- name: Set up Fortran compiler (FC)
+      #  uses: fortran-lang/setup-fortran@v1
+      #  with:
+      #    compiler: gcc
+      #    version: 13
+      - name: Verify Fortran compiler
+        run: |
+          gfortran-13 --version
+          echo "FC=gfortran-13" >> "$GITHUB_ENV"
+          echo "CC=gcc-13" >> "$GITHUB_ENV"
+          echo "CXX=g++-13" >> "$GITHUB_ENV"
 
       - name: Set up Python environment
         uses: actions/setup-python@v5
