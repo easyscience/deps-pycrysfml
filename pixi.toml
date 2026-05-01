@@ -119,16 +119,10 @@ cmd = "python tools/run_repair_diagnostics.py --wheel-dir dist/pyCFML/wheel"
 default-environment = "repair-windows"
 description = "Repair, validate, and test a locally built wheel on native Windows"
 
-[tasks.full]
- depends-on = [
+[tasks.release-check]
+depends-on = [
 		{ task = "pycfml-build", environment = "default" },
 		{ task = "pycfml-test", environment = "wheeltest" },
 		{ task = "sdist-validate", environment = "default" },
-	]
-description = "Run the repo-owned local wheel and sdist validation pipeline"
-
-[tasks.release-check]
-depends-on = [
-		{ task = "full", environment = "default" },
 	]
 description = "Run the mandatory local pre-release validation pipeline"

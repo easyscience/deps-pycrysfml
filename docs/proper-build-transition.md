@@ -133,7 +133,8 @@ boundary rather than a leftover hybrid path.
   with `delvewheel`, re-tests that repaired artifact, and uploads the repaired
   wheel
 - the default maintainer `pixi` tasks `pycfml-build`, `pycfml-test`,
-  `sdist-validate`, and `full` now run repo-owned wheel and sdist helpers
+  `sdist-validate`, and `release-check` now run repo-owned wheel and sdist
+  helpers
 - the existing `tools/repair_macos_wheel.py` and
   `tools/repair_windows_wheel.py` helpers now remain first-class local
   maintainer diagnostics through `tools/run_repair_diagnostics.py` and the

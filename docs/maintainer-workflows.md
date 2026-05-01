@@ -18,8 +18,8 @@ small, explicit, and easy to audit.
 ## Supported Compiler Scope
 
 - The repo-owned maintainer path currently supports GNU Fortran (`gfortran`) only.
-- `ifx` is intentionally out of scope for now and should not be reintroduced
-  into the repo-owned build path without an explicit follow-up design.
+- `ifx` and `nagfor` are intentionally out of scope for now and should not be
+  reintroduced into the repo-owned build path without an explicit follow-up design.
 
 ## Standard Local Validation
 
@@ -29,19 +29,25 @@ Use these commands for normal package maintenance:
 pixi run pycfml-build
 pixi run pycfml-test
 pixi run sdist-validate
-pixi run full
 pixi run release-check
 ```
 
 What each task does:
 
 - `pycfml-build` builds a local wheel from the repository root.
-- `pycfml-test` installs that wheel into a clean environment and runs tests.
+- `pycfml-test` installs the wheel previously built by `pycfml-build` into a
+  clean environment and runs the unit and functional test suites.
 - `sdist-validate` builds an sdist, rebuilds a wheel from it, and tests the
   rebuilt wheel.
-- `full` runs the standard local maintainer validation pipeline.
 - `release-check` is the stable one-command entrypoint for mandatory local
   pre-release validation.
+- `release-check` runs the complete standard local maintainer validation
+  pipeline in this order:
+  `pycfml-build` -> `pycfml-test` -> `sdist-validate`.
+- `release-check` therefore covers all normal local package-validation steps:
+  build a repository-root wheel, test that built wheel in a clean environment,
+  build an sdist, rebuild a wheel from the sdist, and test the rebuilt wheel
+  too.
 
 ## Source Rebuild Contract
 

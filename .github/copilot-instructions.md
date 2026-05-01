@@ -43,7 +43,7 @@
   vendored-CFML maintainer helper path.
 - Treat `pixi run release-check` as the stable one-command local maintainer
   validation path for repo-owned wheel and sdist work; `pycfml-build`,
-  `pycfml-test`, `sdist-validate`, and `full` remain the underlying component
+  `pycfml-test`, and `sdist-validate` remain the underlying component
   tasks.
 - Treat the versioned `ci-py311`, `ci-py312`, `ci-py313`, and `ci-py314`
   Pixi environments as the CI-only path for reusing those same repo-owned
