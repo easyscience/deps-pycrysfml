@@ -48,11 +48,6 @@ def _main_script_path():
     path = os.path.join(_scripts_path(), name)
     return path
 
-def _wheel_build_script_path():
-    name = 'wheel_build.sh'
-    path = os.path.join(_scripts_path(), name)
-    return path
-
 def _echo_cmd():
     if _enable_backslash_escapes():
         return 'echo -e'
@@ -228,6 +223,12 @@ def _write_lines_to_file(lines: list, name: str):
             line = _apply_bash_syntax_if_needed(line)
             file.write(line + '\n')
     _fix_file_permissions(path)
+
+def _remove_generated_files(names: list[str]):
+    for name in names:
+        path = os.path.join(_scripts_path(), name)
+        if os.path.isfile(path):
+            os.remove(path)
 
 def _total_src_file_count(modules: str):
     count = 0
@@ -629,15 +630,6 @@ def _write_sectioned_script(script_name: str, sections: list):
             lines.append(_script_invocation(step_script, source_script))
     _write_lines_to_file(lines, script_name)
 
-def create_wheel_build_script():
-    main_script_path = _main_script_path()
-    wheel_build_script_path = _wheel_build_script_path()
-    with open(main_script_path, 'r') as source_file:
-        lines = source_file.readlines()
-    with open(wheel_build_script_path, 'w') as target_file:
-        target_file.writelines(lines)
-    _fix_file_permissions(wheel_build_script_path)
-
 def create_cfml_build_script():
     sections = [
         ('Print some build-specific variables', [('print_build_variables.sh', True)]),
@@ -666,49 +658,6 @@ def create_cfml_test_script():
         (f'Create and run {CFML} test programs', [('build_cfml_test_programs.sh', False)]),
     ]
     _write_sectioned_script('cfml_test.sh', sections)
-
-def create_pycfml_build_script():
-    sections = [
-        ('Print some build-specific variables', [('print_build_variables.sh', True)]),
-        (f'Create Python package wheel of {pyCFML}', [
-            ('validate_pyproject_toml.sh', False),
-            ('create_pycfml_python_wheel.sh', False),
-            ('rename_pycfml_python_wheel.sh', False),
-            ('repair_pycfml_python_wheel_metadata.sh', False),
-            ('check_wheel_contents.sh', False),
-        ]),
-    ]
-    _write_sectioned_script('pycfml_build.sh', sections)
-
-def create_pycfml_dist_script():
-    sections = [
-        ('Print some build-specific variables', [('print_build_variables.sh', True)]),
-        (f'Create {pyCFML} source code', [('create_pycfml_src.sh', False)]),
-        (f'Build {pyCFML} modules', [('build_pycfml_modules_obj.sh', False)]),
-        (f'Build {pyCFML} shared obj / dynamic library', [
-            ('build_pycfml_lib_obj.sh', False),
-            ('build_pycfml_shared_obj_or_dynamic_lib.sh', False),
-        ]),
-        (f'Make {pyCFML} distribution', [
-            ('copy_built_to_pycfml_dist.sh', False),
-            ('copy_extra_libs_to_pycfml_dist.sh', False),
-            ('change_runpath_for_built_pycfml.sh', False),
-            ('copy_py_api_files_to_pycfml_dist.sh', False),
-            ('copy_init_file_to_pycfml_dist.sh', False),
-            ('copy_cfml_databases_to_pycfml_dist.sh', False),
-        ]),
-    ]
-    _write_sectioned_script('pycfml_dist.sh', sections)
-
-def create_pycfml_test_script():
-    sections = [
-        (f'Install {pyCFML} from Python package wheel', [('install_pycfml_from_wheel.sh', False)]),
-        (f'Run {pyCFML} tests', [
-            ('run_pycfml_unit_tests.sh', False),
-            ('run_pycfml_functional_tests_no_benchmarks.sh', False),
-        ]),
-    ]
-    _write_sectioned_script('pycfml_test.sh', sections)
 
 def print_build_variables():
     lines = []
@@ -1765,8 +1714,6 @@ if __name__ == '__main__':
     repair_pycfml_python_wheel_metadata()
     check_wheel_contents()
 
-    create_wheel_build_script()
-
     add_main_script_header(f"Install {pyCFML} from Python package wheel")
     install_pycfml_from_wheel()
 
@@ -1776,8 +1723,11 @@ if __name__ == '__main__':
 
     create_cfml_build_script()
     create_cfml_test_script()
-    create_pycfml_dist_script()
-    create_pycfml_build_script()
-    create_pycfml_test_script()
+    _remove_generated_files([
+        'pycfml_build.sh',
+        'pycfml_dist.sh',
+        'pycfml_test.sh',
+        'wheel_build.sh',
+    ])
 
     _print_msg(f'All scripts were successfully created in {_scripts_path()}')

@@ -19,11 +19,12 @@ The end state is intentionally narrow and understandable:
 This branch has moved past the original scaffold-only slice.
 
 It now owns the active release workflow end to end in CI and the default local
-maintainer wheel-validation path, but it still keeps explicit legacy fallback
-tasks. It also owns the root packaging entry point and compiles native code
-from the vendored sources.
+maintainer wheel-validation path. It also owns the root packaging entry point,
+compiles native code from the vendored sources, and has now retired the
+explicit legacy pyCFML wrapper tasks while leaving a smaller script-oriented
+maintainer surface in place.
 
-The current checkpoint does seventeen things:
+The current checkpoint does eighteen things:
 
 1. introduces a root CMake entry point owned by this repository
 2. replaces the grouped scaffold manifests with explicit source lists copied
@@ -43,19 +44,22 @@ The current checkpoint does seventeen things:
 12. builds macOS and Windows release wheels on native runners through
     `cibuildwheel`
 13. makes the default maintainer `pixi` wheel and sdist validation tasks
-    repo-owned while keeping the old script-generated path under explicit
-    legacy task names
+    repo-owned
 14. keeps the native macOS and Windows wheel-repair helpers as explicit local
     maintainer diagnostics through repo-owned `pixi` tasks
-15. keeps the explicit legacy fallback tasks, but stops their wheel path from
-    retagging or rewriting wheel metadata now that the backend already emits a
-    native wheel
-16. splits the remaining unpackaged `dist/pyCFML` assembly into the explicit
-    `pycfml-dist-legacy` fallback so that `pycfml-build-legacy` no longer
-    hand-copies runtime libraries or rewrites RPATHs before building a wheel
+15. keeps the remaining low-level `pybuild.py` fallback wheel logic
+    validation-only, without retagging or rewriting wheel metadata now that
+    the backend already emits a native wheel
+16. isolates the remaining unpackaged `dist/pyCFML` assembly as low-level
+    helper logic so the wheel path no longer hand-copies runtime libraries or
+    rewrites RPATHs before building a wheel
 17. forces the Windows `cibuildwheel` + `scikit-build-core` path onto Ninja so
     MinGW `gfortran` no longer falls back to the incompatible Visual Studio
     generator inside isolated release-wheel builds
+18. removes the explicit `pycfml-*-legacy` / `full-legacy` maintainer tasks
+    and stops generating composite `pycfml_build.sh`, `pycfml_dist.sh`,
+    `pycfml_test.sh`, and `wheel_build.sh` wrappers, leaving only the remaining
+    lower-level script-oriented helpers
 
 ## Current Validated Contract
 
@@ -77,14 +81,17 @@ The package contract that must be preserved is:
 The current release flow now produces a rebuildable source distribution and
 builds every release wheel through repo-owned `cibuildwheel` policy. The
 default local maintainer path now follows repo-owned wheel and sdist helpers as
-well, macOS and Windows have explicit native repair-diagnostic tasks, but
-legacy script-generated fallbacks are still present.
+well, macOS and Windows have explicit native repair-diagnostic tasks, and the
+remaining script-generated maintainer surface is now limited to lower-level
+CFML refresh/build/test helpers plus the low-level unpackaged `dist/pyCFML`
+assembly logic still present in `pybuild.py`.
 
 ## Current Hybrid State
 
 The branch now spans both worlds: repo-owned packaging, release-wheel CI, and
-default maintainer validation are real, but explicit legacy fallbacks are still
-available while parity is being proven.
+default maintainer validation are real, but a small script-oriented maintainer
+surface still remains while the last unpackaged assembly logic is being
+decided.
 
 ### Latest completed slice
 
@@ -126,16 +133,16 @@ available while parity is being proven.
 - the legacy `pybuild.py` fallback path now validates the backend-produced
   wheel filename and `Root-Is-Purelib: false` metadata instead of retagging the
   wheel or rewriting its metadata in place
-- the legacy wheel-build step now recreates `dist/pyCFML/wheel` before each
-  build and requires exactly one built wheel artifact before validation or
-  install, so stale wheels are no longer silently reused
-- the generated `scripts/pycfml_build.sh` / `pycfml-build-legacy` path now
-  performs only repository-root wheel creation and validation; it no longer
-  assembles the unpackaged `dist/pyCFML/crysfml` tree first
+- the low-level fallback wheel-build step now recreates `dist/pyCFML/wheel`
+  before each build and requires exactly one built wheel artifact before
+  validation or install, so stale wheels are no longer silently reused
+- the old composite pyCFML wrapper path had already been reduced to
+  repository-root wheel creation and validation before those wrapper scripts
+  and `pixi` entry points were retired
 - the remaining handwritten runtime-library copy and RPATH rewrite steps now
-  live only behind the explicit `scripts/pycfml_dist.sh` /
-  `pycfml-dist-legacy` fallback, while `full-legacy` still includes that task
-  so maintainers can exercise the old unpackaged assembly path when needed
+  live only inside the low-level unpackaged `dist/pyCFML` assembly logic in
+  `pybuild.py` and generated helper scripts; they are no longer exposed as
+  dedicated `pixi` tasks or composite wrapper scripts
 - the repo-owned Windows `cibuildwheel` policy now sets
   `CMAKE_GENERATOR=Ninja`, and the repo-owned `scikit-build-core` config now
   requires Ninja in isolated builds, so release-wheel builds do not fall back
@@ -145,9 +152,13 @@ available while parity is being proven.
   environment instead of live index resolution during validation
 - the legacy `pybuild.py` install step now matches that `--no-deps`
   reinstall contract when it installs a built wheel for the fallback test path
-- the old script-generated maintainer path remains available only through
-  explicit legacy task names such as `pycfml-build-legacy`,
-  `pycfml-test-legacy`, and `full-legacy`
+- the explicit `pycfml-build-legacy`, `pycfml-dist-legacy`,
+  `pycfml-test-legacy`, and `full-legacy` maintainer tasks have now been
+  removed from `pixi.toml`
+- `pybuild.py --create-scripts` now removes stale composite wrapper scripts
+  such as `scripts/pycfml_build.sh`, `scripts/pycfml_dist.sh`,
+  `scripts/pycfml_test.sh`, and `scripts/wheel_build.sh` instead of continuing
+  to generate them
 
 What is already repo-owned:
 
@@ -195,21 +206,14 @@ What has already been validated locally from the repository root:
 - `python tools/run_installed_wheel_tests.py --wheel-dir <wheel-dir>` passes
   for the wheel built from that path
 - `python tools/validate_sdist_rebuild.py` succeeds
-- `pixi run --environment default pycfml-build` succeeds after adding the
-  repo-owned backend prerequisites to the default environment
-- `pixi run --environment wheeltest pycfml-test` passes against the built wheel
+- `pixi run --environment default --frozen scripts` succeeds and removes
+  obsolete composite pyCFML wrapper scripts from `scripts/` while preserving
+  the remaining generated helper scripts
+- `pixi run --environment default --frozen pycfml-build` succeeds after adding
+  the repo-owned backend prerequisites to the default environment
+- `pixi run --environment wheeltest --frozen pycfml-test` passes against the
+  built wheel
 - `pixi run --environment default sdist-validate` succeeds
-- `pixi run --environment default pycfml-build-legacy` succeeds with the legacy
-  task name while validating, rather than mutating, the built wheel filename
-  and wheel metadata, and without depending on unpackaged `dist/pyCFML`
-  assembly first
-- `pixi run --environment default pycfml-dist-legacy` succeeds after
-  `pixi run --environment default cfml-build`, preserving the old unpackaged
-  `dist/pyCFML` runtime-library copy and RPATH rewrite path as an explicit
-  fallback
-- `pixi run --environment wheeltest pycfml-test-legacy` passes with the legacy
-  fallback task after switching its wheel reinstall step to
-  `pip install --force-reinstall --no-deps`
 - `pixi run --environment repair-macos pycfml-build` succeeds on macOS
 - `pixi run pycfml-repair-diagnostics-macos` succeeds on macOS, repairing the
   raw wheel with `delocate`, validating the repaired filename, and passing the
@@ -231,13 +235,18 @@ What has already been validated locally from the repository root:
 
 What is still hybrid:
 
-- explicit legacy maintainer tasks such as `full-legacy`,
-  `pycfml-dist-legacy`, `pycfml-build-legacy`, `pycfml-test-legacy`, plus
-  standalone script-oriented helpers like `scripts`, `cfml-build`, and
-  `cfml-test`, still call `pybuild.py` and generated `scripts/`
-- only the explicit `pycfml-dist-legacy` fallback still hand-copies runtime
-  libraries and rewrites RPATHs in the unpackaged `dist/pyCFML` tree; the
-  legacy wheel path no longer does
+- standalone script-oriented helpers such as `scripts`, `scripts-fresh`,
+  `cfml-refresh`, `cfml-refresh-branch`, `cfml-refresh-commit`, `cfml-build`,
+  and `cfml-test` still call `pybuild.py` and generated `scripts/`
+- the unpackaged `dist/pyCFML` assembly logic still exists in `pybuild.py` and
+  generated helper scripts, including handwritten runtime-library copy and
+  RPATH rewrite steps, even though it is no longer exposed through dedicated
+  `pixi` legacy tasks
+- plain `pixi run --environment <env> ...` currently tries to initialize
+  cross-platform build dispatch for the `repair-windows` environment on this
+  macOS machine and fails unless the already installed environment is reused
+  with `--frozen`; that resolver issue appears separate from the retired
+  legacy-task slice
 - local macOS builds still emit deployment-target mismatch warnings on this
   machine before `delocate` normalizes the repaired wheel tag
 - the Linux manylinux build was not run locally on this machine because no
@@ -571,14 +580,14 @@ To keep the migration understandable, each commit should do one of these only:
 - migrate wheel repair to standard tools
 - switch release CI to cibuildwheel
 
-## Next Follow-Up Changes After Splitting Legacy Dist Assembly
+## Next Follow-Up Changes After Retiring Legacy PyCFML Entry Points
 
 The next implementation slice should do exactly these things:
 
-1. remove or archive the explicit legacy `pixi` and generated-script fallback
-   tasks once maintainers no longer need them, starting with
-   `pycfml-dist-legacy`, `pycfml-build-legacy`, `pycfml-test-legacy`, and
-   `full-legacy`
-2. decide whether the remaining unpackaged `dist/pyCFML` assembly should be
-   deleted outright or moved into clearly archival maintainer-only
-   documentation once the legacy fallback tasks are retired
+1. decide whether the remaining unpackaged `dist/pyCFML` assembly logic in
+   `pybuild.py` and generated helper scripts should be deleted outright or
+   moved into clearly archival maintainer-only documentation
+2. decide whether the remaining generated-script maintainer helpers
+   (`scripts`, `scripts-fresh`, `cfml-refresh*`, `cfml-build`, and
+   `cfml-test`) should remain repo-facing or be narrowed to vendoring-only
+   maintenance workflows once the unpackaged assembly decision is made

@@ -47,15 +47,15 @@
 - Treat `pixi run pycfml-repair-diagnostics-macos` and
   `pixi run pycfml-repair-diagnostics-windows` as optional native
   maintainer diagnostics for repaired-wheel parity on those hosts.
-- Treat `pixi` tasks suffixed with `-legacy`, plus `scripts`, `cfml-build`,
-  and `cfml-test`, as explicit fallback paths for the old script-generated
-  workflow while the transition is being retired.
-- Treat the legacy generated wheel path as a validation-only fallback for the
-  backend-produced wheel filename and native-wheel metadata; do not reintroduce
-  custom wheel retagging or wheel-metadata rewrite steps there.
-- Treat `pixi run pycfml-dist-legacy` / `scripts/pycfml_dist.sh` as the only
-  remaining explicit fallback that still assembles unpackaged `dist/pyCFML`
-  with handwritten runtime-library copy and RPATH rewrite logic.
+- Treat `scripts`, `scripts-fresh`, `cfml-refresh*`, `cfml-build`, and
+  `cfml-test` as the remaining script-oriented maintainer helpers while the
+  transition is being retired.
+- Treat the old generated wheel path as retired; do not reintroduce composite
+  `pycfml_build.sh`, `pycfml_dist.sh`, `pycfml_test.sh`, or `wheel_build.sh`
+  wrappers, custom wheel retagging, or wheel-metadata rewrite steps.
+- Treat the remaining unpackaged `dist/pyCFML` assembly logic as low-level
+  fallback code inside `pybuild.py` and generated helper scripts, not as a
+  default or repo-facing `pixi` task surface.
 - Treat the Windows `cibuildwheel` release path as a Ninja-based MinGW
   `gfortran` build; do not let it fall back to the Visual Studio generator for
   the isolated wheel build.
