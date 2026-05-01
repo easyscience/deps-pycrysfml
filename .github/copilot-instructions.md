@@ -54,9 +54,10 @@
 - Do not add `actions/setup-python` or raw `python -m pip install --upgrade pip`
   to jobs that only run repo-owned Pixi tasks; let the activated Pixi
   environment provide Python and pip for those jobs.
-- On GitHub Actions `ubuntu-24.04`, prefer the runner-installed
-  `gfortran-13`/`gcc-13`/`g++-13` toolchain over the `setup-fortran` PPA path
-  when that preinstalled GNU toolchain satisfies the job.
+- On GitHub Actions runners that already provide the needed GNU toolchain,
+  prefer the runner-installed `gfortran-13`/`gcc-13`/`g++-13` path over
+  `setup-fortran`; this is especially important on `ubuntu-24.04`, and
+  `macos-14` also ships the required GNU toolchain aliases.
 - Treat `pixi run pycfml-repair-diagnostics-macos` and
   `pixi run pycfml-repair-diagnostics-windows` as optional native
   maintainer diagnostics for repaired-wheel parity on those hosts.

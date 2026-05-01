@@ -103,9 +103,11 @@ Optional native diagnostics:
   hardcoded lists in workflow YAML.
 - Jobs that only run repo-owned Pixi tasks do not need `actions/setup-python`
   or a separate host-side `pip` upgrade step.
-- On GitHub Actions `ubuntu-24.04`, prefer the runner-installed
-  `gfortran-13`/`gcc-13`/`g++-13` toolchain when it satisfies the job, because
-  the `setup-fortran` PPA path is less reliable there.
+- On GitHub Actions runners that already provide the needed GNU toolchain,
+  prefer the runner-installed `gfortran-13`/`gcc-13`/`g++-13` aliases when they
+  satisfy the job. This is especially important on `ubuntu-24.04`, where the
+  `setup-fortran` PPA path is less reliable, and `macos-14` also provides the
+  required GNU toolchain aliases.
 - Maintainer build and test dependencies belong in `pixi.toml`; keep
   `pyproject.toml` focused on published package metadata and build-system
   requirements.

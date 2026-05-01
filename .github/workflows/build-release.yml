@@ -113,13 +113,14 @@ jobs:
         shell: bash
         run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
 
-      - name: Set up Fortran compiler (FC) [all except Windows + gfortran] # except: use pre-installed gfortran
-        if: runner.os != 'Windows' || matrix.toolchain.exe != 'gfortran'
-        uses: fortran-lang/setup-fortran@v1
-        id: setup-fortran
-        with:
-          compiler: ${{ matrix.toolchain.compiler }}
-          version: ${{ matrix.toolchain.version }}
+      - name: Verify preinstalled GNU toolchain [macOS 14]
+        if: ${{ runner.os == 'macOS' && matrix.os == 'macos-14' && matrix.toolchain.exe == 'gfortran' }}
+        shell: bash
+        run: |
+          gfortran-13 --version
+          echo "FC=gfortran-13" >> "$GITHUB_ENV"
+          echo "CC=gcc-13" >> "$GITHUB_ENV"
+          echo "CXX=g++-13" >> "$GITHUB_ENV"
 
       - name: Set up NMake build tool [Windows]
         if: runner.os == 'Windows'
@@ -377,11 +378,6 @@ jobs:
         shell: bash
         run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
 
-      #- name: Set up Fortran compiler (FC)
-      #  uses: fortran-lang/setup-fortran@v1
-      #  with:
-      #    compiler: gcc
-      #    version: 13
       - name: Verify preinstalled GNU toolchain [Ubuntu 24.04]
         run: |
           gfortran-13 --version
