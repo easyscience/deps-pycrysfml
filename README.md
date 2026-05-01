@@ -9,7 +9,7 @@ binary wheels for common platforms.
 
 Upstream CrysFML2008: [code.ill.fr/scientific-software/CrysFML2008](https://code.ill.fr/scientific-software/CrysFML2008)
 
-This first public beta releases are mainly intended to establish packaging,
+These first public beta releases are mainly intended to establish packaging,
 binary wheel distribution, and early use from Python. Expect API and packaging
 details to continue changing between beta releases.
 

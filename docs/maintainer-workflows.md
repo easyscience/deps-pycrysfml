@@ -133,8 +133,8 @@ Optional native diagnostics:
 
 ## Maintenance Rules
 
-- Keep `.github/workflows/build-debug.yml` aligned with
-  `.github/workflows/build-release.yml` when the change affects both paths.
+- Treat `.github/workflows/build-release.yml` as the sole repo-owned GitHub
+  Actions build-and-test workflow unless an explicit replacement is introduced.
 - Keep the source manifests under `cmake/` aligned with the sources staged into
   the Python package build.
 - Prefer updating `pixi` task descriptions, helper tools, and this document

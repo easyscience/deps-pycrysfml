@@ -81,9 +81,9 @@
   draft-release artifact staging when relevant, the relevant unit or
   functional tests, and any remaining vendored-program
   paths that the change still touches.
-- Keep `.github/workflows/build-debug.yml` and
-  `.github/workflows/build-release.yml` aligned when a change is meant
-  to affect both debug and release pipelines.
+- Treat `.github/workflows/build-release.yml` as the sole repo-owned
+  build-and-test workflow unless the task explicitly reintroduces a
+  separate non-release pipeline.
 - If release automation is split across multiple workflows, keep the
   contract between them explicit: `build-release.yml` produces validated
   exact-version wheel and sdist artifacts on `master` and stages them on

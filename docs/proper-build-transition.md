@@ -102,10 +102,14 @@ surface are all now owned by repository-root tooling. The vendoring helpers
 still remain maintainer-only, but that is now an intentional ownership
 boundary rather than a leftover hybrid path.
 
+All twenty checkpoint items in `Migration Completion Checkpoint` are now
+complete.
+
 ### Latest completed slice
 
-- `build-debug.yml` now builds wheels directly from the repository root with
-  `python -m build --wheel`
+- `.github/workflows/build-debug.yml` has been removed; the repo now treats
+  `.github/workflows/build-release.yml` as the sole repo-owned GitHub Actions
+  build-and-test workflow
 - the release workflow now builds Linux, macOS, and Windows wheels through
   `cibuildwheel`, using a manylinux container on Linux and native runners on
   macOS and Windows
