@@ -40,6 +40,16 @@ What each task does:
   rebuilt wheel.
 - `full` runs the standard local maintainer validation pipeline.
 
+## Source Rebuild Contract
+
+- The published `sdist` is part of the supported release contract, not a
+  best-effort artifact.
+- Packaging changes must preserve the validated `sdist -> wheel ->
+  installed-wheel tests` rebuild path.
+- When changing package metadata, native install rules, or release-wheel
+  behavior, rerun `pixi run sdist-validate` before treating the change as
+  complete.
+
 ## Vendored CFML Maintenance
 
 Use these commands only when maintaining the tracked vendored copy under

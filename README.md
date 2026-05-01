@@ -25,6 +25,28 @@ Supported targets for this beta release:
 - macOS, Ubuntu, and Windows
 - Binary wheels built from the bundled CrysFML2008 source in this repository
 
+## Build From Source
+
+Source builds are supported, but they require a working GNU Fortran
+(`gfortran`) toolchain on the target machine.
+
+If a compatible wheel is not available, `pip` can fall back to the published
+source distribution:
+
+```bash
+pip install --no-binary crysfml crysfml
+```
+
+For a local checkout, the repository-root build is the supported path:
+
+```bash
+python -m build
+```
+
+The project validates the `sdist -> wheel -> installed-wheel tests` path in CI.
+For the full local maintainer workflow and validation commands, see
+[docs/maintainer-workflows.md](docs/maintainer-workflows.md).
+
 ## Maintainer Workflow
 
 The supported local maintainer path is the repo-owned root CMake build,
