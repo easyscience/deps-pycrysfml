@@ -211,7 +211,8 @@ What is already repo-owned:
 - draft-release staging and PyPI publication that consume both validated wheels
   and the validated `sdist`
 - benchmark-only CI test legs removed from the default workflow path, and the
-  CI plus direct installed-wheel correctness path no longer depends on
+  CI, direct installed-wheel correctness, and maintainer wheeltest paths no
+  longer depend on
   `pytest-benchmark`
 
 What has already been validated locally from the repository root:
@@ -239,7 +240,7 @@ What has already been validated locally from the repository root:
   the vendored CFML distribution built by that narrowed maintainer path
 - `pixi run --environment default --frozen pycfml-build` succeeds after adding
   the repo-owned backend prerequisites to the default environment
-- `pixi run --environment wheeltest --frozen pycfml-test` passes against the
+- `pixi run --environment wheeltest pycfml-test` passes against the
   built wheel
 - `pixi run --environment default sdist-validate` succeeds
 - `pixi run --environment repair-macos pycfml-build` succeeds on macOS
@@ -272,15 +273,6 @@ What is still hybrid:
   including the old unpackaged `dist/pyCFML` assembly logic, even though
   `pybuild.py --create-scripts` no longer emits those helper scripts and no
   longer retains the unreferenced `scripts/main.sh` output
-- `pixi.toml` still carries benchmark residue in the maintainer surface: the
-  `wheeltest` environment still lists `pytest-benchmark`, and the separate
-  `benchmark` task still needs cleanup now that the generated benchmark script
-  surface has been removed
-- plain `pixi run --environment <env> ...` currently tries to initialize
-  cross-platform build dispatch for the `repair-windows` environment on this
-  macOS machine and fails unless the already installed environment is reused
-  with `--frozen`; that resolver issue appears separate from the retired
-  legacy-task slice
 - local macOS builds still emit deployment-target mismatch warnings on this
   machine before `delocate` normalizes the repaired wheel tag
 - the Linux manylinux build was not run locally on this machine because no
@@ -529,12 +521,10 @@ release matrix.
 - benchmark-only CI test legs have been removed from the default debug and
   release workflows
 - `pytest-benchmark` has been removed from the default `test` extra and from
-  the installed-wheel helper path
+  the installed-wheel helper path, the maintainer wheeltest environment, and
+  the remaining `pixi` task surface
 - the remaining powder-pattern functional tests now call the pattern builders
   directly instead of importing the benchmark plugin
-- maintainer `pixi` configuration still needs follow-up cleanup to remove the
-  stale benchmark task and the unnecessary `pytest-benchmark` dependency from
-  the `wheeltest` environment
 - if performance measurements return later, keep them as explicit maintainer
   diagnostics or opt-in jobs rather than default release gates
 
@@ -621,7 +611,8 @@ Each phase should have one clear gate before moving on.
 - release publication: PyPI upload consumes the already validated wheels and
   sdist staged on the draft GitHub release
 - benchmark removal: installed-wheel tests pass with `pytest-benchmark`
-  absent from the validation environment
+  absent from the validation environment, including the maintainer wheeltest
+  Pixi path
 
 ## Commit Boundaries
 
@@ -652,6 +643,3 @@ The next implementation slice should do exactly these things:
 3. decide whether the remaining vendoring helper surface should stay in the
   source-distribution contract or move behind explicit sdist exclusions once
   vendoring maintenance is fully separated from the downstream build contract
-4. remove the stale benchmark residue from `pixi.toml`, including the
-  unnecessary `pytest-benchmark` entry in `wheeltest` and the obsolete
-  benchmark task that still points at a removed generated script

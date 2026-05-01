@@ -31,16 +31,16 @@ delvewheel = '*'
 
 [feature.wheeltest.pypi-dependencies]
 pip = '*'
+packaging = '*'
 pytest = '*'
-pytest-benchmark = '*'
 deepdiff = '*'
 matplotlib = '*'
 
 [environments]
 default = ["dev"]
 wheeltest = ["wheeltest"]
-repair-macos = ["dev", "repair-macos"]
-repair-windows = ["dev", "repair-windows"]
+repair-macos = ["wheeltest", "repair-macos"]
+repair-windows = ["wheeltest", "repair-windows"]
 
 [tasks.vendor-cfml-scripts]
 cmd = "python pybuild.py --create-scripts --enable-backslash-escapes"
@@ -102,10 +102,6 @@ description = "Repair, validate, and test a locally built wheel on native Window
 		{ task = "sdist-validate", environment = "default" },
 	]
 description = "Run the repo-owned local wheel and sdist validation pipeline"
-
-[tasks.benchmark]
-cmd = "scripts/run_pycfml_functional_tests_with_benchmarks_save.sh"
-description = "Save local benchmark results in the dev environment"
 
 [tasks]
 
