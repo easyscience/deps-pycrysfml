@@ -12,6 +12,9 @@ on:
   #schedule:
   #  - cron: '*/120 8-18 * * *'  # every 2 hours from 8:00 to 18:00 every day
 
+env:
+  WHEEL_DIR: dist/pyCFML/wheel
+
 jobs:
 
   ##############################################################################
@@ -23,12 +26,22 @@ jobs:
 
     outputs:
       tag_name: ${{ steps.export.outputs.tag_name }}
+      python_versions: ${{ steps.export-pixi.outputs.python_versions }}
+      oldest_python_version: ${{ steps.export-pixi.outputs.oldest_python_version }}
+      oldest_ci_environment: ${{ steps.export-pixi.outputs.oldest_ci_environment }}
+      latest_python_version: ${{ steps.export-pixi.outputs.latest_python_version }}
+      latest_ci_environment: ${{ steps.export-pixi.outputs.latest_ci_environment }}
 
     steps:
       - name: Check-out repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full history with tags is required for versioningit
+
+      - name: Export Pixi CI metadata
+        id: export-pixi
+        shell: bash
+        run: python3 tools/export_pixi_ci_matrix.py --github-output >> "$GITHUB_OUTPUT"
 
       - name: Setup easyscience[bot]
         if: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
@@ -73,7 +86,7 @@ jobs:
   ##############################################################################
   # JOB 1
   ##############################################################################
-  build:  # current job name
+  build-macos-windows:
 
     needs: resolve_release_tag
 
@@ -82,8 +95,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, windows-2022, macos-14]
-        python-version: ['3.11', '3.12', '3.13', '3.14']
+        os: [windows-2022, macos-14]
+        python-version: ${{ fromJSON(needs.resolve_release_tag.outputs.python_versions) }}
         toolchain:
           - { exe: gfortran, compiler: gcc, version: 13 }
 
@@ -100,93 +113,149 @@ jobs:
         shell: bash
         run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
 
-      - name: Set up Fortran compiler (FC) [all except Windows + gfortran] # except: use pre-installed gfortran
-        if: runner.os != 'Windows' || matrix.toolchain.exe != 'gfortran'
-        uses: fortran-lang/setup-fortran@v1
-        id: setup-fortran
-        with:
-          compiler: ${{ matrix.toolchain.compiler }}
-          version: ${{ matrix.toolchain.version }}
+      - name: Verify preinstalled GNU toolchain [macOS 14]
+        if: ${{ runner.os == 'macOS' && matrix.os == 'macos-14' && matrix.toolchain.exe == 'gfortran' }}
+        shell: bash
+        run: |
+          gfortran-13 --version
+          echo "FC=gfortran-13" >> "$GITHUB_ENV"
+          echo "CC=gcc-13" >> "$GITHUB_ENV"
+          echo "CXX=g++-13" >> "$GITHUB_ENV"
 
       - name: Set up NMake build tool [Windows]
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Set up Python environment
-        uses: actions/setup-python@v5
+      - name: Select Pixi CI environment
+        id: pixi-env
+        shell: bash
+        run: echo "name=ci-py$(echo '${{ matrix.python-version }}' | tr -d '.')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Pixi environment for repo-owned validation
+        uses: ./.github/actions/setup-pixi
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Upgrade package installer for Python
-        shell: bash
-        run: python -m pip install --upgrade pip
-
-      - name: Install Python dependences
-        shell: bash
-        run: pip install '.[ci,test]'  # 'ci' and 'test' extras from pyproject.toml
+          environments: ${{ steps.pixi-env.outputs.name }}
+          activate-environment: ${{ steps.pixi-env.outputs.name }}
+          frozen: true
 
       - name: Fix reinstalling gcc [macOS]  # needed because of `brew reinstall gcc`
         if: runner.os == 'macOS'
         shell: bash
         run: echo "MACOSX_DEPLOYMENT_TARGET=$(sw_vers -productVersion)" >> $GITHUB_ENV
 
-      - name: Create build scripts in scripts/scripts
+      - name: Select cibuildwheel target
         shell: bash
-        run: >
-          python3 pybuild.py
-          --create-scripts
-          --platform ${{ runner.os }}
-          --compiler ${{ matrix.toolchain.exe }}
-          --mode release
-          --bash-syntax
-          --enable-backslash-escapes
+        run: |
+          python_tag="cp$(echo '${{ matrix.python-version }}' | tr -d '.')"
+          if [ "${{ runner.os }}" = 'Windows' ]; then
+            echo "CIBW_BUILD=${python_tag}-win_amd64" >> "$GITHUB_ENV"
+          else
+            echo "CIBW_BUILD=${python_tag}-macosx_arm64" >> "$GITHUB_ENV"
+          fi
 
-      - name: Build CFML and prepare distribution
+      - name: Prepare wheel output directory
         shell: bash
-        run: scripts/cfml_build.sh
+        run: |
+          rm -rf "${{ env.WHEEL_DIR }}"
+          mkdir -p "${{ env.WHEEL_DIR }}"
 
-      - name: Run CFML test programs
-        shell: bash
-        run: scripts/cfml_test.sh
-
-      - name: Resolve wheel directory
-        id: wheel_dir
-        shell: bash
-        run: echo "value=$(python3 pybuild.py --print-wheel-dir)" >> "$GITHUB_OUTPUT"
-
-      - name: Build pyCFML and create wheel
-        shell: bash
-        run: scripts/pycfml_build.sh
+      - name: Build native release wheel with cibuildwheel
+        uses: pypa/cibuildwheel@v3.4.1
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+        with:
+          package-dir: .
+          output-dir: ${{ env.WHEEL_DIR }}
 
       - name: Validate wheel filenames for PyPI upload
         shell: bash
-        run: python3 tools/validate_pypi_wheel_filenames.py "${{ steps.wheel_dir.outputs.value }}"
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" validate-wheel-filenames
 
-      #- name: Fix Python package wheel dependencies
-      #  if: runner.os == 'macOS'
-      #  shell: bash
-      #  run: |
-      #    pip install delocate
-      #    #delocate-wheel -v ${{ steps.wheel_dir.outputs.value }}/*.whl
-
-      - name: Test built pyCFML wheel
+      - name: Test built crysfml wheel
         shell: bash
-        run: scripts/pycfml_test.sh
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" pycfml-test
 
       - name: Upload zipped Python package wheel of pyCFML for next job
         uses: actions/upload-artifact@v4
         with:  # if name or path modified, remember to UPDATE those in the download step of the next job
           name: pycfml-wheel_${{ matrix.os }}_${{ matrix.python-version }} # name (without .zip) of the zip file to be uploaded
-          path: ${{ steps.wheel_dir.outputs.value }}  # all files from this directory are zipped
+          path: ${{ env.WHEEL_DIR }}  # all files from this directory are zipped
           if-no-files-found: "error"
           compression-level: 0
 
   ##############################################################################
   # JOB 2
   ##############################################################################
-  test:  # current job name
+  build-linux-manylinux:
 
-    needs: [resolve_release_tag, build]  # previous job 'build' need to be finished first
+    needs: resolve_release_tag
+
+    timeout-minutes: 60
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ${{ fromJSON(needs.resolve_release_tag.outputs.python_versions) }}
+
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history with tags is required for versioningit
+
+      - name: Create local release tag for exact-version manylinux wheel builds
+        if: ${{ needs.resolve_release_tag.outputs.tag_name != '' }}
+        shell: bash
+        run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
+
+      - name: Select Pixi CI environment
+        id: pixi-env
+        shell: bash
+        run: echo "name=ci-py$(echo '${{ matrix.python-version }}' | tr -d '.')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Pixi environment for repo-owned validation
+        uses: ./.github/actions/setup-pixi
+        with:
+          environments: ${{ steps.pixi-env.outputs.name }}
+          activate-environment: ${{ steps.pixi-env.outputs.name }}
+          frozen: true
+
+      - name: Select Linux manylinux cibuildwheel target
+        shell: bash
+        run: echo "CIBW_BUILD=cp$(echo '${{ matrix.python-version }}' | tr -d '.')-manylinux_x86_64" >> "$GITHUB_ENV"
+
+      - name: Build Linux manylinux wheel with cibuildwheel
+        uses: pypa/cibuildwheel@v3.4.1
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+        with:
+          package-dir: .
+          output-dir: ${{ env.WHEEL_DIR }}
+
+      - name: Validate wheel filenames for PyPI upload
+        shell: bash
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" validate-wheel-filenames
+
+      - name: Test built manylinux wheel
+        shell: bash
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" pycfml-test
+
+      - name: Upload repaired Linux manylinux wheel for next job
+        uses: actions/upload-artifact@v4
+        with:
+          name: pycfml-wheel_linux_x86_64_${{ matrix.python-version }}
+          path: ${{ env.WHEEL_DIR }}
+          if-no-files-found: "error"
+          compression-level: 0
+
+  ##############################################################################
+  # JOB 3
+  ##############################################################################
+  test-macos-windows:
+
+    needs: [resolve_release_tag, build-macos-windows]
 
     if: always()  # start this job even if the previous job failed
 
@@ -195,14 +264,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, windows-2022, macos-14]
-        python-version: ['3.11', '3.12', '3.13', '3.14']
+        os: [windows-2022, macos-14]
+        python-version: ${{ fromJSON(needs.resolve_release_tag.outputs.python_versions) }}
         toolchain:
           - { exe: gfortran, compiler: gcc, version: 13 }
 
     runs-on: ${{ matrix.os }}
 
-    steps:  # job steps
+    steps:
       - name: Check-out repository
         uses: actions/checkout@v4
         with:
@@ -213,69 +282,134 @@ jobs:
         shell: bash
         run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
 
-      - name: Set up python environment
-        uses: actions/setup-python@v5
+      - name: Select Pixi CI environment
+        id: pixi-env
+        shell: bash
+        run: echo "name=ci-py$(echo '${{ matrix.python-version }}' | tr -d '.')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Pixi environment for repo-owned validation
+        uses: ./.github/actions/setup-pixi
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Upgrade package installer for Python
-        shell: bash
-        run: python3 -m pip install --upgrade pip
-
-      - name: Install Python dependences
-        shell: bash
-        run: pip install '.[ci,test]'  # 'ci' and 'test' extras from pyproject.toml
-
-      - name: Create job step scripts
-        shell: bash
-        run: >
-          python3 pybuild.py
-          --create-scripts
-          --platform ${{ runner.os }}
-          --compiler ${{ matrix.toolchain.exe }}
-          --mode release
-          --bash-syntax
-          --enable-backslash-escapes
-
-      - name: Resolve wheel directory
-        id: wheel_dir
-        shell: bash
-        run: echo "value=$(python3 pybuild.py --print-wheel-dir)" >> "$GITHUB_OUTPUT"
+          environments: ${{ steps.pixi-env.outputs.name }}
+          activate-environment: ${{ steps.pixi-env.outputs.name }}
+          frozen: true
 
       - name: Download zipped pyCFML wheel from previous job
         uses: actions/download-artifact@v4
         with:  # name or path are taken from the upload step of the previous job
           name: pycfml-wheel_${{ matrix.os }}_${{ matrix.python-version }}  # name (without .zip) of the zipped artifact uploaded on the previous jobs
-          path: ${{ steps.wheel_dir.outputs.value }}  # directory to extract downloaded zipped artifacts
+          path: ${{ env.WHEEL_DIR }}  # directory to extract downloaded zipped artifacts
 
       - name: Test downloaded pyCFML wheel
         shell: bash
-        run: scripts/pycfml_test.sh
-
-      - name: Run pyCFML functional tests and compare benchmark results
-        if: "!contains(github.event.head_commit.message, '[save benchmark results]')"
-        shell: bash
-        run: scripts/run_pycfml_functional_tests_with_benchmarks_compare.sh
-
-      - name: Run pyCFML functional tests and save benchmark results
-        if: "contains(github.event.head_commit.message, '[save benchmark results]')"
-        shell: bash
-        run: scripts/run_pycfml_functional_tests_with_benchmarks_save.sh
-
-      - name: Push benchmark results to repository
-        if: ${{ github.event_name == 'push' && github.ref_name != 'master' && contains(github.event.head_commit.message, '[save benchmark results]') }}
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: '.benchmarks/pyCFML'
-          message: 'Auto push pyCFML benchmarks : ${{ github.workflow }} : ${{ matrix.os }} : ${{ matrix.python-version }}'
-          pull: '--rebase --autostash'
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" pycfml-test
 
   ##############################################################################
-  # JOB 3
+  # JOB 4
+  ##############################################################################
+  test-linux-manylinux:
+
+    needs: [resolve_release_tag, build-linux-manylinux]
+
+    if: always()
+
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+        python-version: ${{ fromJSON(needs.resolve_release_tag.outputs.python_versions) }}
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history with tags is required for versioningit
+
+      - name: Create local release tag for exact-version manylinux wheel tests
+        if: ${{ needs.resolve_release_tag.outputs.tag_name != '' }}
+        shell: bash
+        run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
+
+      - name: Select Pixi CI environment
+        id: pixi-env
+        shell: bash
+        run: echo "name=ci-py$(echo '${{ matrix.python-version }}' | tr -d '.')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Pixi environment for repo-owned validation
+        uses: ./.github/actions/setup-pixi
+        with:
+          environments: ${{ steps.pixi-env.outputs.name }}
+          activate-environment: ${{ steps.pixi-env.outputs.name }}
+          frozen: true
+
+      - name: Download repaired manylinux wheel from previous job
+        uses: actions/download-artifact@v4
+        with:
+          name: pycfml-wheel_linux_x86_64_${{ matrix.python-version }}
+          path: ${{ env.WHEEL_DIR }}
+
+      - name: Test downloaded manylinux wheel
+        shell: bash
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" pycfml-test
+
+  ##############################################################################
+  # JOB 5
+  ##############################################################################
+  source-rebuild:
+
+    needs: resolve_release_tag
+
+    timeout-minutes: 45
+
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history with tags is required for versioningit
+
+      - name: Create local release tag for exact-version source rebuild validation
+        if: ${{ needs.resolve_release_tag.outputs.tag_name != '' }}
+        shell: bash
+        run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
+
+      - name: Verify preinstalled GNU toolchain [Ubuntu 24.04]
+        run: |
+          gfortran-13 --version
+          echo "FC=gfortran-13" >> "$GITHUB_ENV"
+          echo "CC=gcc-13" >> "$GITHUB_ENV"
+          echo "CXX=g++-13" >> "$GITHUB_ENV"
+
+      - name: Set up Pixi environment for repo-owned validation
+        uses: ./.github/actions/setup-pixi
+        with:
+          environments: ${{ needs.resolve_release_tag.outputs.oldest_ci_environment }}
+          activate-environment: ${{ needs.resolve_release_tag.outputs.oldest_ci_environment }}
+          frozen: true
+
+      - name: Validate sdist rebuild path
+        shell: bash
+        run: pixi run --environment "${{ needs.resolve_release_tag.outputs.oldest_ci_environment }}" sdist-validate
+
+      - name: Upload validated source distribution for release staging
+        uses: actions/upload-artifact@v4
+        with:
+          name: crysfml-sdist
+          path: dist/sdist-validation/sdist/*.tar.gz
+          if-no-files-found: "error"
+          compression-level: 0
+
+  ##############################################################################
+  # JOB 6
   ##############################################################################
   upload-release-assets:
 
-    needs: [resolve_release_tag, test]
+    needs: [resolve_release_tag, test-macos-windows, test-linux-manylinux, source-rebuild]
 
     if: ${{ github.event_name == 'push' && github.ref_name == 'master' && needs.resolve_release_tag.outputs.tag_name != '' }}
 
@@ -302,13 +436,20 @@ jobs:
           pattern: pycfml-wheel_*
           merge-multiple: true
 
-      - name: Upload built wheels to the GitHub draft release
+      - name: Download validated source distribution from current workflow run
+        uses: actions/download-artifact@v4
+        with:
+          name: crysfml-sdist
+          path: release-assets
+
+      - name: Upload validated wheels and source distribution to the GitHub draft release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           tag_name: ${{ needs.resolve_release_tag.outputs.tag_name }}
-          files: release-assets/*.whl
+          files: |
+            release-assets/*.whl
+            release-assets/*.tar.gz
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
-

@@ -11,18 +11,22 @@
 
 - Treat [.github/workflows/build-release.yml] as the canonical build
   pipeline for release-mode wheel builds in this repository.
-- `build-release.yml` is used to build crysfml with the release-mode
-  options from `pybuild.toml`, run tests against the built wheel, and
-  upload validated wheel artifacts to the workflow run for local validation
-  and later release staging.
+- `build-release.yml` is used to build crysfml release wheels through the
+  repo-owned `cibuildwheel` policy on all platforms, using a dedicated
+  manylinux container on Linux plus native macOS and Windows runners,
+  repairing wheels with `auditwheel`, `delocate`, and `delvewheel` as
+  appropriate, running tests against the final wheel artifacts,
+  validating the `sdist -> wheel` rebuild path, and uploading validated
+  wheel and sdist artifacts to the workflow run for local validation and
+  later release staging.
 - The intended release flow is staged: merging `develop` into `master`
   via pull request should result in a successful `build-release.yml`
   run on `master`, after which `release-notes.yml` should create or
   update the draft GitHub release for that commit.
 - Publishing that draft GitHub release should be treated as the event
   that triggers `pypi-publish.yml`. That publish workflow must consume
-  the wheels already staged on the GitHub release rather than rebuilding
-  different artifacts unless explicitly requested.
+  the wheel and sdist artifacts already staged on the GitHub release rather
+  than rebuilding different artifacts unless explicitly requested.
 - Treat `release-notes.yml` as the stage that drafts or updates the
   GitHub release on merges to `master` with the suggested tag, release
   title, and release notes, while leaving remote tag creation to manual
@@ -30,26 +34,62 @@
 - Treat `build-release.yml` as the stage that computes the same
   suggested release tag on `master`, creates that tag locally in CI so
   `versioningit` builds exact-version wheels without pushing a remote
-  tag, and uploads the validated wheels to the GitHub draft release.
-- Treat `pybuild.py` and `pybuild.toml` as the source of truth for the
-  generated shell scripts in `scripts/`.
-- Do not edit generated files in `scripts/` directly unless the task is
-  explicitly about the generated output. Change `pybuild.py` or
-  `pybuild.toml`, regenerate the scripts, and validate the affected
-  workflow path instead.
+  tag, builds Linux, macOS, and Windows release wheels through
+  `cibuildwheel`, repairs them with the platform-standard repair tool,
+  and uploads the validated wheels and sdist to the GitHub draft
+  release.
+- Treat the repo-owned root CMake build, the source manifests under `cmake/`,
+  and `tools/vendor_cfml.py` as the source of truth for the remaining
+  vendored-CFML maintainer helper path.
+- Treat `pixi run release-check` as the stable one-command local maintainer
+  validation path for repo-owned wheel and sdist work; `pycfml-build`,
+  `pycfml-test`, and `sdist-validate` remain the underlying component
+  tasks.
+- Treat the versioned `ci-py311`, `ci-py312`, `ci-py313`, and `ci-py314`
+  Pixi environments as the CI-only path for reusing those same repo-owned
+  tasks inside GitHub Actions instead of raw `python tools/...` invocations.
+- Derive the supported GitHub Actions Python-version matrix from those
+  versioned `ci-py*` Pixi environments rather than maintaining duplicate
+  hardcoded version lists in workflow YAML.
+- Do not add `actions/setup-python` or raw `python -m pip install --upgrade pip`
+  to jobs that only run repo-owned Pixi tasks; let the activated Pixi
+  environment provide Python and pip for those jobs.
+- On GitHub Actions runners that already provide the needed GNU toolchain,
+  prefer the runner-installed `gfortran-13`/`gcc-13`/`g++-13` path over
+  `setup-fortran`; this is especially important on `ubuntu-24.04`, and
+  `macos-14` also ships the required GNU toolchain aliases.
+- Treat `pixi run pycfml-repair-diagnostics-macos` and
+  `pixi run pycfml-repair-diagnostics-windows` as optional native
+  maintainer diagnostics for repaired-wheel parity on those hosts.
+- Treat `pixi run vendor-cfml-validate` as the stable one-command
+  non-destructive vendored-CFML validation path, and
+  `pixi run vendor-cfml-refresh*`, `pixi run vendor-cfml-stage`, and
+  `pixi run vendor-cfml-test` as the remaining vendored-CFML maintenance
+  helpers after the repo-owned vendoring helper migration.
+- Treat the old generated pyCFML script path as retired; do not reintroduce
+  composite `pycfml_build.sh`, `pycfml_dist.sh`, `pycfml_test.sh`, or
+  `wheel_build.sh` wrappers, low-level pyCFML helper scripts, custom wheel
+  retagging, or wheel-metadata rewrite steps.
+- Do not restore the old generic `scripts`, `scripts-fresh`, `cfml-refresh*`,
+  `cfml-build`, or `cfml-test` `pixi` task names; the remaining generated
+  script path is maintainer-only and explicitly vendor-prefixed.
+- Treat the Windows `cibuildwheel` release path as a Ninja-based MinGW
+  `gfortran` build; do not let it fall back to the Visual Studio generator for
+  the isolated wheel build.
 - When changing build, packaging, or release behaviour, validate the
-  complete affected slice: CFML checkout, CFML build, pyCFML generation,
-  wheel build, wheel install, draft-release artifact staging when
-  relevant, and the relevant unit or functional tests.
-- Keep `.github/workflows/build-debug.yml` and
-  `.github/workflows/build-release.yml` aligned when a change is meant
-  to affect both debug and release pipelines.
+  complete affected slice: repository-root wheel build, wheel install,
+  draft-release artifact staging when relevant, the relevant unit or
+  functional tests, and any remaining vendored-program
+  paths that the change still touches.
+- Treat `.github/workflows/build-release.yml` as the sole repo-owned
+  build-and-test workflow unless the task explicitly reintroduces a
+  separate non-release pipeline.
 - If release automation is split across multiple workflows, keep the
   contract between them explicit: `build-release.yml` produces validated
-  exact-version wheel artifacts on `master` and stages them on the draft
-  release, `release-notes.yml` maintains the draft release metadata and
-  suggested tag without pushing the remote tag, and `pypi-publish.yml`
-  consumes the published release assets.
+  exact-version wheel and sdist artifacts on `master` and stages them on
+  the draft release, `release-notes.yml` maintains the draft release
+  metadata and suggested tag without pushing the remote tag, and
+  `pypi-publish.yml` consumes the published release assets.
 - When changing package metadata, wheel naming, Python-version support,
   or release versioning, update all linked sources of truth together,
   including `pyproject.toml`, workflow assumptions, and release-facing

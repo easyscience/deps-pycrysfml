@@ -42,30 +42,40 @@ dependencies = [
 License = 'https://github.com/easyscience/deps-pycrysfml/blob/master/LICENSE'
 'Upstream CrysFML' = 'https://code.ill.fr/scientific-software/CrysFML2008'
 
-[project.optional-dependencies]
-ci = [
-  'toml',  # pybuild.py currently imports toml rather than tomllib
-  'validate-pyproject[all]',
-  'build',
-  'wheel',
-  'packaging',
-  'check-wheel-contents',
-  'colorama'
-]
-test = [
-  'deepdiff',
-  'pytest',
-  'pytest-benchmark',
-  'pygit2',
-  'matplotlib'
-]
-
 [build-system]
-requires = ['hatchling', 'versioningit']
-build-backend = 'hatchling.build'
+requires = ['scikit-build-core>=0.11', 'versioningit']
+build-backend = 'scikit_build_core.build'
 
-[tool.hatch.version]
-source = 'versioningit'
+[tool.scikit-build]
+minimum-version = 'build-system.requires'
+experimental = true
+cmake.version = 'CMakeLists.txt'
+ninja.version = '>=1.11'
+wheel.packages = []
+
+[tool.scikit-build.metadata.version]
+provider = 'crysfml_version'
+provider-path = 'tools'
+
+[tool.cibuildwheel.linux]
+archs = ['x86_64']
+manylinux-x86_64-image = 'manylinux2014'
+before-all = [
+  'yum install -y gcc-gfortran git',
+]
+repair-wheel-command = 'auditwheel show {wheel} && auditwheel repair -w {dest_dir} {wheel}'
+
+[tool.cibuildwheel.macos]
+archs = ['arm64']
+repair-wheel-command = 'delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}'
+
+[tool.cibuildwheel.windows]
+archs = ['AMD64']
+before-build = 'pip install delvewheel'
+repair-wheel-command = 'delvewheel repair -w {dest_dir} {wheel}'
+
+[tool.cibuildwheel.windows.environment]
+CMAKE_GENERATOR = 'Ninja'
 
 [tool.versioningit.format]
 distance = '{base_version}+dev{distance}'
@@ -76,7 +86,3 @@ distance-dirty = '{base_version}+devdirty{distance}'
 method = 'git'
 match = ['v*']
 default-tag = 'v0.0.0'
-
-[tool.hatch.build.targets.wheel]
-packages = ['dist/pyCFML/crysfml']
-artifacts = ['*.py', '*.so', '*.so.*', '*.dylib', '*.pyd', '*.dll', '*.txt']

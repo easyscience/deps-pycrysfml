@@ -43,8 +43,6 @@ MACOSX_ARCHES = {
     'universal',
     'universal2',
 }
-MACOSX_MAJOR_VERSIONS = {'11', '12', '13', '14', '15', '26'}
-
 LINUX_PLATFORM_RE = re.compile(r'(?P<libc>(many|musl))linux_(\d+)_(\d+)_(?P<arch>.*)')
 JOINT_LINUX_ARCHES = {
     'x86_64',
@@ -72,15 +70,13 @@ def valid_platform_tag(platform_tag: str) -> bool:
         return True
 
     match = MACOSX_PLATFORM_RE.fullmatch(platform_tag)
-    if match and match.group('major') == '10' and match.group('arch') in MACOSX_ARCHES:
-        return True
-    if (
-        match
-        and match.group('major') in MACOSX_MAJOR_VERSIONS
-        and match.group('minor') == '0'
-        and match.group('arch') in MACOSX_ARCHES
-    ):
-        return True
+    if match and match.group('arch') in MACOSX_ARCHES:
+        major = int(match.group('major'))
+        minor = match.group('minor')
+        if major == 10:
+            return True
+        if major >= 11 and minor == '0':
+            return True
 
     match = LINUX_PLATFORM_RE.fullmatch(platform_tag)
     if match and match.group('libc') == 'musl':

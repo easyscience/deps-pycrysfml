@@ -6,102 +6,123 @@ platforms = ["osx-arm64", "win-64", "linux-64"]
 macos = "14.0"
 
 [dependencies]
+ninja = "*"
+numpy = "*"
+
+[feature.py311.dependencies]
+python = "3.11.*"
+
+[feature.py312.dependencies]
+python = "3.12.*"
+
+[feature.py313.dependencies]
+python = "3.13.*"
+
+[feature.py314.dependencies]
 python = "3.14.*"
 
-[feature.dev.pypi-dependencies]
+[feature.install-tools.pypi-dependencies]
 pip = '*'
-crysfml = { path = '.', editable = true, extras = ['ci', 'test'] }
+packaging = '*'
 
-[feature.wheeltest.pypi-dependencies]
-pip = '*'
+[feature.build-tools.pypi-dependencies]
+build = '*'
+wheel = '*'
+scikit-build-core = '*'
+versioningit = '*'
+
+[feature.test-tools.pypi-dependencies]
 pytest = '*'
-pytest-benchmark = '*'
 deepdiff = '*'
 matplotlib = '*'
 
+[feature.dev.pypi-dependencies]
+crysfml = { path = '.', editable = true }
+
+[feature.ci-tools.pypi-dependencies]
+[feature.repair-macos]
+platforms = ["osx-arm64"]
+
+[feature.repair-macos.pypi-dependencies]
+delocate = '*'
+
+[feature.repair-windows]
+platforms = ["win-64"]
+
+[feature.repair-windows.pypi-dependencies]
+delvewheel = '*'
+
 [environments]
-default = ["dev"]
-wheeltest = ["wheeltest"]
+default = ["install-tools", "build-tools", "test-tools", "dev", "py314"]
+wheeltest = ["install-tools", "test-tools", "py314"]
+repair-macos = ["install-tools", "test-tools", "repair-macos", "py314"]
+repair-windows = ["install-tools", "test-tools", "repair-windows", "py314"]
+ci-py311 = ["install-tools", "build-tools", "test-tools", "ci-tools", "py311"]
+ci-py312 = ["install-tools", "build-tools", "test-tools", "ci-tools", "py312"]
+ci-py313 = ["install-tools", "build-tools", "test-tools", "ci-tools", "py313"]
+ci-py314 = ["install-tools", "build-tools", "test-tools", "ci-tools", "py314"]
 
-[tasks.scripts]
-cmd = "python pybuild.py --create-scripts --enable-backslash-escapes"
-description = "Generate build and test shell scripts in the dev environment"
+[tasks.vendor-cfml-refresh]
+cmd = "python tools/vendor_cfml.py refresh --force"
+description = "Refresh vendored CFML from the default tracked upstream branch"
 
-[tasks.scripts-fresh]
-cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo"
-description = "Generate scripts for a maintainer CFML refresh from the configured branch"
-
-[tasks.cfml-refresh]
-cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo && scripts/create_cfml_repo_dir.sh && scripts/download_cfml_repo.sh"
-description = "Refresh vendored CFML from the branch configured in pybuild.toml"
-
-[tasks.cfml-refresh-branch]
-cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo --cfml-branch {{ branch }} && scripts/create_cfml_repo_dir.sh && scripts/download_cfml_repo.sh"
+[tasks.vendor-cfml-refresh-branch]
+cmd = "python tools/vendor_cfml.py refresh --force --branch {{ branch }}"
 args = [{ arg = "branch", default = "master" }]
 description = "Refresh vendored CFML from a specific branch"
 
-[tasks.cfml-refresh-commit]
-cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo --cfml-branch {{ branch }} --cfml-commit {{ commit }} && scripts/create_cfml_repo_dir.sh && scripts/download_cfml_repo.sh"
+[tasks.vendor-cfml-refresh-commit]
+cmd = "python tools/vendor_cfml.py refresh --force --branch {{ branch }} --commit {{ commit }}"
 args = ["commit", { arg = "branch", default = "master" }]
 description = "Refresh vendored CFML from a specific commit"
 
-[tasks.cfml-build]
-cmd = "scripts/cfml_build.sh"
-description = "Build CFML modules, static library, and distribution"
+[tasks.vendor-cfml-stage]
+cmd = "python tools/vendor_cfml.py stage"
+description = "Configure the repo-owned CFML-only build and stage dist/CFML/lib and dist/CFML/include"
 
-[tasks.cfml-test]
-cmd = "scripts/cfml_test.sh"
-description = "Create and run CFML test programs"
+[tasks.vendor-cfml-test]
+cmd = "python tools/vendor_cfml.py test"
+description = "Configure the repo-owned CFML-only build, restage dist/CFML, and build vendored test programs into dist/CFML/progs"
+
+[tasks.vendor-cfml-validate]
+depends-on = [
+		{ task = "vendor-cfml-stage", environment = "default" },
+		{ task = "vendor-cfml-test", environment = "default" },
+	]
+description = "Run the non-destructive vendored CFML maintainer validation pipeline"
 
 [tasks.pycfml-build]
-cmd = "scripts/pycfml_build.sh"
-description = "Build pyCFML, assemble the package, and create the wheel"
+cmd = "python tools/build_local_wheel.py --wheel-dir dist/pyCFML/wheel"
+description = "Build a local crysfml wheel from the repository root"
 
 [tasks.pycfml-test]
-cmd = "scripts/pycfml_test.sh"
+cmd = "python tools/run_installed_wheel_tests.py --wheel-dir dist/pyCFML/wheel"
 default-environment = "wheeltest"
 description = "Install the built wheel in the clean environment and run tests"
 
-[tasks.full]
+[tasks.sdist-validate]
+cmd = "python tools/validate_sdist_rebuild.py --sdist-dir dist/sdist-validation/sdist --wheel-dir dist/sdist-validation/wheel"
+description = "Build an sdist, rebuild a wheel from it, and test the rebuilt wheel"
+
+[tasks.validate-wheel-filenames]
+cmd = "python tools/validate_pypi_wheel_filenames.py {{ path }}"
+args = [{ arg = "path", default = "dist/pyCFML/wheel" }]
+description = "Validate wheel filenames against PyPI upload rules"
+
+[tasks.pycfml-repair-diagnostics-macos]
+cmd = "python tools/run_repair_diagnostics.py --wheel-dir dist/pyCFML/wheel"
+default-environment = "repair-macos"
+description = "Repair, validate, and test a locally built wheel on native macOS"
+
+[tasks.pycfml-repair-diagnostics-windows]
+cmd = "python tools/run_repair_diagnostics.py --wheel-dir dist/pyCFML/wheel"
+default-environment = "repair-windows"
+description = "Repair, validate, and test a locally built wheel on native Windows"
+
+[tasks.release-check]
 depends-on = [
-	{ task = "scripts", environment = "default" },
-	{ task = "cfml-build", environment = "default" },
-	{ task = "cfml-test", environment = "default" },
-	{ task = "pycfml-build", environment = "default" },
-	{ task = "pycfml-test", environment = "wheeltest" },
-]
-description = "Run the full local build and test pipeline in the dev environment"
-
-[tasks.benchmark]
-cmd = "scripts/run_pycfml_functional_tests_with_benchmarks_save.sh"
-description = "Save local benchmark results in the dev environment"
-
-[tasks]
-
-#################
-# 🐙️ GitHub Tasks
-#################
-
-repo-wiki = 'gh api -X PATCH repos/easyscience/deps-pycrysfml -f has_wiki=false'
-repo-discussions = 'gh api -X PATCH repos/easyscience/deps-pycrysfml -f has_discussions=true'
-repo-description = "gh api -X PATCH repos/easyscience/deps-pycrysfml -f description='Qt/QML components for building graphical applications'"
-repo-homepage = "gh api -X PATCH repos/easyscience/deps-pycrysfml -f homepage='https://easyscience.github.io/deps-pycrysfml'"
-repo-config = { depends-on = [
-  'repo-wiki',
-  'repo-discussions',
-  'repo-description',
-  'repo-homepage',
-] }
-
-master-protection = 'gh api -X POST repos/easyscience/deps-pycrysfml/rulesets --input .github/configs/rulesets-master.json'
-develop-protection = 'gh api -X POST repos/easyscience/deps-pycrysfml/rulesets --input .github/configs/rulesets-develop.json'
-gh-pages-protection = 'gh api -X POST repos/easyscience/deps-pycrysfml/rulesets --input .github/configs/rulesets-gh-pages.json'
-branch-protection = { depends-on = [
-  'master-protection',
-  'develop-protection',
-  'gh-pages-protection',
-] }
-
-pages-deployment = 'gh api -X POST repos/easyscience/deps-pycrysfml/pages --input .github/configs/pages-deployment.json'
-
-github-labels = 'python tools/update_github_labels.py'
+		{ task = "pycfml-build", environment = "default" },
+		{ task = "pycfml-test", environment = "wheeltest" },
+		{ task = "sdist-validate", environment = "default" },
+	]
+description = "Run the mandatory local pre-release validation pipeline"
