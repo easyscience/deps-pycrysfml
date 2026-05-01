@@ -98,6 +98,14 @@ Optional native diagnostics:
 - GitHub Actions should reuse the same repo-owned tasks through the versioned
   `ci-py311`, `ci-py312`, `ci-py313`, and `ci-py314` Pixi environments rather
   than calling the helper scripts directly.
+- The supported CI Python-version matrix should be derived from those
+  versioned `ci-py*` Pixi environments instead of being duplicated as
+  hardcoded lists in workflow YAML.
+- Jobs that only run repo-owned Pixi tasks do not need `actions/setup-python`
+  or a separate host-side `pip` upgrade step.
+- On GitHub Actions `ubuntu-24.04`, prefer the runner-installed
+  `gfortran-13`/`gcc-13`/`g++-13` toolchain when it satisfies the job, because
+  the `setup-fortran` PPA path is less reliable there.
 - Maintainer build and test dependencies belong in `pixi.toml`; keep
   `pyproject.toml` focused on published package metadata and build-system
   requirements.

@@ -18,9 +18,31 @@ env:
 jobs:
 
   ##############################################################################
+  # JOB 0
+  ##############################################################################
+  resolve_ci_matrix:
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      latest_python_version: ${{ steps.export-pixi.outputs.latest_python_version }}
+      latest_ci_environment: ${{ steps.export-pixi.outputs.latest_ci_environment }}
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v4
+
+      - name: Export Pixi CI metadata
+        id: export-pixi
+        shell: bash
+        run: python3 tools/export_pixi_ci_matrix.py --github-output >> "$GITHUB_OUTPUT"
+
+  ##############################################################################
   # JOB 1
   ##############################################################################
   build:  # current job name
+
+    needs: resolve_ci_matrix
 
     timeout-minutes: 30
 
@@ -40,8 +62,17 @@ jobs:
         with:
           fetch-depth: 0 # full history with tags is required for versioningit
 
+      - name: Verify preinstalled GNU toolchain [Ubuntu 24.04]
+        if: ${{ runner.os == 'Linux' && matrix.os == 'ubuntu-24.04' && matrix.toolchain.exe == 'gfortran' }}
+        shell: bash
+        run: |
+          gfortran-13 --version
+          echo "FC=gfortran-13" >> "$GITHUB_ENV"
+          echo "CC=gcc-13" >> "$GITHUB_ENV"
+          echo "CXX=g++-13" >> "$GITHUB_ENV"
+
       - name: Set up Fortran compiler (FC) [all except Windows + gfortran] # except: use pre-installed gfortran
-        if: runner.os != 'Windows' || matrix.toolchain.exe != 'gfortran'
+        if: ${{ !(runner.os == 'Linux' && matrix.os == 'ubuntu-24.04' && matrix.toolchain.exe == 'gfortran') && (runner.os != 'Windows' || matrix.toolchain.exe != 'gfortran') }}
         uses: fortran-lang/setup-fortran@v1
         id: setup-fortran
         with:
@@ -52,20 +83,11 @@ jobs:
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Set up Python environment
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.14'
-
-      - name: Upgrade package installer for Python
-        shell: bash
-        run: python -m pip install --upgrade pip
-
       - name: Set up Pixi environment for repo-owned validation
         uses: ./.github/actions/setup-pixi
         with:
-          environments: ci-py314
-          activate-environment: ci-py314
+          environments: ${{ needs.resolve_ci_matrix.outputs.latest_ci_environment }}
+          activate-environment: ${{ needs.resolve_ci_matrix.outputs.latest_ci_environment }}
           frozen: true
 
       - name: Fix reinstalling gcc [macOS]  # needed because of `brew reinstall gcc`
@@ -75,7 +97,7 @@ jobs:
 
       - name: Build crysfml wheel with Pixi task
         shell: bash
-        run: pixi run --environment ci-py314 pycfml-build
+        run: pixi run --environment "${{ needs.resolve_ci_matrix.outputs.latest_ci_environment }}" pycfml-build
 
       - name: Fix Python package wheel dependencies
         if: runner.os == 'macOS'
@@ -86,7 +108,7 @@ jobs:
 
       - name: Test built crysfml wheel
         shell: bash
-        run: pixi run --environment ci-py314 pycfml-test
+        run: pixi run --environment "${{ needs.resolve_ci_matrix.outputs.latest_ci_environment }}" pycfml-test
 
       - name: Upload zipped Python package wheel of pyCFML for next job
         uses: actions/upload-artifact@v4
@@ -101,7 +123,7 @@ jobs:
   ##############################################################################
   test:  # current job name
 
-    needs: build  # previous job 'build' need to be finished first
+    needs: [resolve_ci_matrix, build]  # previous job 'build' need to be finished first
 
     if: always()  # start this job even if the previous job failed
 
@@ -120,20 +142,11 @@ jobs:
       - name: Check-out repository
         uses: actions/checkout@v4
 
-      - name: Set up python environment
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.14'
-
-      - name: Upgrade package installer for Python
-        shell: bash
-        run: python3 -m pip install --upgrade pip
-
       - name: Set up Pixi environment for repo-owned validation
         uses: ./.github/actions/setup-pixi
         with:
-          environments: ci-py314
-          activate-environment: ci-py314
+          environments: ${{ needs.resolve_ci_matrix.outputs.latest_ci_environment }}
+          activate-environment: ${{ needs.resolve_ci_matrix.outputs.latest_ci_environment }}
           frozen: true
 
       - name: Download zipped pyCFML wheel from previous job
@@ -144,4 +157,4 @@ jobs:
 
       - name: Test downloaded pyCFML wheel
         shell: bash
-        run: pixi run --environment ci-py314 pycfml-test
+        run: pixi run --environment "${{ needs.resolve_ci_matrix.outputs.latest_ci_environment }}" pycfml-test

@@ -26,12 +26,22 @@ jobs:
 
     outputs:
       tag_name: ${{ steps.export.outputs.tag_name }}
+      python_versions: ${{ steps.export-pixi.outputs.python_versions }}
+      oldest_python_version: ${{ steps.export-pixi.outputs.oldest_python_version }}
+      oldest_ci_environment: ${{ steps.export-pixi.outputs.oldest_ci_environment }}
+      latest_python_version: ${{ steps.export-pixi.outputs.latest_python_version }}
+      latest_ci_environment: ${{ steps.export-pixi.outputs.latest_ci_environment }}
 
     steps:
       - name: Check-out repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full history with tags is required for versioningit
+
+      - name: Export Pixi CI metadata
+        id: export-pixi
+        shell: bash
+        run: python3 tools/export_pixi_ci_matrix.py --github-output >> "$GITHUB_OUTPUT"
 
       - name: Setup easyscience[bot]
         if: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
@@ -86,7 +96,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-2022, macos-14]
-        python-version: ['3.11', '3.12', '3.13', '3.14']
+        python-version: ${{ fromJSON(needs.resolve_release_tag.outputs.python_versions) }}
         toolchain:
           - { exe: gfortran, compiler: gcc, version: 13 }
 
@@ -114,15 +124,6 @@ jobs:
       - name: Set up NMake build tool [Windows]
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Set up Python environment
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Upgrade package installer for Python
-        shell: bash
-        run: python -m pip install --upgrade pip
 
       - name: Select Pixi CI environment
         id: pixi-env
@@ -193,15 +194,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - python-version: '3.11'
-            cibw-build: 'cp311-manylinux_x86_64'
-          - python-version: '3.12'
-            cibw-build: 'cp312-manylinux_x86_64'
-          - python-version: '3.13'
-            cibw-build: 'cp313-manylinux_x86_64'
-          - python-version: '3.14'
-            cibw-build: 'cp314-manylinux_x86_64'
+        python-version: ${{ fromJSON(needs.resolve_release_tag.outputs.python_versions) }}
 
     runs-on: ubuntu-24.04
 
@@ -216,15 +209,6 @@ jobs:
         shell: bash
         run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
 
-      - name: Set up Python environment
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Upgrade package installer for Python
-        shell: bash
-        run: python -m pip install --upgrade pip
-
       - name: Select Pixi CI environment
         id: pixi-env
         shell: bash
@@ -237,10 +221,14 @@ jobs:
           activate-environment: ${{ steps.pixi-env.outputs.name }}
           frozen: true
 
+      - name: Select Linux manylinux cibuildwheel target
+        shell: bash
+        run: echo "CIBW_BUILD=cp$(echo '${{ matrix.python-version }}' | tr -d '.')-manylinux_x86_64" >> "$GITHUB_ENV"
+
       - name: Build Linux manylinux wheel with cibuildwheel
         uses: pypa/cibuildwheel@v3.4.1
         env:
-          CIBW_BUILD: ${{ matrix.cibw-build }}
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
         with:
           package-dir: .
           output-dir: ${{ env.WHEEL_DIR }}
@@ -276,7 +264,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-2022, macos-14]
-        python-version: ['3.11', '3.12', '3.13', '3.14']
+        python-version: ${{ fromJSON(needs.resolve_release_tag.outputs.python_versions) }}
         toolchain:
           - { exe: gfortran, compiler: gcc, version: 13 }
 
@@ -292,15 +280,6 @@ jobs:
         if: ${{ needs.resolve_release_tag.outputs.tag_name != '' }}
         shell: bash
         run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
-
-      - name: Set up python environment
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Upgrade package installer for Python
-        shell: bash
-        run: python3 -m pip install --upgrade pip
 
       - name: Select Pixi CI environment
         id: pixi-env
@@ -339,7 +318,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, ubuntu-24.04]
-        python-version: ['3.11', '3.12', '3.13', '3.14']
+        python-version: ${{ fromJSON(needs.resolve_release_tag.outputs.python_versions) }}
 
     runs-on: ${{ matrix.os }}
 
@@ -353,15 +332,6 @@ jobs:
         if: ${{ needs.resolve_release_tag.outputs.tag_name != '' }}
         shell: bash
         run: git tag --force "${{ needs.resolve_release_tag.outputs.tag_name }}" HEAD
-
-      - name: Set up python environment
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Upgrade package installer for Python
-        shell: bash
-        run: python3 -m pip install --upgrade pip
 
       - name: Select Pixi CI environment
         id: pixi-env
@@ -412,32 +382,23 @@ jobs:
       #  with:
       #    compiler: gcc
       #    version: 13
-      - name: Verify Fortran compiler
+      - name: Verify preinstalled GNU toolchain [Ubuntu 24.04]
         run: |
           gfortran-13 --version
           echo "FC=gfortran-13" >> "$GITHUB_ENV"
           echo "CC=gcc-13" >> "$GITHUB_ENV"
           echo "CXX=g++-13" >> "$GITHUB_ENV"
 
-      - name: Set up Python environment
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Upgrade package installer for Python
-        shell: bash
-        run: python -m pip install --upgrade pip
-
       - name: Set up Pixi environment for repo-owned validation
         uses: ./.github/actions/setup-pixi
         with:
-          environments: ci-py312
-          activate-environment: ci-py312
+          environments: ${{ needs.resolve_release_tag.outputs.oldest_ci_environment }}
+          activate-environment: ${{ needs.resolve_release_tag.outputs.oldest_ci_environment }}
           frozen: true
 
       - name: Validate sdist rebuild path
         shell: bash
-        run: pixi run --environment ci-py312 sdist-validate
+        run: pixi run --environment "${{ needs.resolve_release_tag.outputs.oldest_ci_environment }}" sdist-validate
 
       - name: Upload validated source distribution for release staging
         uses: actions/upload-artifact@v4
