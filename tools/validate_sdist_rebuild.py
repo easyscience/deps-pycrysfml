@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from repo_build_environment import build_subprocess_environment
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_ARTIFACT_ROOT = REPO_ROOT / 'dist' / 'sdist-validation'
@@ -40,7 +42,7 @@ def parse_args() -> argparse.Namespace:
 
 def run(command: list[str], description: str) -> None:
     print(f':::::: {description}')
-    subprocess.run(command, check=True)
+    subprocess.run(command, check=True, env=build_subprocess_environment())
 
 
 def recreate_dir(path: Path) -> None:
