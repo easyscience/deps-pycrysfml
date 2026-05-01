@@ -169,7 +169,7 @@ jobs:
 
       - name: Validate wheel filenames for PyPI upload
         shell: bash
-        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" validate-wheel-filenames --path "${{ env.WHEEL_DIR }}"
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" validate-wheel-filenames
 
       - name: Test built crysfml wheel
         shell: bash
@@ -236,7 +236,7 @@ jobs:
 
       - name: Validate wheel filenames for PyPI upload
         shell: bash
-        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" validate-wheel-filenames --path "${{ env.WHEEL_DIR }}"
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" validate-wheel-filenames
 
       - name: Test built manylinux wheel
         shell: bash
