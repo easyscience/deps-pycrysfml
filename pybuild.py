@@ -209,7 +209,12 @@ def _find_wheel_lines(var_name: str = 'WHEEL_PATH'):
     wheel_dir = os.path.dirname(wheel_glob)
     wheel_pattern = os.path.basename(wheel_glob)
     lines = []
-    lines.append(f'{var_name}=$(find "{wheel_dir}" -maxdepth 1 -type f -name "{wheel_pattern}" | head -n 1)')
+    lines.append(f'_wheel_matches=($(find "{wheel_dir}" -maxdepth 1 -type f -name "{wheel_pattern}" | sort))')
+    lines.append('if [ "${#_wheel_matches[@]}" -ne 1 ]; then')
+    lines.append(f'  echo ":::::: ERROR: Expected exactly one built wheel in {wheel_dir}, found ${{#_wheel_matches[@]}}"')
+    lines.append('  exit 1')
+    lines.append('fi')
+    lines.append(f'{var_name}="${{_wheel_matches[0]}}"')
     lines.append(f'[ -n "${{{var_name}}}" ] || {{ echo ":::::: ERROR: Could not find built wheel in {wheel_dir}"; exit 1; }}')
     return lines
 
@@ -1536,6 +1541,10 @@ def create_pycfml_python_wheel():
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
     wheel_path = os.path.join(_project_path(), wheel_dir)
     lines = []
+    msg = _echo_msg(f"Recreating wheel dir '{wheel_dir}'")
+    lines.append(msg)
+    lines.append(f'rm -rf "{wheel_path}"')
+    lines.append(f'mkdir -p "{wheel_path}"')
     msg = _echo_msg(f"Creating {project_name} python wheel in '{wheel_dir}'")
     lines.append(msg)
     cmd = CONFIG['template']['build-wheel']
@@ -1546,16 +1555,11 @@ def create_pycfml_python_wheel():
     append_to_main_script(lines)
 
 def rename_pycfml_python_wheel():
-    project_name = CONFIG['pycfml']['log-name']
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
     lines = _find_wheel_lines()
-    msg = _echo_msg(f"Renaming {project_name} python wheel in '{wheel_dir}'")
+    msg = _echo_msg(f"Validating built python wheel filename in '{wheel_dir}'")
     lines.append(msg)
-    cmd = CONFIG['template']['rename-wheel']
-    cmd = cmd.replace('{PYTHON_TAG}', _python_tag())  # https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/
-    cmd = cmd.replace('{ABI_TAG}', _python_abi_tag())
-    cmd = cmd.replace('{PLATFORM_TAG}', _platform_tag_github_ci())
-    cmd = cmd.replace('{PATH}', '"$WHEEL_PATH"')
+    cmd = 'python3 tools/validate_pypi_wheel_filenames.py "$WHEEL_PATH"'
     lines.append(cmd)
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
@@ -1564,35 +1568,25 @@ def rename_pycfml_python_wheel():
 def repair_pycfml_python_wheel_metadata():
     wheel_dir = CONFIG['pycfml']['dir']['dist-wheel']
     lines = _find_wheel_lines()
-    msg = _echo_msg(f"Repairing built python wheel metadata in '{wheel_dir}'")
+    msg = _echo_msg(f"Validating built python wheel metadata in '{wheel_dir}'")
     lines.append(msg)
-    lines.append('UNPACK_DIR=$(mktemp -d)')
-    lines.append('python3 -m wheel unpack --dest "$UNPACK_DIR" "$WHEEL_PATH" >/dev/null')
-    lines.append('UNPACKED_WHEEL_DIR=$(find "$UNPACK_DIR" -mindepth 1 -maxdepth 1 -type d | head -n 1)')
-    lines.append('[ -n "$UNPACKED_WHEEL_DIR" ] || { echo ":::::: ERROR: Could not unpack wheel metadata"; exit 1; }')
-    lines.append('WHEEL_METADATA_PATH=$(find "$UNPACKED_WHEEL_DIR" -type f -path "*.dist-info/WHEEL" | head -n 1)')
-    lines.append('[ -n "$WHEEL_METADATA_PATH" ] || { echo ":::::: ERROR: Could not locate WHEEL metadata"; exit 1; }')
-    lines.append('if ! WHEEL_METADATA_PATH="$WHEEL_METADATA_PATH" python3 - <<\'PY\'')
+    lines.append('if ! WHEEL_PATH="$WHEEL_PATH" python3 - <<\'PY\'')
     lines.append('import os')
+    lines.append('import zipfile')
     lines.append('from pathlib import Path')
     lines.append('')
-    lines.append('path = Path(os.environ["WHEEL_METADATA_PATH"])')
-    lines.append('text = path.read_text()')
-    lines.append('old = "Root-Is-Purelib: true"')
-    lines.append('new = "Root-Is-Purelib: false"')
-    lines.append('if new in text:')
-    lines.append('    raise SystemExit(0)')
-    lines.append('if old not in text:')
-    lines.append('    raise SystemExit(f"Could not find expected metadata marker in {path}")')
-    lines.append('path.write_text(text.replace(old, new, 1))')
+    lines.append('wheel_path = Path(os.environ["WHEEL_PATH"])')
+    lines.append('with zipfile.ZipFile(wheel_path) as wheel_file:')
+    lines.append('    metadata_names = [name for name in wheel_file.namelist() if name.endswith(".dist-info/WHEEL")]')
+    lines.append('    if len(metadata_names) != 1:')
+    lines.append('        raise SystemExit(f"Expected exactly one WHEEL metadata entry in {wheel_path}, found {len(metadata_names)}")')
+    lines.append('    metadata_text = wheel_file.read(metadata_names[0]).decode()')
+    lines.append('if "Root-Is-Purelib: false" not in metadata_text:')
+    lines.append('    raise SystemExit(f"{wheel_path.name} is missing Root-Is-Purelib: false in WHEEL metadata")')
     lines.append('PY')
     lines.append('then')
-    lines.append('    rm -rf "$UNPACK_DIR"')
     lines.append('    exit 1')
     lines.append('fi')
-    lines.append('rm -f "$WHEEL_PATH"')
-    lines.append(f'python3 -m wheel pack --dest-dir "{_wheel_dir_path()}" "$UNPACKED_WHEEL_DIR" >/dev/null')
-    lines.append('rm -rf "$UNPACK_DIR"')
     script_name = f'{sys._getframe().f_code.co_name}.sh'
     _write_lines_to_file(lines, script_name)
     append_to_main_script(lines)

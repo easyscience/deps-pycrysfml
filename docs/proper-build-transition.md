@@ -23,7 +23,7 @@ maintainer wheel-validation path, but it still keeps explicit legacy fallback
 tasks. It also owns the root packaging entry point and compiles native code
 from the vendored sources.
 
-The current checkpoint does fourteen things:
+The current checkpoint does fifteen things:
 
 1. introduces a root CMake entry point owned by this repository
 2. replaces the grouped scaffold manifests with explicit source lists copied
@@ -47,6 +47,9 @@ The current checkpoint does fourteen things:
     legacy task names
 14. keeps the native macOS and Windows wheel-repair helpers as explicit local
     maintainer diagnostics through repo-owned `pixi` tasks
+15. keeps the explicit legacy fallback tasks, but stops their wheel path from
+    retagging or rewriting wheel metadata now that the backend already emits a
+    native wheel
 
 ## Current Validated Contract
 
@@ -114,9 +117,17 @@ available while parity is being proven.
   maintainer diagnostics through `tools/run_repair_diagnostics.py` and the
   native `pixi` tasks `pycfml-repair-diagnostics-macos` and
   `pycfml-repair-diagnostics-windows`
+- the legacy `pybuild.py` fallback path now validates the backend-produced
+  wheel filename and `Root-Is-Purelib: false` metadata instead of retagging the
+  wheel or rewriting its metadata in place
+- the legacy wheel-build step now recreates `dist/pyCFML/wheel` before each
+  build and requires exactly one built wheel artifact before validation or
+  install, so stale wheels are no longer silently reused
 - `tools/run_installed_wheel_tests.py` now reinstalls the built wheel with
   `pip install --force-reinstall --no-deps`, relying on the managed test
   environment instead of live index resolution during validation
+- the legacy `pybuild.py` install step now matches that `--no-deps`
+  reinstall contract when it installs a built wheel for the fallback test path
 - the old script-generated maintainer path remains available only through
   explicit legacy task names such as `pycfml-build-legacy`,
   `pycfml-test-legacy`, and `full-legacy`
@@ -171,6 +182,12 @@ What has already been validated locally from the repository root:
   repo-owned backend prerequisites to the default environment
 - `pixi run --environment wheeltest pycfml-test` passes against the built wheel
 - `pixi run --environment default sdist-validate` succeeds
+- `pixi run --environment default pycfml-build-legacy` succeeds with the legacy
+  task name while validating, rather than mutating, the built wheel filename
+  and wheel metadata
+- `pixi run --environment wheeltest pycfml-test-legacy` passes with the legacy
+  fallback task after switching its wheel reinstall step to
+  `pip install --force-reinstall --no-deps`
 - `pixi run --environment repair-macos pycfml-build` succeeds on macOS
 - `pixi run pycfml-repair-diagnostics-macos` succeeds on macOS, repairing the
   raw wheel with `delocate`, validating the repaired filename, and passing the
@@ -196,6 +213,9 @@ What is still hybrid:
   `pycfml-build-legacy`, `pycfml-test-legacy`, plus standalone script-oriented
   helpers like `scripts`, `cfml-build`, and `cfml-test`, still call
   `pybuild.py` and generated `scripts/`
+- that legacy path still hand-copies runtime libraries and rewrites RPATHs in
+  the unpackaged `dist/pyCFML` tree, even though its wheel path no longer
+  retags wheel filenames or rewrites wheel metadata
 - local macOS builds still emit deployment-target mismatch warnings on this
   machine before `delocate` normalizes the repaired wheel tag
 - the Linux manylinux build was not run locally on this machine because no
@@ -533,7 +553,9 @@ To keep the migration understandable, each commit should do one of these only:
 
 The next implementation slice should do exactly these things:
 
-1. delete the handwritten runtime-library copy and wheel-tag surgery only after
-   repaired-wheel parity is proven across all release and maintainer paths
+1. delete the remaining handwritten runtime-library copy and RPATH rewrite
+   steps that still exist only for the legacy unpackaged `dist/pyCFML` tree,
+   now that wheel-tag surgery and wheel-metadata rewriting are no longer part
+   of the fallback wheel path
 2. remove or archive the explicit legacy `pixi` and generated-script fallback
    tasks once maintainers no longer need the old path
