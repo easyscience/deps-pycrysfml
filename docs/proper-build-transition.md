@@ -15,9 +15,10 @@ The end state is intentionally narrow and understandable:
 - one sdist contract that can be rebuilt into the same kind of wheel in CI
 
 For the stable day-to-day maintainer commands, use `docs/maintainer-workflows.md`.
-This transition document tracks how the repo moved to that end state.
+This transition document is now an archival record of how the repo moved to
+that end state.
 
-## Current Implementation Checkpoint
+## Migration Completion Checkpoint
 
 This branch has moved past the original scaffold-only slice.
 
@@ -68,7 +69,7 @@ The current checkpoint does twenty things:
   `scripts/` helper files after validating the repo-owned vendoring helper
   path through the same maintainer `pixi` commands
 
-## Current Validated Contract
+## Validated Contract At Completion
 
 The validated package contract is currently represented by the repo-owned CMake
 build, the manifest files under `cmake/`, the repo-owned helper tools under
@@ -93,12 +94,13 @@ remaining vendor-prefixed CFML refresh/build/test helpers now route through
 `tools/vendor_cfml.py` and repo-owned CMake targets rather than a generated
 script surface.
 
-## Current Hybrid State
+## Completion Snapshot
 
-The branch now spans both worlds: repo-owned packaging, release-wheel CI, and
-default maintainer validation are real, and the remaining vendor-prefixed CFML
-maintainer surface is now repo-owned as well, but it intentionally stays
-outside the downstream package build contract.
+The migration is complete: repo-owned packaging, release-wheel CI, default
+maintainer validation, and the remaining vendor-prefixed CFML maintainer
+surface are all now owned by repository-root tooling. The vendoring helpers
+still remain maintainer-only, but that is now an intentional ownership
+boundary rather than a leftover hybrid path.
 
 ### Latest completed slice
 
@@ -242,7 +244,7 @@ What has already been validated locally from the repository root:
   locally, confirming the Windows repair command surface used by
   `tools/repair_windows_wheel.py`
 
-What is still hybrid:
+What remains environment-specific or maintainer-only:
 
 - vendor-prefixed maintainer helpers such as `vendor-cfml-refresh`,
   `vendor-cfml-refresh-branch`, `vendor-cfml-refresh-commit`,
@@ -611,9 +613,9 @@ To keep the migration understandable, each commit should do one of these only:
 - switch release CI to cibuildwheel
 - remove benchmark dependencies from the default correctness path
 
-## Next Follow-Up Changes After Retiring pybuild
+## Possible Follow-Up Decisions After Retiring pybuild
 
-The next implementation slice should do exactly these things:
+If the maintainer surface is reduced further, the remaining decisions are:
 
 1. decide whether the remaining vendor-prefixed CFML maintenance tasks should
   stay as dedicated repo-owned maintainer helpers or collapse into documented
