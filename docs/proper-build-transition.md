@@ -210,7 +210,8 @@ What is already repo-owned:
   `delvewheel`
 - draft-release staging and PyPI publication that consume both validated wheels
   and the validated `sdist`
-- benchmark-only CI test legs removed from the default workflow path
+- benchmark-only CI test legs removed from the default workflow path, and the
+  default correctness path no longer depends on `pytest-benchmark`
 
 What has already been validated locally from the repository root:
 
@@ -225,7 +226,8 @@ What has already been validated locally from the repository root:
 - `python tools/validate_pypi_wheel_filenames.py <wheel-dir>` succeeds for the
   repaired macOS wheel artifact
 - `python tools/run_installed_wheel_tests.py --wheel-dir <wheel-dir>` passes
-  for the wheel built from that path
+  for the wheel built from that path without `pytest-benchmark` installed in
+  the validation environment
 - `python tools/validate_sdist_rebuild.py` succeeds
 - `pixi run --environment default --frozen vendor-cfml-scripts` succeeds and
   removes obsolete pyCFML helper scripts plus the unreferenced `scripts/main.sh`
@@ -481,26 +483,34 @@ Each release candidate must prove all of the following:
 The sdist should be built once per release from the repository root and then
 published alongside the wheels from the same release pipeline.
 
-## Planned CI Release Topology
+## Release CI Topology
 
-The future proper-build CI should separate source creation, wheel creation,
-wheel repair, and release publication.
+The active release workflow now separates release-tag resolution, source
+creation, wheel creation, wheel repair, validation, and publication. The debug
+workflow remains intentionally narrower and still uses repository-root
+`python -m build --wheel` plus installed-wheel tests rather than the full
+release matrix.
 
 ### Release artifact stages
 
-1. create a validated sdist from the repository root
-2. rebuild a wheel from that sdist in a clean validation environment
-3. build platform wheels from the tagged source tree using cibuildwheel
-4. repair platform wheels with the standard platform tool
-5. test the repaired wheels
-6. stage the validated wheels and sdist on the draft GitHub release
-7. publish those exact staged artifacts to PyPI
+1. resolve the suggested release tag on `master` without pushing a remote tag
+2. create a validated `sdist` from the repository root
+3. rebuild a wheel from that `sdist` in a clean validation environment
+4. build Linux, macOS, and Windows wheels from the tagged source tree through
+  repo-owned `cibuildwheel` policy
+5. repair platform wheels with the standard platform tool
+6. test the repaired wheels on their producer jobs
+7. re-test the downloaded wheel artifacts on consumer jobs
+8. stage the validated wheels and `sdist` on the draft GitHub release
+9. publish those exact staged artifacts to PyPI
 
 ### Platform-specific execution model
 
-- Linux: cibuildwheel + manylinux container + `auditwheel repair`
-- macOS: cibuildwheel on native runners + `delocate-wheel`
-- Windows: cibuildwheel on native runners + `delvewheel repair`
+- Linux: `manylinux2014` via `[tool.cibuildwheel.linux]` + `auditwheel repair`
+- macOS: arm64 on native runners via `[tool.cibuildwheel.macos]` +
+  `delocate-wheel`
+- Windows: AMD64 on native runners via `[tool.cibuildwheel.windows]` +
+  `delvewheel repair`, with `CMAKE_GENERATOR=Ninja`
 
 ### Release artifact ownership
 
@@ -509,13 +519,16 @@ wheel repair, and release publication.
 - raw wheels are CI intermediates only
 - PyPI publication should consume already validated artifacts, not rebuild them
 
-### Benchmark test simplification note
+### Benchmark removal checkpoint
 
-- benchmark-only CI test legs are optional during the proper-build migration
-- if they continue to complicate the workflows, prefer removing benchmark test
-  steps and keeping correctness-oriented import, unit, and functional tests
-- benchmark collection can remain a local or explicitly opt-in maintenance task
-  instead of a default release-validation requirement
+- benchmark-only CI test legs have been removed from the default debug and
+  release workflows
+- `pytest-benchmark` has been removed from the default `test` extra and from
+  the installed-wheel helper path
+- the remaining powder-pattern functional tests now call the pattern builders
+  directly instead of importing the benchmark plugin
+- if performance measurements return later, keep them as explicit maintainer
+  diagnostics or opt-in jobs rather than default release gates
 
 ## Migration Order
 
@@ -550,14 +563,15 @@ wheel repair, and release publication.
 - ensure the backend-emitted wheel metadata remains correct without post-build
   filename surgery
 
-### Phase 5: Runtime repair [partially landed]
+### Phase 5: Runtime repair [landed in release CI; fallback cleanup pending]
 
 - use `auditwheel` on Linux after building inside a real manylinux image in
   release CI
 - use `delocate` on macOS after native wheel build in release CI
 - use `delvewheel` on Windows after native wheel build in release CI
-- delete the handwritten runtime-library copy and RPATH shell logic only after
-  repair-based wheel parity is proven
+- keep the handwritten runtime-library copy and RPATH shell logic only in the
+  low-level maintainer fallback path until repair-based wheel parity no longer
+  needs that reference surface
 
 ### Phase 6: Source rebuild validation [landed in release CI]
 
@@ -566,13 +580,20 @@ wheel repair, and release publication.
 - run the package tests against the rebuilt wheel
 - make the wheel-from-sdist check mandatory for release readiness
 
-### Phase 7: Release migration [mostly landed in release CI]
+### Phase 7: Release migration [landed in release CI; maintainer fallback still present]
 
 - move the release wheel matrix to cibuildwheel
 - split Linux into a dedicated manylinux-based release leg instead of
   host-Ubuntu retagging in release CI
 - publish both wheels and a validated sdist to PyPI
-- retire the current script-generated wheel assembly flow
+- retire the current script-generated wheel assembly flow from active CI and
+  release-publication paths
+
+### Phase 8: Benchmark removal from the default test path [landed]
+
+- remove benchmark-only CI legs from the default workflow path
+- remove `pytest-benchmark` from the default `test` extra and helper commands
+- convert remaining benchmark-wrapped correctness tests to direct calls
 
 ## Validation Gates
 
@@ -591,6 +612,8 @@ Each phase should have one clear gate before moving on.
 - source rebuild: `pip wheel crysfml-<version>.tar.gz` produces a usable wheel
 - release publication: PyPI upload consumes the already validated wheels and
   sdist staged on the draft GitHub release
+- benchmark removal: installed-wheel tests pass with `pytest-benchmark`
+  absent from the validation environment
 
 ## Commit Boundaries
 
@@ -606,6 +629,7 @@ To keep the migration understandable, each commit should do one of these only:
 - add validated sdist release path
 - migrate wheel repair to standard tools
 - switch release CI to cibuildwheel
+- remove benchmark dependencies from the default correctness path
 
 ## Next Follow-Up Changes After Narrowing Generated CFML Helpers
 
@@ -617,3 +641,6 @@ The next implementation slice should do exactly these things:
 2. decide whether the remaining vendor-prefixed CFML maintenance tasks and
    generated `scripts/` helpers should stay script-generated or be replaced by
    a smaller repo-owned vendoring helper path
+3. decide whether the remaining vendoring helper surface should stay in the
+  source-distribution contract or move behind explicit sdist exclusions once
+  vendoring maintenance is fully separated from the downstream build contract
