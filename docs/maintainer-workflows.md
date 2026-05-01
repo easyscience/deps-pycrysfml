@@ -30,6 +30,7 @@ pixi run pycfml-build
 pixi run pycfml-test
 pixi run sdist-validate
 pixi run full
+pixi run release-check
 ```
 
 What each task does:
@@ -39,6 +40,8 @@ What each task does:
 - `sdist-validate` builds an sdist, rebuilds a wheel from it, and tests the
   rebuilt wheel.
 - `full` runs the standard local maintainer validation pipeline.
+- `release-check` is the stable one-command entrypoint for mandatory local
+  pre-release validation.
 
 ## Source Rebuild Contract
 
@@ -58,6 +61,7 @@ Use these commands only when maintaining the tracked vendored copy under
 ```bash
 pixi run vendor-cfml-build
 pixi run vendor-cfml-test
+pixi run vendor-cfml-validate
 pixi run vendor-cfml-refresh
 pixi run vendor-cfml-refresh-branch --branch master
 pixi run vendor-cfml-refresh-commit --branch master --commit <sha>
@@ -67,10 +71,30 @@ Guardrails for that workflow:
 
 - `vendor-cfml-build` and `vendor-cfml-test` are the normal non-destructive
   validation path for vendored CFML.
+- `vendor-cfml-validate` is the stable one-command entrypoint for that
+  non-destructive vendored CFML validation path.
 - `vendor-cfml-refresh*` is destructive and network-dependent. Use it only for
   an intentional vendoring refresh.
 - Normal package builds and tests must continue to work from the tracked
   `repo/CFML` tree without cloning from the network.
+
+## Release Operator Checks
+
+Use these commands before changing release behavior or relying on a local
+release-candidate build:
+
+```bash
+pixi run release-check
+```
+
+Optional native diagnostics:
+
+- On macOS, run `pixi run pycfml-repair-diagnostics-macos` when touching
+  repaired-wheel behavior.
+- On Windows, run `pixi run pycfml-repair-diagnostics-windows` when touching
+  repaired-wheel behavior on a native Windows host.
+- The Linux manylinux wheel path is validated in CI unless the maintainer has a
+  compatible local container runtime and intentionally exercises that slice.
 
 ## Maintenance Rules
 

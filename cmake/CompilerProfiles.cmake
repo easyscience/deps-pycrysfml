@@ -44,6 +44,13 @@ function(crysfml_apply_gnu_fortran_target_profile target_name)
                 "The repo-owned transition build currently supports GNU Fortran only; got '${CMAKE_Fortran_COMPILER_ID}'")
     endif()
 
+    set(_crysfml_apple_min_version_flags "")
+    if(APPLE)
+        list(APPEND _crysfml_apple_min_version_flags
+            "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}"
+        )
+    endif()
+
     target_compile_options(${target_name}
         PRIVATE
             -cpp
@@ -51,7 +58,19 @@ function(crysfml_apply_gnu_fortran_target_profile target_name)
             -ffree-line-length-none
             -fno-stack-arrays
             -fPIC
+            ${_crysfml_apple_min_version_flags}
             $<$<CONFIG:Debug>:-O0>
             $<$<NOT:$<CONFIG:Debug>>:-O2>
     )
+
+    get_target_property(_crysfml_target_type ${target_name} TYPE)
+    if(APPLE AND NOT _crysfml_target_type STREQUAL "STATIC_LIBRARY")
+        target_link_options(${target_name}
+            PRIVATE
+                ${_crysfml_apple_min_version_flags}
+        )
+    endif()
+
+    unset(_crysfml_target_type)
+    unset(_crysfml_apple_min_version_flags)
 endfunction()

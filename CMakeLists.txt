@@ -59,6 +59,25 @@ set(CRYSFML_PACKAGE_DATABASE_INSTALL_DIR
     "Install-time relative path for the bundled CFML database directory."
 )
 
+if(APPLE)
+    if(DEFINED ENV{MACOSX_DEPLOYMENT_TARGET} AND NOT "$ENV{MACOSX_DEPLOYMENT_TARGET}" STREQUAL "")
+        set(_crysfml_default_macos_deployment_target "$ENV{MACOSX_DEPLOYMENT_TARGET}")
+    else()
+        set(_crysfml_default_macos_deployment_target "11.0")
+    endif()
+
+    if(NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET OR CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "")
+        set(CMAKE_OSX_DEPLOYMENT_TARGET
+            "${_crysfml_default_macos_deployment_target}"
+            CACHE STRING
+            "Minimum macOS deployment target for repo-owned crysfml builds."
+            FORCE
+        )
+    endif()
+
+    unset(_crysfml_default_macos_deployment_target)
+endif()
+
 set(CRYSFML_CFML_DIST_ROOT
     "${CMAKE_CURRENT_SOURCE_DIR}/dist/CFML"
 )
@@ -251,6 +270,9 @@ message(STATUS "  Python API root         : ${CRYSFML_VENDOR_PYTHON_API_ROOT}")
 message(STATUS "  Package name            : ${CRYSFML_PACKAGE_NAME}")
 message(STATUS "  Package install root    : ${CRYSFML_PYTHON_PACKAGE_INSTALL_DIR}")
 message(STATUS "  Extension module        : ${CRYSFML_EXTENSION_MODULE_NAME}")
+if(APPLE)
+    message(STATUS "  macOS deployment target : ${CMAKE_OSX_DEPLOYMENT_TARGET}")
+endif()
 message(STATUS "  Global deps variants    : ${_crysfml_global_deps_count}")
 message(STATUS "  Core module entries     : ${_crysfml_core_module_count}")
 message(STATUS "  Core source files       : ${_crysfml_core_source_count}")

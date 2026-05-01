@@ -576,6 +576,21 @@ release matrix.
 - remove `pytest-benchmark` from the default `test` extra and helper commands
 - convert remaining benchmark-wrapped correctness tests to direct calls
 
+### Phase 9: Task-surface consolidation [proposed follow-up]
+
+- add explicit `pixi` tasks for every repo-owned maintainer validation slice and
+  release-preparation command that is currently expressed as a raw shell or
+  Python invocation
+- make CI call those `pixi` tasks for repository-owned command steps instead of
+  duplicating `python tools/...` invocations in workflow YAML
+- keep GitHub Actions-specific orchestration in workflow YAML, including matrix
+  expansion, artifact upload and download, release metadata updates, and any
+  `uses:` steps that are still intentionally workflow-owned
+- retire `tools/install_optional_dependencies.py` once the remaining CI steps no
+  longer read dependency groups from `pyproject.toml`
+- converge on one stable maintainer command surface where local validation and
+  CI validation share the same repo-owned entrypoints
+
 ## Validation Gates
 
 Each phase should have one clear gate before moving on.
@@ -625,3 +640,22 @@ If the maintainer surface is reduced further, the remaining decisions are:
 3. decide whether the remaining vendoring helper surface should stay in the
   source-distribution contract or move behind explicit sdist exclusions once
   vendoring maintenance is fully separated from the downstream build contract
+
+### Recommended direction for Pixi and dependency ownership
+
+- prefer `pixi` as the stable command surface for repo-owned maintainer and CI
+  command steps, but do not try to force GitHub-only orchestration concerns into
+  `pixi.toml`
+- move the `ci` optional dependency group out of `pyproject.toml` first, because
+  it is maintainer-only and currently exists mainly to support
+  `tools/install_optional_dependencies.py`
+- keep `pyproject.toml` focused on runtime metadata, build-system requirements,
+  and user-facing packaging contracts
+- keep the `test` extra in `pyproject.toml` unless the project explicitly drops
+  pip-native contributor testing and non-Pixi test installs; that extra still
+  defines a legitimate user or contributor contract that is different from the
+  CI-only `ci` group
+- once CI and local maintainer paths both obtain their tooling from `pixi`
+  environments rather than `project.optional-dependencies`, remove
+  `tools/install_optional_dependencies.py` and then decide separately whether
+  the remaining `test` extra should stay or move
