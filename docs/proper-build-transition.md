@@ -23,7 +23,7 @@ maintainer wheel-validation path, but it still keeps explicit legacy fallback
 tasks. It also owns the root packaging entry point and compiles native code
 from the vendored sources.
 
-The current checkpoint does sixteen things:
+The current checkpoint does seventeen things:
 
 1. introduces a root CMake entry point owned by this repository
 2. replaces the grouped scaffold manifests with explicit source lists copied
@@ -53,6 +53,9 @@ The current checkpoint does sixteen things:
 16. splits the remaining unpackaged `dist/pyCFML` assembly into the explicit
     `pycfml-dist-legacy` fallback so that `pycfml-build-legacy` no longer
     hand-copies runtime libraries or rewrites RPATHs before building a wheel
+17. forces the Windows `cibuildwheel` + `scikit-build-core` path onto Ninja so
+    MinGW `gfortran` no longer falls back to the incompatible Visual Studio
+    generator inside isolated release-wheel builds
 
 ## Current Validated Contract
 
@@ -133,6 +136,10 @@ available while parity is being proven.
   live only behind the explicit `scripts/pycfml_dist.sh` /
   `pycfml-dist-legacy` fallback, while `full-legacy` still includes that task
   so maintainers can exercise the old unpackaged assembly path when needed
+- the repo-owned Windows `cibuildwheel` policy now sets
+  `CMAKE_GENERATOR=Ninja`, and the repo-owned `scikit-build-core` config now
+  requires Ninja in isolated builds, so release-wheel builds do not fall back
+  to the incompatible Visual Studio generator when they probe MinGW `gfortran`
 - `tools/run_installed_wheel_tests.py` now reinstalls the built wheel with
   `pip install --force-reinstall --no-deps`, relying on the managed test
   environment instead of live index resolution during validation
@@ -217,7 +224,7 @@ What has already been validated locally from the repository root:
 - `python -m cibuildwheel --platform windows --archs AMD64
   --print-build-identifiers` resolves the intended `cp311` to `cp314`
   `win_amd64` build targets from the repo-owned Windows cibuildwheel
-  configuration
+  configuration after adding the explicit Ninja-generator policy
 - `python -m delvewheel show -h` and `python -m delvewheel repair -h` succeed
   locally, confirming the Windows repair command surface used by
   `tools/repair_windows_wheel.py`

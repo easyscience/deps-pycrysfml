@@ -56,6 +56,9 @@
 - Treat `pixi run pycfml-dist-legacy` / `scripts/pycfml_dist.sh` as the only
   remaining explicit fallback that still assembles unpackaged `dist/pyCFML`
   with handwritten runtime-library copy and RPATH rewrite logic.
+- Treat the Windows `cibuildwheel` release path as a Ninja-based MinGW
+  `gfortran` build; do not let it fall back to the Visual Studio generator for
+  the isolated wheel build.
 - Do not edit generated files in `scripts/` directly unless the task is
   explicitly about the generated output. Change `pybuild.py` or
   `pybuild.toml`, regenerate the scripts, and validate the affected
