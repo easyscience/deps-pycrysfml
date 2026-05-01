@@ -21,24 +21,25 @@ python = "3.13.*"
 [feature.py314.dependencies]
 python = "3.14.*"
 
-[feature.dev.pypi-dependencies]
+[feature.install-tools.pypi-dependencies]
 pip = '*'
-build = '*'
-scikit-build-core = '*'
-versioningit = '*'
-crysfml = { path = '.', editable = true, extras = ['ci', 'test'] }
+packaging = '*'
 
-[feature.ci-tools.pypi-dependencies]
-pip = '*'
+[feature.build-tools.pypi-dependencies]
 build = '*'
 wheel = '*'
-packaging = '*'
 scikit-build-core = '*'
 versioningit = '*'
+
+[feature.test-tools.pypi-dependencies]
 pytest = '*'
 deepdiff = '*'
 matplotlib = '*'
 
+[feature.dev.pypi-dependencies]
+crysfml = { path = '.', editable = true }
+
+[feature.ci-tools.pypi-dependencies]
 [feature.repair-macos]
 platforms = ["osx-arm64"]
 
@@ -51,22 +52,15 @@ platforms = ["win-64"]
 [feature.repair-windows.pypi-dependencies]
 delvewheel = '*'
 
-[feature.wheeltest.pypi-dependencies]
-pip = '*'
-packaging = '*'
-pytest = '*'
-deepdiff = '*'
-matplotlib = '*'
-
 [environments]
-default = ["dev", "py314"]
-wheeltest = ["wheeltest", "py314"]
-repair-macos = ["wheeltest", "repair-macos", "py314"]
-repair-windows = ["wheeltest", "repair-windows", "py314"]
-ci-py311 = ["ci-tools", "py311"]
-ci-py312 = ["ci-tools", "py312"]
-ci-py313 = ["ci-tools", "py313"]
-ci-py314 = ["ci-tools", "py314"]
+default = ["install-tools", "build-tools", "test-tools", "dev", "py314"]
+wheeltest = ["install-tools", "test-tools", "py314"]
+repair-macos = ["install-tools", "test-tools", "repair-macos", "py314"]
+repair-windows = ["install-tools", "test-tools", "repair-windows", "py314"]
+ci-py311 = ["install-tools", "build-tools", "test-tools", "ci-tools", "py311"]
+ci-py312 = ["install-tools", "build-tools", "test-tools", "ci-tools", "py312"]
+ci-py313 = ["install-tools", "build-tools", "test-tools", "ci-tools", "py313"]
+ci-py314 = ["install-tools", "build-tools", "test-tools", "ci-tools", "py314"]
 
 [tasks.vendor-cfml-refresh]
 cmd = "python tools/vendor_cfml.py refresh --force"

@@ -51,7 +51,9 @@ For the full local maintainer workflow and validation commands, see
 
 The supported local maintainer path is the repo-owned root CMake build,
 `scikit-build-core`, and the `pixi` tasks defined in
-`pixi.toml`. The current maintainer scope is GNU Fortran (`gfortran`) only.
+`pixi.toml`. Maintainer build and test dependencies live in `pixi`, while
+`pyproject.toml` stays focused on package metadata and build requirements. The
+current maintainer scope is GNU Fortran (`gfortran`) only.
 
 For the supported local build, test, sdist, release, and vendored-CFML
 maintenance commands, see [docs/maintainer-workflows.md](docs/maintainer-workflows.md).

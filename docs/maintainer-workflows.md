@@ -98,6 +98,9 @@ Optional native diagnostics:
 - GitHub Actions should reuse the same repo-owned tasks through the versioned
   `ci-py311`, `ci-py312`, `ci-py313`, and `ci-py314` Pixi environments rather
   than calling the helper scripts directly.
+- Maintainer build and test dependencies belong in `pixi.toml`; keep
+  `pyproject.toml` focused on published package metadata and build-system
+  requirements.
 
 ## Maintenance Rules
 

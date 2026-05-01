@@ -42,20 +42,6 @@ dependencies = [
 License = 'https://github.com/easyscience/deps-pycrysfml/blob/master/LICENSE'
 'Upstream CrysFML' = 'https://code.ill.fr/scientific-software/CrysFML2008'
 
-[project.optional-dependencies]
-ci = [
-  'validate-pyproject[all]',
-  'build',
-  'wheel',
-  'packaging',
-  'check-wheel-contents'
-]
-test = [
-  'deepdiff',
-  'pytest',
-  'matplotlib'
-]
-
 [build-system]
 requires = ['scikit-build-core>=0.11', 'versioningit']
 build-backend = 'scikit_build_core.build'
