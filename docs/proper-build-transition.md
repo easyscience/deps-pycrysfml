@@ -313,18 +313,22 @@ Concrete examples already observed:
   file is actually named `CFML_GlobalDeps_MacOs_INTEL.f90`
 - the ODR CMake file builds `odr_dp` from the wrong source list
 
-## Proposed Canonical Layout
+## Current Canonical Layout
 
-These files become the long-term packaging entry points:
+These files are the current packaging entry points:
 
-- `CMakeLists.txt`: root orchestration only
+- `CMakeLists.txt`: root orchestration, target definitions, and package install
+  rules
 - `cmake/CfmlSourceManifest.cmake`: explicit CFML source ownership
 - `cmake/PyCfmlSourceManifest.cmake`: explicit pyCFML source ownership
 - `cmake/CompilerProfiles.cmake`: compiler- and platform-specific options
-- `cmake/InstallLayout.cmake`: package install destinations and data files
-- `cmake/RuntimeRepair.cmake`: only minimal build-time runtime-path setup
-- `package/crysfml/__init__.py`: future curated package init
-- `package/crysfml/*.py`: installed Python helper modules staged by CMake
+- `src/__init__.py`: curated package init installed as `crysfml/__init__.py`
+- `repo/CFML/PythonAPI/Python/*.py`: vendored helper modules installed into
+  the package by CMake
+
+The install layout currently lives directly in the root `CMakeLists.txt`.
+Splitting that into dedicated layout or runtime-repair CMake modules is still a
+possible cleanup, but it is not part of the current maintained build contract.
 
 The vendored tree remains input data:
 
@@ -332,19 +336,19 @@ The vendored tree remains input data:
 - `repo/CFML/PythonAPI/Fortran`: wrapper sources
 - `repo/CFML/PythonAPI/Python`: upstream helper modules
 
-## Planned Target Names
+## Current Repo-owned Target Names
 
-The new root build should stay flat and obvious.
+The current root build stays flat and explicit.
 
 - `cfml_core`: static core Fortran library built from vendored CrysFML sources
-- `pycfml_extension`: Python extension target with output name `crysfml08lib`
-- `cfml_groups08`: optional vendored test program
-- `cfml_nfp`: optional vendored test program
+- `pycfml_extension`: Python extension module target with output name
+  `crysfml08lib`
+- `crysfml::cfml_core`: current alias for the core target
+- `crysfml::pycfml_extension`: current alias for the extension target
 
-Optional exported aliases can come later:
-
-- `crysfml::cfml_core`
-- `crysfml::pycfml_extension`
+Vendored test-program manifests are present, but optional targets such as
+`cfml_groups08` and `cfml_nfp` are still reserved future expansion rather than
+active repo-owned build targets.
 
 ## Source Ownership Rules
 
@@ -382,16 +386,10 @@ Linux wheels must become real manylinux wheels.
   wheel
 - test the repaired wheel, not the pre-repair wheel
 
-To keep the Linux path understandable and reproducible, prefer a small
-repo-owned manylinux image definition over ad hoc package installation in the CI
-workflow.
-
-That image should contain at least:
-
-- the chosen manylinux base image
-- `gfortran`
-- the Python build prerequisites needed by the backend
-- any native utilities required before `auditwheel repair`
+The current repo-owned Linux release path uses cibuildwheel's
+`manylinux2014` image plus a minimal `before-all` package install for
+`gcc-gfortran` and `git`. A custom derived manylinux image remains possible
+follow-up cleanup, but it is not required for the current release contract.
 
 The Linux release path should stay intentionally narrow at first. `ifx` remains
 outside the current repo-owned build scope until the gfortran manylinux path is
@@ -408,7 +406,8 @@ then repaired with `delocate`.
   `universal2` immediately
 - preserve the currently validated package behavior for bundled Fortran runtime
   libraries and `@loader_path`-based loading
-- use `delocate-listdeps` and `delocate-wheel` as the release repair steps
+- use `delocate-wheel` as the release repair step; use `delocate-listdeps` as
+  a diagnostic when parity debugging is needed
 - test the delocated wheel in a fresh environment before artifact promotion
 
 The first proper-build release can keep the currently proven macOS architecture
@@ -425,8 +424,9 @@ with `delvewheel`.
 - bundle the runtime DLLs required by the final `.pyd`
 - preserve the curated package init behavior that adds the package directory to
   DLL resolution on Windows
-- run `delvewheel show` or equivalent dependency inspection before the final
-  repair step
+- use `delvewheel repair` as the release repair step; use `delvewheel show` or
+  equivalent dependency inspection as a diagnostic when parity debugging is
+  needed
 - test import and basic runtime behavior from a fresh environment after repair
 
 ### Non-release compiler paths
