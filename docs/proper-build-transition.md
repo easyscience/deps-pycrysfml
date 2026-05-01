@@ -581,21 +581,17 @@ release matrix.
 - remove `pytest-benchmark` from the default `test` extra and helper commands
 - convert remaining benchmark-wrapped correctness tests to direct calls
 
-### Phase 9: Task-surface consolidation [proposed follow-up]
+### Phase 9: Task-surface consolidation [landed]
 
-- add explicit `pixi` tasks for every repo-owned maintainer validation slice and
-  release-preparation command that is currently expressed as a raw shell or
-  Python invocation
-- make CI call those `pixi` tasks for repository-owned command steps instead of
-  duplicating `python tools/...` invocations in workflow YAML
-- keep GitHub Actions-specific orchestration in workflow YAML, including matrix
-  expansion, artifact upload and download, release metadata updates, and any
-  `uses:` steps that are still intentionally workflow-owned
-- retire `tools/install_optional_dependencies.py` after CI and local maintainer
-  paths obtain their dependencies from versioned Pixi environments instead of
-  `project.optional-dependencies`
-- converge on one stable maintainer command surface where local validation and
-  CI validation share the same repo-owned entrypoints
+- explicit `pixi` tasks now cover the repo-owned maintainer validation slices
+  and release-preparation commands that remain repository-owned
+- CI now calls those `pixi` tasks for repository-owned command steps while
+  GitHub Actions-specific orchestration stays in workflow YAML
+- `tools/install_optional_dependencies.py` has been retired now that CI and
+  local maintainer paths obtain their dependencies from versioned Pixi
+  environments instead of `project.optional-dependencies`
+- local validation and CI validation now share one stable repo-owned command
+  surface for wheel, sdist, and vendored-CFML maintenance paths
 
 ## Validation Gates
 
@@ -634,9 +630,10 @@ To keep the migration understandable, each commit should do one of these only:
 - switch release CI to cibuildwheel
 - remove benchmark dependencies from the default correctness path
 
-## Possible Follow-Up Decisions After Retiring pybuild
+## Optional Future Decisions After Migration Completion
 
-If the maintainer surface is reduced further, the remaining decisions are:
+The proper-build migration does not depend on these choices. If the maintainer
+surface is reduced further, the remaining decisions are:
 
 1. decide whether the remaining vendor-prefixed CFML maintenance tasks should
   stay as dedicated repo-owned maintainer helpers or collapse into documented
