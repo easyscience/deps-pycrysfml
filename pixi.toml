@@ -103,7 +103,7 @@ description = "Run the repo-owned local wheel and sdist validation pipeline"
 
 repo-wiki = 'gh api -X PATCH repos/easyscience/deps-pycrysfml -f has_wiki=false'
 repo-discussions = 'gh api -X PATCH repos/easyscience/deps-pycrysfml -f has_discussions=true'
-repo-description = "gh api -X PATCH repos/easyscience/deps-pycrysfml -f description='Qt/QML components for building graphical applications'"
+repo-description = "gh api -X PATCH repos/easyscience/deps-pycrysfml -f description='Python bindings for the CrysFML2008 crystallographic library'"
 repo-homepage = "gh api -X PATCH repos/easyscience/deps-pycrysfml -f homepage='https://easyscience.github.io/deps-pycrysfml'"
 repo-config = { depends-on = [
   'repo-wiki',

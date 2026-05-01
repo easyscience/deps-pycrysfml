@@ -14,6 +14,9 @@ The end state is intentionally narrow and understandable:
 - one package layout installed by CMake and packed by the backend
 - one sdist contract that can be rebuilt into the same kind of wheel in CI
 
+For the stable day-to-day maintainer commands, use `docs/maintainer-workflows.md`.
+This transition document tracks how the repo moved to that end state.
+
 ## Current Implementation Checkpoint
 
 This branch has moved past the original scaffold-only slice.
