@@ -11,12 +11,31 @@ ERROR: Could not find a version that satisfies the requirement crysfml (from ver
 ERROR: No matching distribution found for crysfml
 ```
 
-In the current release flow, that message most likely means:
+In the release flow that this note originally analyzed, that message most likely meant:
 
 - PyPI has no wheel compatible with the Colab runtime tags.
 - There is no source distribution (`sdist`) fallback.
 
-## Current Published State
+## Status After The Repo-owned Build Migration
+
+This note records the diagnosis that motivated the Linux release migration.
+
+The current repository state has moved on:
+
+- Linux release wheels are built through the repo-owned `cibuildwheel` policy in
+  `.github/workflows/build-release.yml` using a dedicated `manylinux2014`
+  container and `auditwheel` repair.
+- The release flow stages both validated wheels and an `sdist` on the draft
+  GitHub release.
+- `pybuild.py`, `pybuild.toml`, and the generated top-level `scripts/` helper
+  surface have been retired.
+- The supported maintainer commands now live in `pixi.toml` and are documented
+  in `docs/maintainer-workflows.md`.
+
+References below to `pybuild.py`, `pybuild.toml`, and generated helper scripts
+are preserved as historical context for the original problem analysis.
+
+## Published State When This Note Was Written
 
 As checked on PyPI on 2026-04-29:
 
@@ -53,7 +72,7 @@ Implications:
 - Any Linux wheel built specifically for this observed Colab runtime must be tagged no newer than `manylinux_2_35_x86_64`.
 - A more portable and safer release target is still `manylinux2014_x86_64` / `manylinux_2_17_x86_64`.
 
-## Current Repository Behavior
+## Historical Repository Behavior At Time Of Diagnosis
 
 The current Linux release pipeline is not a real manylinux build.
 
@@ -173,7 +192,7 @@ If the toolchain requires something newer, a secondary compromise target is:
 
 That may still be useful for modern Linux environments, but it is less conservative than `manylinux2014` / `manylinux_2_17`.
 
-## Planned Migration
+## Migration Proposed By This Note
 
 The safest repo-specific migration path is:
 
@@ -186,7 +205,7 @@ The safest repo-specific migration path is:
 7. Test the repaired Linux wheel, not the pre-repair wheel.
 8. Publish an `sdist` in addition to wheels.
 
-## Concrete Repository Changes Likely Needed
+## Concrete Repository Changes That Were Needed
 
 Expected areas to change:
 
@@ -206,7 +225,7 @@ Expected areas to change:
 - `.github/workflows/pypi-publish.yml`
   - publish `sdist` artifacts as well as wheels
 
-## Validation To Use During Migration
+## Validation To Use For This Compatibility Slice
 
 On Colab or a Colab-like environment:
 
@@ -229,7 +248,7 @@ auditwheel show dist/*.whl
 auditwheel repair dist/*.whl -w wheelhouse
 ```
 
-## Practical Next Step
+## Original Next Step
 
 The next atomic change should be:
 
