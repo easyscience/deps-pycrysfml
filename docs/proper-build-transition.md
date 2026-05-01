@@ -47,12 +47,12 @@ The current checkpoint does twenty things:
     repo-owned
 14. keeps the native macOS and Windows wheel-repair helpers as explicit local
     maintainer diagnostics through repo-owned `pixi` tasks
-15. keeps the remaining low-level `pybuild.py` fallback wheel logic
-    validation-only, without retagging or rewriting wheel metadata now that
-    the backend already emits a native wheel
-16. isolates the remaining unpackaged `dist/pyCFML` assembly as low-level
-    helper logic so the wheel path no longer hand-copies runtime libraries or
-    rewrites RPATHs before building a wheel
+15. removes the remaining low-level `pybuild.py` fallback wheel logic now
+    that the backend already emits and validates native wheels through
+    repo-owned helpers
+16. removes the unpackaged `dist/pyCFML` assembly helpers from `pybuild.py`,
+    leaving only cleanup of retired generated pyCFML script outputs during
+    vendored-helper regeneration
 17. forces the Windows `cibuildwheel` + `scikit-build-core` path onto Ninja so
     MinGW `gfortran` no longer falls back to the incompatible Visual Studio
     generator inside isolated release-wheel builds
@@ -61,9 +61,10 @@ The current checkpoint does twenty things:
     `pycfml_test.sh`, and `wheel_build.sh` wrappers, leaving only the remaining
     lower-level script-oriented helpers
 19. retires the generated pyCFML helper-script branch from
-    `pybuild.py --create-scripts`, so the maintained generated-script surface
-    is now limited to CFML refresh/build/test helpers and stale pyCFML helper
-    outputs are removed on regeneration
+    `pybuild.py --create-scripts` and deletes the underlying dormant pyCFML
+    helper definitions, so the maintained generated-script surface is now
+    limited to CFML refresh/build/test helpers and stale retired outputs are
+    removed on regeneration
 20. narrows the remaining generated-script maintainer tasks to explicit
     `vendor-cfml-*` vendoring helpers and stops retaining the unreferenced
     `scripts/main.sh` aggregate output
@@ -90,17 +91,17 @@ builds every release wheel through repo-owned `cibuildwheel` policy. The
 default local maintainer path now follows repo-owned wheel and sdist helpers as
 well, macOS and Windows have explicit native repair-diagnostic tasks, and the
 remaining generated-script maintainer surface is now limited to explicit
-vendor-prefixed CFML refresh/build/test helpers. `pybuild.py` still carries
-dormant historical pyCFML helper definitions, but `--create-scripts` no longer
-emits them and no longer leaves `scripts/main.sh` behind as a generated
-artifact.
+vendor-prefixed CFML refresh/build/test helpers. `pybuild.py` no longer
+carries the historical pyCFML wheel-assembly branch; `--create-scripts` now
+emits only the maintained CFML helpers and removes stale retired pyCFML
+outputs plus `scripts/main.sh` on regeneration.
 
 ## Current Hybrid State
 
 The branch now spans both worlds: repo-owned packaging, release-wheel CI, and
 default maintainer validation are real, but a small vendor-prefixed CFML
-script-oriented maintainer surface still remains and `pybuild.py` still carries
-dormant historical pyCFML helper definitions.
+script-oriented maintainer surface still remains and `pybuild.py` still owns
+that vendoring helper generation path.
 
 ### Latest completed slice
 
@@ -139,19 +140,10 @@ dormant historical pyCFML helper definitions.
   maintainer diagnostics through `tools/run_repair_diagnostics.py` and the
   native `pixi` tasks `pycfml-repair-diagnostics-macos` and
   `pycfml-repair-diagnostics-windows`
-- the legacy `pybuild.py` fallback path now validates the backend-produced
-  wheel filename and `Root-Is-Purelib: false` metadata instead of retagging the
-  wheel or rewriting its metadata in place
-- the low-level fallback wheel-build step now recreates `dist/pyCFML/wheel`
-  before each build and requires exactly one built wheel artifact before
-  validation or install, so stale wheels are no longer silently reused
-- the old composite pyCFML wrapper path had already been reduced to
-  repository-root wheel creation and validation before those wrapper scripts
-  and `pixi` entry points were retired
-- the remaining handwritten runtime-library copy and RPATH rewrite steps now
-  live only inside the low-level unpackaged `dist/pyCFML` assembly logic in
-  `pybuild.py` and generated helper scripts; they are no longer exposed as
-  dedicated `pixi` tasks or composite wrapper scripts
+- the dormant pyCFML fallback wheel, install, runtime-library copy, and RPATH
+  helper definitions have now been removed from `pybuild.py`, so the remaining
+  generated maintainer path no longer retains a second low-level wheel
+  assembly implementation
 - the repo-owned Windows `cibuildwheel` policy now sets
   `CMAKE_GENERATOR=Ninja`, and the repo-owned `scikit-build-core` config now
   requires Ninja in isolated builds, so release-wheel builds do not fall back
@@ -159,8 +151,6 @@ dormant historical pyCFML helper definitions.
 - `tools/run_installed_wheel_tests.py` now reinstalls the built wheel with
   `pip install --force-reinstall --no-deps`, relying on the managed test
   environment instead of live index resolution during validation
-- the legacy `pybuild.py` install step now matches that `--no-deps`
-  reinstall contract when it installs a built wheel for the fallback test path
 - the explicit `pycfml-build-legacy`, `pycfml-dist-legacy`,
   `pycfml-test-legacy`, and `full-legacy` maintainer tasks have now been
   removed from `pixi.toml`
@@ -269,10 +259,9 @@ What is still hybrid:
   `vendor-cfml-refresh-branch`, `vendor-cfml-refresh-commit`,
   `vendor-cfml-build`, and `vendor-cfml-test` still call `pybuild.py` and
   generated `scripts/`
-- `pybuild.py` still contains dormant historical pyCFML helper definitions,
-  including the old unpackaged `dist/pyCFML` assembly logic, even though
-  `pybuild.py --create-scripts` no longer emits those helper scripts and no
-  longer retains the unreferenced `scripts/main.sh` output
+- `pybuild.py` still owns cleanup of retired pyCFML-generated script names when
+  vendored helpers are regenerated, so the vendoring maintenance path has not
+  yet been fully separated from historical script-surface cleanup
 - local macOS builds still emit deployment-target mismatch warnings on this
   machine before `delocate` normalizes the repaired wheel tag
 - the Linux manylinux build was not run locally on this machine because no
@@ -561,7 +550,7 @@ release matrix.
 - ensure the backend-emitted wheel metadata remains correct without post-build
   filename surgery
 
-### Phase 5: Runtime repair [landed in release CI; fallback cleanup pending]
+### Phase 5: Runtime repair [landed in release CI]
 
 - use `auditwheel` on Linux after building inside a real manylinux image in
   release CI
@@ -634,9 +623,10 @@ To keep the migration understandable, each commit should do one of these only:
 
 The next implementation slice should do exactly these things:
 
-1. decide whether the now-dormant historical pyCFML helper definitions still
-   present in `pybuild.py` should be deleted outright or moved into clearly
-   archival maintainer-only documentation
+1. decide whether the retired pyCFML script names still listed in
+  `_remove_generated_files([...])` should remain cleanup-only compatibility
+  shims or be removed once those stale outputs no longer need to be scrubbed
+  on regeneration
 2. decide whether the remaining vendor-prefixed CFML maintenance tasks and
    generated `scripts/` helpers should stay script-generated or be replaced by
    a smaller repo-owned vendoring helper path

@@ -250,7 +250,7 @@ jobs:
   ##############################################################################
   test:  # current job name
 
-    needs: [resolve_release_tag, build]  # previous job 'build' need to be finished first
+    needs: build  # previous job 'build' need to be finished first
 
     if: always()  # start this job even if the previous job failed
 
@@ -305,7 +305,7 @@ jobs:
   ##############################################################################
   test-linux-manylinux:
 
-    needs: [resolve_release_tag, build-linux-manylinux]
+    needs: build-linux-manylinux
 
     if: always()
 
@@ -420,7 +420,7 @@ jobs:
   ##############################################################################
   upload-release-assets:
 
-    needs: [resolve_release_tag, test, test-linux-manylinux, source-rebuild]
+    needs: [test, test-linux-manylinux, source-rebuild]
 
     if: ${{ github.event_name == 'push' && github.ref_name == 'master' && needs.resolve_release_tag.outputs.tag_name != '' }}
 
