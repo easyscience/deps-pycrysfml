@@ -633,13 +633,10 @@ def _write_sectioned_script(script_name: str, sections: list):
 def create_cfml_build_script():
     sections = [
         ('Print some build-specific variables', [('print_build_variables.sh', True)]),
-        (f'Create scripts, {CFML} and {pyCFML} directories', [
+        (f'Create scripts and {CFML} directories', [
             ('create_cfml_repo_dir.sh', False),
             ('create_cfml_build_dir.sh', False),
             ('create_cfml_dist_dir.sh', False),
-            ('create_pycfml_src_dir.sh', False),
-            ('create_pycfml_build_dir.sh', False),
-            ('create_pycfml_dist_dir.sh', False),
         ]),
         (f'Download {CFML} repository', [('download_cfml_repo.sh', False)]),
         (f'Build {CFML} modules', [
@@ -1642,7 +1639,6 @@ if __name__ == '__main__':
         exit(1)
 
     CFML = CONFIG['cfml']['log-name']
-    pyCFML = CONFIG['pycfml']['log-name']
 
     #############
     # Preparation
@@ -1653,13 +1649,10 @@ if __name__ == '__main__':
     add_main_script_header(f"Print some build-specific variables")
     print_build_variables()
 
-    add_main_script_header(f"Create scripts, {CFML} and {pyCFML} directories")
+    add_main_script_header(f"Create scripts and {CFML} directories")
     create_cfml_repo_dir()
     create_cfml_build_dir()
     create_cfml_dist_dir()
-    create_pycfml_src_dir()
-    create_pycfml_build_dir()
-    create_pycfml_dist_dir()
 
     ############
     # Build CFML
@@ -1685,48 +1678,36 @@ if __name__ == '__main__':
     ####run_cfml_functional_tests_no_benchmarks()
     #run_cfml_functional_tests_with_benchmarks()
 
-    ##############
-    # Build pyCFML
-    ##############
-
-    add_main_script_header(f"Create {pyCFML} source code")
-    create_pycfml_src()
-
-    add_main_script_header(f"Build {pyCFML} modules")
-    build_pycfml_modules_obj()
-
-    add_main_script_header(f"Build {pyCFML} shared obj / dynamic library")
-    build_pycfml_lib_obj()
-    build_pycfml_shared_obj_or_dynamic_lib()
-
-    add_main_script_header(f"Make {pyCFML} distribution")
-    copy_built_to_pycfml_dist()
-    copy_extra_libs_to_pycfml_dist()
-    change_runpath_for_built_pycfml()
-    copy_py_api_files_to_pycfml_dist()
-    copy_init_file_to_pycfml_dist()
-    copy_cfml_databases_to_pycfml_dist()
-
-    add_main_script_header(f"Create Python package wheel of {pyCFML}")
-    validate_pyproject_toml()
-    create_pycfml_python_wheel()
-    rename_pycfml_python_wheel()
-    repair_pycfml_python_wheel_metadata()
-    check_wheel_contents()
-
-    add_main_script_header(f"Install {pyCFML} from Python package wheel")
-    install_pycfml_from_wheel()
-
-    add_main_script_header(f"Run {pyCFML} tests")
-    run_pycfml_unit_tests()
-    run_pycfml_functional_tests_no_benchmarks()
-
     create_cfml_build_script()
     create_cfml_test_script()
     _remove_generated_files([
+        'build_pycfml_lib_obj.sh',
+        'build_pycfml_modules_obj.sh',
+        'build_pycfml_shared_obj_or_dynamic_lib.sh',
+        'change_runpath_for_built_pycfml.sh',
+        'check_wheel_contents.sh',
+        'copy_built_to_pycfml_dist.sh',
+        'copy_cfml_databases_to_pycfml_dist.sh',
+        'copy_extra_libs_to_pycfml_dist.sh',
+        'copy_init_file_to_pycfml_dist.sh',
+        'copy_py_api_files_to_pycfml_dist.sh',
+        'create_pycfml_build_dir.sh',
+        'create_pycfml_dist_dir.sh',
+        'create_pycfml_python_wheel.sh',
+        'create_pycfml_src.sh',
+        'create_pycfml_src_dir.sh',
+        'install_pycfml_from_wheel.sh',
+        'main.sh',
         'pycfml_build.sh',
         'pycfml_dist.sh',
         'pycfml_test.sh',
+        'rename_pycfml_python_wheel.sh',
+        'repair_pycfml_python_wheel_metadata.sh',
+        'run_powder_mod_main.sh',
+        'run_powder_mod_tests.sh',
+        'run_pycfml_functional_tests_no_benchmarks.sh',
+        'run_pycfml_unit_tests.sh',
+        'validate_pyproject_toml.sh',
         'wheel_build.sh',
     ])
 

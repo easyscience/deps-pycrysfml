@@ -21,10 +21,10 @@ This branch has moved past the original scaffold-only slice.
 It now owns the active release workflow end to end in CI and the default local
 maintainer wheel-validation path. It also owns the root packaging entry point,
 compiles native code from the vendored sources, and has now retired the
-explicit legacy pyCFML wrapper tasks while leaving a smaller script-oriented
-maintainer surface in place.
+explicit legacy pyCFML wrapper tasks while narrowing the remaining generated
+script path to explicit vendoring-only maintainer helpers.
 
-The current checkpoint does eighteen things:
+The current checkpoint does twenty things:
 
 1. introduces a root CMake entry point owned by this repository
 2. replaces the grouped scaffold manifests with explicit source lists copied
@@ -60,6 +60,13 @@ The current checkpoint does eighteen things:
     and stops generating composite `pycfml_build.sh`, `pycfml_dist.sh`,
     `pycfml_test.sh`, and `wheel_build.sh` wrappers, leaving only the remaining
     lower-level script-oriented helpers
+19. retires the generated pyCFML helper-script branch from
+    `pybuild.py --create-scripts`, so the maintained generated-script surface
+    is now limited to CFML refresh/build/test helpers and stale pyCFML helper
+    outputs are removed on regeneration
+20. narrows the remaining generated-script maintainer tasks to explicit
+    `vendor-cfml-*` vendoring helpers and stops retaining the unreferenced
+    `scripts/main.sh` aggregate output
 
 ## Current Validated Contract
 
@@ -82,16 +89,18 @@ The current release flow now produces a rebuildable source distribution and
 builds every release wheel through repo-owned `cibuildwheel` policy. The
 default local maintainer path now follows repo-owned wheel and sdist helpers as
 well, macOS and Windows have explicit native repair-diagnostic tasks, and the
-remaining script-generated maintainer surface is now limited to lower-level
-CFML refresh/build/test helpers plus the low-level unpackaged `dist/pyCFML`
-assembly logic still present in `pybuild.py`.
+remaining generated-script maintainer surface is now limited to explicit
+vendor-prefixed CFML refresh/build/test helpers. `pybuild.py` still carries
+dormant historical pyCFML helper definitions, but `--create-scripts` no longer
+emits them and no longer leaves `scripts/main.sh` behind as a generated
+artifact.
 
 ## Current Hybrid State
 
 The branch now spans both worlds: repo-owned packaging, release-wheel CI, and
-default maintainer validation are real, but a small script-oriented maintainer
-surface still remains while the last unpackaged assembly logic is being
-decided.
+default maintainer validation are real, but a small vendor-prefixed CFML
+script-oriented maintainer surface still remains and `pybuild.py` still carries
+dormant historical pyCFML helper definitions.
 
 ### Latest completed slice
 
@@ -159,6 +168,18 @@ decided.
   such as `scripts/pycfml_build.sh`, `scripts/pycfml_dist.sh`,
   `scripts/pycfml_test.sh`, and `scripts/wheel_build.sh` instead of continuing
   to generate them
+- `pybuild.py --create-scripts` now stops emitting the older low-level pyCFML
+  helper scripts as well, so generated maintainer scripts are limited to the
+  CFML refresh/build/test path
+- `scripts/cfml_build.sh` now creates only the CFML repo/build/dist directories
+  it actually uses instead of also preparing the retired pyCFML script-build
+  directories
+- the remaining generated-script `pixi` tasks are now explicitly vendor-
+  prefixed as `vendor-cfml-*`, so the low-level CFML helper path is no longer
+  presented as a generic repo-facing build/test workflow
+- `pybuild.py --create-scripts` now removes the unreferenced `scripts/main.sh`
+  aggregate output, leaving only the generated helper scripts that are still
+  invoked by the remaining vendor-maintenance tasks
 
 What is already repo-owned:
 
@@ -206,9 +227,13 @@ What has already been validated locally from the repository root:
 - `python tools/run_installed_wheel_tests.py --wheel-dir <wheel-dir>` passes
   for the wheel built from that path
 - `python tools/validate_sdist_rebuild.py` succeeds
-- `pixi run --environment default --frozen scripts` succeeds and removes
-  obsolete composite pyCFML wrapper scripts from `scripts/` while preserving
-  the remaining generated helper scripts
+- `pixi run --environment default --frozen vendor-cfml-scripts` succeeds and
+  removes obsolete pyCFML helper scripts plus the unreferenced `scripts/main.sh`
+  output while preserving the remaining CFML-generated helper scripts
+- `pixi run --environment default --frozen vendor-cfml-build` succeeds after
+  the generated-script surface is narrowed to explicit vendoring helpers
+- `pixi run --environment default --frozen vendor-cfml-test` succeeds against
+  the vendored CFML distribution built by that narrowed maintainer path
 - `pixi run --environment default --frozen pycfml-build` succeeds after adding
   the repo-owned backend prerequisites to the default environment
 - `pixi run --environment wheeltest --frozen pycfml-test` passes against the
@@ -235,13 +260,15 @@ What has already been validated locally from the repository root:
 
 What is still hybrid:
 
-- standalone script-oriented helpers such as `scripts`, `scripts-fresh`,
-  `cfml-refresh`, `cfml-refresh-branch`, `cfml-refresh-commit`, `cfml-build`,
-  and `cfml-test` still call `pybuild.py` and generated `scripts/`
-- the unpackaged `dist/pyCFML` assembly logic still exists in `pybuild.py` and
-  generated helper scripts, including handwritten runtime-library copy and
-  RPATH rewrite steps, even though it is no longer exposed through dedicated
-  `pixi` legacy tasks
+- vendor-prefixed script-oriented helpers such as `vendor-cfml-scripts`,
+  `vendor-cfml-scripts-fresh`, `vendor-cfml-refresh`,
+  `vendor-cfml-refresh-branch`, `vendor-cfml-refresh-commit`,
+  `vendor-cfml-build`, and `vendor-cfml-test` still call `pybuild.py` and
+  generated `scripts/`
+- `pybuild.py` still contains dormant historical pyCFML helper definitions,
+  including the old unpackaged `dist/pyCFML` assembly logic, even though
+  `pybuild.py --create-scripts` no longer emits those helper scripts and no
+  longer retains the unreferenced `scripts/main.sh` output
 - plain `pixi run --environment <env> ...` currently tries to initialize
   cross-platform build dispatch for the `repair-windows` environment on this
   macOS machine and fails unless the already installed environment is reused
@@ -580,14 +607,13 @@ To keep the migration understandable, each commit should do one of these only:
 - migrate wheel repair to standard tools
 - switch release CI to cibuildwheel
 
-## Next Follow-Up Changes After Retiring Legacy PyCFML Entry Points
+## Next Follow-Up Changes After Narrowing Generated CFML Helpers
 
 The next implementation slice should do exactly these things:
 
-1. decide whether the remaining unpackaged `dist/pyCFML` assembly logic in
-   `pybuild.py` and generated helper scripts should be deleted outright or
-   moved into clearly archival maintainer-only documentation
-2. decide whether the remaining generated-script maintainer helpers
-   (`scripts`, `scripts-fresh`, `cfml-refresh*`, `cfml-build`, and
-   `cfml-test`) should remain repo-facing or be narrowed to vendoring-only
-   maintenance workflows once the unpackaged assembly decision is made
+1. decide whether the now-dormant historical pyCFML helper definitions still
+   present in `pybuild.py` should be deleted outright or moved into clearly
+   archival maintainer-only documentation
+2. decide whether the remaining vendor-prefixed CFML maintenance tasks and
+   generated `scripts/` helpers should stay script-generated or be replaced by
+   a smaller repo-owned vendoring helper path

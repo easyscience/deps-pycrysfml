@@ -47,15 +47,21 @@
 - Treat `pixi run pycfml-repair-diagnostics-macos` and
   `pixi run pycfml-repair-diagnostics-windows` as optional native
   maintainer diagnostics for repaired-wheel parity on those hosts.
-- Treat `scripts`, `scripts-fresh`, `cfml-refresh*`, `cfml-build`, and
-  `cfml-test` as the remaining script-oriented maintainer helpers while the
-  transition is being retired.
-- Treat the old generated wheel path as retired; do not reintroduce composite
-  `pycfml_build.sh`, `pycfml_dist.sh`, `pycfml_test.sh`, or `wheel_build.sh`
-  wrappers, custom wheel retagging, or wheel-metadata rewrite steps.
-- Treat the remaining unpackaged `dist/pyCFML` assembly logic as low-level
-  fallback code inside `pybuild.py` and generated helper scripts, not as a
-  default or repo-facing `pixi` task surface.
+- Treat `pixi run vendor-cfml-scripts`,
+  `pixi run vendor-cfml-scripts-fresh`,
+  `pixi run vendor-cfml-refresh*`, `pixi run vendor-cfml-build`, and
+  `pixi run vendor-cfml-test` as the remaining vendored-CFML maintenance
+  helpers while the transition is being retired.
+- Treat the old generated pyCFML script path as retired; do not reintroduce
+  composite `pycfml_build.sh`, `pycfml_dist.sh`, `pycfml_test.sh`, or
+  `wheel_build.sh` wrappers, low-level pyCFML helper scripts, custom wheel
+  retagging, or wheel-metadata rewrite steps.
+- Do not restore the old generic `scripts`, `scripts-fresh`, `cfml-refresh*`,
+  `cfml-build`, or `cfml-test` `pixi` task names; the remaining generated
+  script path is maintainer-only and explicitly vendor-prefixed.
+- Treat any remaining unpackaged `dist/pyCFML` assembly logic in `pybuild.py`
+  as dormant historical fallback code, not as generated output or a
+  repo-facing `pixi` task surface.
 - Treat the Windows `cibuildwheel` release path as a Ninja-based MinGW
   `gfortran` build; do not let it fall back to the Visual Studio generator for
   the isolated wheel build.
