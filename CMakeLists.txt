@@ -59,6 +59,19 @@ set(CRYSFML_PACKAGE_DATABASE_INSTALL_DIR
     "Install-time relative path for the bundled CFML database directory."
 )
 
+set(CRYSFML_CFML_DIST_ROOT
+    "${CMAKE_CURRENT_SOURCE_DIR}/dist/CFML"
+)
+set(CRYSFML_CFML_DIST_INCLUDE_DIR
+    "${CRYSFML_CFML_DIST_ROOT}/include"
+)
+set(CRYSFML_CFML_DIST_LIB_DIR
+    "${CRYSFML_CFML_DIST_ROOT}/lib"
+)
+set(CRYSFML_CFML_DIST_PROGS_DIR
+    "${CRYSFML_CFML_DIST_ROOT}/progs"
+)
+
 function(crysfml_require_existing_path path_var description)
     if(NOT EXISTS "${${path_var}}")
         message(FATAL_ERROR "${description} was not found at '${${path_var}}'")
@@ -114,6 +127,57 @@ if(CRYSFML_ENABLE_CORE_TARGET)
             "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/modules/cfml_core>"
     )
     crysfml_apply_gnu_fortran_target_profile(cfml_core)
+
+    add_custom_target(cfml_vendor_distribution
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CRYSFML_CFML_DIST_ROOT}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CRYSFML_CFML_DIST_LIB_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E rm -rf "${CRYSFML_CFML_DIST_INCLUDE_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CRYSFML_CFML_DIST_INCLUDE_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CRYSFML_CFML_DIST_PROGS_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:cfml_core>"
+            "${CRYSFML_CFML_DIST_LIB_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "$<TARGET_PROPERTY:cfml_core,Fortran_MODULE_DIRECTORY>"
+            "${CRYSFML_CFML_DIST_INCLUDE_DIR}"
+        DEPENDS cfml_core
+        COMMENT "Stage vendored CFML library and modules under dist/CFML"
+    )
+endif()
+
+if(CRYSFML_ENABLE_VENDOR_TESTS)
+    if(NOT CRYSFML_ENABLE_CORE_TARGET)
+        message(FATAL_ERROR "Vendored CFML test programs require CRYSFML_ENABLE_CORE_TARGET=ON")
+    endif()
+
+    set(CRYSFML_VENDOR_TEST_TARGETS "")
+    foreach(_crysfml_vendor_test_source IN LISTS CRYSFML_VENDOR_TEST_PROGRAM_SOURCES)
+        get_filename_component(_crysfml_vendor_test_name "${_crysfml_vendor_test_source}" NAME_WE)
+        set(_crysfml_vendor_test_target "cfml_vendor_test_${_crysfml_vendor_test_name}")
+
+        add_executable("${_crysfml_vendor_test_target}" "${_crysfml_vendor_test_source}")
+        target_link_libraries("${_crysfml_vendor_test_target}"
+            PRIVATE
+                crysfml::cfml_core
+        )
+        crysfml_apply_gnu_fortran_target_profile("${_crysfml_vendor_test_target}")
+        set_target_properties("${_crysfml_vendor_test_target}" PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CRYSFML_CFML_DIST_PROGS_DIR}"
+        )
+
+        list(APPEND CRYSFML_VENDOR_TEST_TARGETS "${_crysfml_vendor_test_target}")
+    endforeach()
+
+    add_custom_target(cfml_vendor_test_programs
+        DEPENDS
+            cfml_vendor_distribution
+            ${CRYSFML_VENDOR_TEST_TARGETS}
+        COMMENT "Build vendored CFML test programs into dist/CFML/progs"
+    )
+
+    unset(_crysfml_vendor_test_name)
+    unset(_crysfml_vendor_test_source)
+    unset(_crysfml_vendor_test_target)
 endif()
 
 if(CRYSFML_ENABLE_PYCFML_EXTENSION)

@@ -42,35 +42,27 @@ wheeltest = ["wheeltest"]
 repair-macos = ["wheeltest", "repair-macos"]
 repair-windows = ["wheeltest", "repair-windows"]
 
-[tasks.vendor-cfml-scripts]
-cmd = "python pybuild.py --create-scripts --enable-backslash-escapes"
-description = "Generate vendored-CFML maintenance shell scripts in the dev environment"
-
-[tasks.vendor-cfml-scripts-fresh]
-cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo"
-description = "Generate vendored-CFML maintenance scripts for a maintainer refresh from the configured branch"
-
 [tasks.vendor-cfml-refresh]
-cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo && scripts/create_cfml_repo_dir.sh && scripts/download_cfml_repo.sh"
-description = "Refresh vendored CFML from the branch configured in pybuild.toml"
+cmd = "python tools/vendor_cfml.py refresh --force"
+description = "Refresh vendored CFML from the default tracked upstream branch"
 
 [tasks.vendor-cfml-refresh-branch]
-cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo --cfml-branch {{ branch }} && scripts/create_cfml_repo_dir.sh && scripts/download_cfml_repo.sh"
+cmd = "python tools/vendor_cfml.py refresh --force --branch {{ branch }}"
 args = [{ arg = "branch", default = "master" }]
 description = "Refresh vendored CFML from a specific branch"
 
 [tasks.vendor-cfml-refresh-commit]
-cmd = "python pybuild.py --create-scripts --enable-backslash-escapes --force-download-cfml-repo --cfml-branch {{ branch }} --cfml-commit {{ commit }} && scripts/create_cfml_repo_dir.sh && scripts/download_cfml_repo.sh"
+cmd = "python tools/vendor_cfml.py refresh --force --branch {{ branch }} --commit {{ commit }}"
 args = ["commit", { arg = "branch", default = "master" }]
 description = "Refresh vendored CFML from a specific commit"
 
 [tasks.vendor-cfml-build]
-cmd = "scripts/cfml_build.sh"
-description = "Build vendored CFML modules, static library, and distribution"
+cmd = "python tools/vendor_cfml.py build"
+description = "Configure and stage the vendored CFML library and modules through the repo-owned CMake build"
 
 [tasks.vendor-cfml-test]
-cmd = "scripts/cfml_test.sh"
-description = "Create and run vendored CFML test programs"
+cmd = "python tools/vendor_cfml.py test"
+description = "Configure and build vendored CFML test programs through the repo-owned CMake build"
 
 [tasks.pycfml-build]
 cmd = "python tools/build_local_wheel.py --wheel-dir dist/pyCFML/wheel"

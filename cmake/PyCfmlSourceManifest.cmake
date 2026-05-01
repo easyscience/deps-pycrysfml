@@ -1,7 +1,8 @@
 # Canonical pyCFML manifest scaffold for the repo-owned build.
 #
-# The wrapper ordering mirrors the currently validated pybuild.toml manifest
-# rather than the vendored PythonAPI/CMakeLists.txt, which has already drifted.
+# The wrapper ordering mirrors the historical validated manifest that
+# previously lived in pybuild.toml rather than the vendored
+# PythonAPI/CMakeLists.txt, which has already drifted.
 
 set(PYCFML_FORTRAN_SOURCE_ROOT "${CRYSFML_VENDOR_PYTHON_API_ROOT}/Fortran")
 set(PYCFML_PYTHON_SOURCE_ROOT "${CRYSFML_VENDOR_PYTHON_API_ROOT}/Python")

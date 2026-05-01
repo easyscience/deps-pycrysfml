@@ -1,8 +1,9 @@
 # Canonical explicit manifest for the repo-owned CFML core build.
 #
-# This file is intentionally derived from the currently validated ordering in
-# pybuild.toml so the repo-owned CMake build can replace the script-generated
-# assembly flow without changing source-selection semantics.
+# This file is intentionally derived from the historical validated source
+# ordering that previously lived in pybuild.toml so the repo-owned CMake build
+# can preserve source-selection semantics without carrying the retired
+# script-generated assembly flow.
 
 set(CRYSFML_CORE_MANIFEST_IS_SCAFFOLD OFF)
 

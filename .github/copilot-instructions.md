@@ -38,20 +38,18 @@
   `cibuildwheel`, repairs them with the platform-standard repair tool,
   and uploads the validated wheels and sdist to the GitHub draft
   release.
-- Treat `pybuild.py` and `pybuild.toml` as the source of truth for the
-  generated shell scripts in `scripts/`, but not as the canonical release
-  wheel-build path.
+- Treat the repo-owned root CMake build, the source manifests under `cmake/`,
+  and `tools/vendor_cfml.py` as the source of truth for the remaining
+  vendored-CFML maintainer helper path.
 - Treat `pixi run pycfml-build`, `pixi run pycfml-test`,
   `pixi run sdist-validate`, and `pixi run full` as the default local
   maintainer validation path for repo-owned wheel and sdist work.
 - Treat `pixi run pycfml-repair-diagnostics-macos` and
   `pixi run pycfml-repair-diagnostics-windows` as optional native
   maintainer diagnostics for repaired-wheel parity on those hosts.
-- Treat `pixi run vendor-cfml-scripts`,
-  `pixi run vendor-cfml-scripts-fresh`,
-  `pixi run vendor-cfml-refresh*`, `pixi run vendor-cfml-build`, and
+- Treat `pixi run vendor-cfml-refresh*`, `pixi run vendor-cfml-build`, and
   `pixi run vendor-cfml-test` as the remaining vendored-CFML maintenance
-  helpers while the transition is being retired.
+  helpers after the repo-owned vendoring helper migration.
 - Treat the old generated pyCFML script path as retired; do not reintroduce
   composite `pycfml_build.sh`, `pycfml_dist.sh`, `pycfml_test.sh`, or
   `wheel_build.sh` wrappers, low-level pyCFML helper scripts, custom wheel
@@ -59,20 +57,13 @@
 - Do not restore the old generic `scripts`, `scripts-fresh`, `cfml-refresh*`,
   `cfml-build`, or `cfml-test` `pixi` task names; the remaining generated
   script path is maintainer-only and explicitly vendor-prefixed.
-- Treat any remaining unpackaged `dist/pyCFML` assembly logic in `pybuild.py`
-  as dormant historical fallback code, not as generated output or a
-  repo-facing `pixi` task surface.
 - Treat the Windows `cibuildwheel` release path as a Ninja-based MinGW
   `gfortran` build; do not let it fall back to the Visual Studio generator for
   the isolated wheel build.
-- Do not edit generated files in `scripts/` directly unless the task is
-  explicitly about the generated output. Change `pybuild.py` or
-  `pybuild.toml`, regenerate the scripts, and validate the affected
-  workflow path instead.
 - When changing build, packaging, or release behaviour, validate the
   complete affected slice: repository-root wheel build, wheel install,
   draft-release artifact staging when relevant, the relevant unit or
-  functional tests, and any remaining legacy-script or vendored-program
+  functional tests, and any remaining vendored-program
   paths that the change still touches.
 - Keep `.github/workflows/build-debug.yml` and
   `.github/workflows/build-release.yml` aligned when a change is meant

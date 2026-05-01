@@ -44,18 +44,15 @@ License = 'https://github.com/easyscience/deps-pycrysfml/blob/master/LICENSE'
 
 [project.optional-dependencies]
 ci = [
-  'toml',  # pybuild.py currently imports toml rather than tomllib
   'validate-pyproject[all]',
   'build',
   'wheel',
   'packaging',
-  'check-wheel-contents',
-  'colorama'
+  'check-wheel-contents'
 ]
 test = [
   'deepdiff',
   'pytest',
-  'pygit2',
   'matplotlib'
 ]
 

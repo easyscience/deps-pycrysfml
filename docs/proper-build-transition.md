@@ -21,14 +21,14 @@ This branch has moved past the original scaffold-only slice.
 It now owns the active release workflow end to end in CI and the default local
 maintainer wheel-validation path. It also owns the root packaging entry point,
 compiles native code from the vendored sources, and has now retired the
-explicit legacy pyCFML wrapper tasks while narrowing the remaining generated
-script path to explicit vendoring-only maintainer helpers.
+explicit legacy pyCFML wrapper tasks while replacing the remaining
+script-generated vendoring path with repo-owned maintainer helpers.
 
 The current checkpoint does twenty things:
 
 1. introduces a root CMake entry point owned by this repository
 2. replaces the grouped scaffold manifests with explicit source lists copied
-   from the validated `pybuild.toml` ordering
+  from the historically validated source ordering that has now been retired
 3. builds `cfml_core` and `pycfml_extension` for `gfortran` only
 4. stages the curated package init, vendored Python helper modules, and bundled
    database file through CMake install rules
@@ -50,30 +50,26 @@ The current checkpoint does twenty things:
 15. removes the remaining low-level `pybuild.py` fallback wheel logic now
     that the backend already emits and validates native wheels through
     repo-owned helpers
-16. removes the unpackaged `dist/pyCFML` assembly helpers from `pybuild.py`,
-    leaving only cleanup of retired generated pyCFML script outputs during
-    vendored-helper regeneration
+16. removes the unpackaged `dist/pyCFML` assembly helpers from the repo-owned
+  maintainer surface, leaving the wheel and sdist path fully owned by the
+  repository-root backend and helper tools
 17. forces the Windows `cibuildwheel` + `scikit-build-core` path onto Ninja so
     MinGW `gfortran` no longer falls back to the incompatible Visual Studio
     generator inside isolated release-wheel builds
 18. removes the explicit `pycfml-*-legacy` / `full-legacy` maintainer tasks
-    and stops generating composite `pycfml_build.sh`, `pycfml_dist.sh`,
-    `pycfml_test.sh`, and `wheel_build.sh` wrappers, leaving only the remaining
-    lower-level script-oriented helpers
-19. retires the generated pyCFML helper-script branch from
-    `pybuild.py --create-scripts` and deletes the underlying dormant pyCFML
-    helper definitions, so the maintained generated-script surface is now
-    limited to CFML refresh/build/test helpers and stale retired outputs are
-    removed on regeneration
-20. narrows the remaining generated-script maintainer tasks to explicit
-    `vendor-cfml-*` vendoring helpers and stops retaining the unreferenced
-    `scripts/main.sh` aggregate output
+  and retires the old generated pyCFML wrapper-script surface entirely
+19. replaces the remaining generated `vendor-cfml-*` helper path with
+  `tools/vendor_cfml.py` plus CMake-native CFML distribution and vendored
+  test-program targets
+20. removes `pybuild.py`, `pybuild.toml`, and the obsolete generated
+  `scripts/` helper files after validating the repo-owned vendoring helper
+  path through the same maintainer `pixi` commands
 
 ## Current Validated Contract
 
 The validated package contract is currently represented by the repo-owned CMake
-build, `pybuild.py` / `pybuild.toml` as parity references, and the release
-workflows.
+build, the manifest files under `cmake/`, the repo-owned helper tools under
+`tools/`, and the release workflows.
 
 The package contract that must be preserved is:
 
@@ -90,18 +86,16 @@ The current release flow now produces a rebuildable source distribution and
 builds every release wheel through repo-owned `cibuildwheel` policy. The
 default local maintainer path now follows repo-owned wheel and sdist helpers as
 well, macOS and Windows have explicit native repair-diagnostic tasks, and the
-remaining generated-script maintainer surface is now limited to explicit
-vendor-prefixed CFML refresh/build/test helpers. `pybuild.py` no longer
-carries the historical pyCFML wheel-assembly branch; `--create-scripts` now
-emits only the maintained CFML helpers and removes stale retired pyCFML
-outputs plus `scripts/main.sh` on regeneration.
+remaining vendor-prefixed CFML refresh/build/test helpers now route through
+`tools/vendor_cfml.py` and repo-owned CMake targets rather than a generated
+script surface.
 
 ## Current Hybrid State
 
 The branch now spans both worlds: repo-owned packaging, release-wheel CI, and
-default maintainer validation are real, but a small vendor-prefixed CFML
-script-oriented maintainer surface still remains and `pybuild.py` still owns
-that vendoring helper generation path.
+default maintainer validation are real, and the remaining vendor-prefixed CFML
+maintainer surface is now repo-owned as well, but it intentionally stays
+outside the downstream package build contract.
 
 ### Latest completed slice
 
@@ -141,9 +135,8 @@ that vendoring helper generation path.
   native `pixi` tasks `pycfml-repair-diagnostics-macos` and
   `pycfml-repair-diagnostics-windows`
 - the dormant pyCFML fallback wheel, install, runtime-library copy, and RPATH
-  helper definitions have now been removed from `pybuild.py`, so the remaining
-  generated maintainer path no longer retains a second low-level wheel
-  assembly implementation
+  helper definitions have now been removed, so the repo no longer retains a
+  second low-level wheel assembly implementation
 - the repo-owned Windows `cibuildwheel` policy now sets
   `CMAKE_GENERATOR=Ninja`, and the repo-owned `scikit-build-core` config now
   requires Ninja in isolated builds, so release-wheel builds do not fall back
@@ -154,27 +147,21 @@ that vendoring helper generation path.
 - the explicit `pycfml-build-legacy`, `pycfml-dist-legacy`,
   `pycfml-test-legacy`, and `full-legacy` maintainer tasks have now been
   removed from `pixi.toml`
-- `pybuild.py --create-scripts` now removes stale composite wrapper scripts
-  such as `scripts/pycfml_build.sh`, `scripts/pycfml_dist.sh`,
-  `scripts/pycfml_test.sh`, and `scripts/wheel_build.sh` instead of continuing
-  to generate them
-- `pybuild.py --create-scripts` now stops emitting the older low-level pyCFML
-  helper scripts as well, so generated maintainer scripts are limited to the
-  CFML refresh/build/test path
-- `scripts/cfml_build.sh` now creates only the CFML repo/build/dist directories
-  it actually uses instead of also preparing the retired pyCFML script-build
-  directories
-- the remaining generated-script `pixi` tasks are now explicitly vendor-
-  prefixed as `vendor-cfml-*`, so the low-level CFML helper path is no longer
-  presented as a generic repo-facing build/test workflow
-- `pybuild.py --create-scripts` now removes the unreferenced `scripts/main.sh`
-  aggregate output, leaving only the generated helper scripts that are still
-  invoked by the remaining vendor-maintenance tasks
+- the remaining vendor-prefixed `pixi` tasks now call `tools/vendor_cfml.py`
+  instead of `pybuild.py` and generated `scripts/*.sh`
+- the repo-owned CMake build now exposes `cfml_vendor_distribution` and
+  `cfml_vendor_test_programs` so the vendored CFML maintainer path is built by
+  the same native build system as the package itself
+- the obsolete generated `scripts/` helper surface has now been removed
+  because the remaining vendor-maintenance path no longer consumes it
 
 What is already repo-owned:
 
-- explicit CFML and pyCFML source manifests derived from `pybuild.toml`
+- explicit CFML and pyCFML source manifests derived from the retired historical
+  pybuild manifests and now owned directly by the repository
 - `cfml_core` and `pycfml_extension` targets for `gfortran` only
+- `cfml_vendor_distribution` and `cfml_vendor_test_programs` targets for the
+  remaining vendored CFML maintainer path
 - CMake install rules for `src/__init__.py`, vendored Python helper modules,
   and the bundled magnetic database
 - `pyproject.toml` switched to `scikit-build-core` with a repo-local
@@ -183,6 +170,8 @@ What is already repo-owned:
   `manylinux2014` + `auditwheel`, macOS arm64 + `delocate`, and Windows AMD64 +
   `delvewheel`
 - `tools/build_local_wheel.py` now owns the default local wheel build helper
+- `tools/vendor_cfml.py` now owns vendored CFML refresh/build/test maintenance
+  without `pybuild.py`, `pybuild.toml`, or generated helper scripts
 - `tools/run_repair_diagnostics.py` now owns the native macOS and Windows
   repaired-wheel diagnostic flow on maintainer hosts
 - `pixi.toml` now points the default maintainer wheel and sdist tasks at
@@ -221,13 +210,11 @@ What has already been validated locally from the repository root:
   for the wheel built from that path without `pytest-benchmark` installed in
   the validation environment
 - `python tools/validate_sdist_rebuild.py` succeeds
-- `pixi run --environment default --frozen vendor-cfml-scripts` succeeds and
-  removes obsolete pyCFML helper scripts plus the unreferenced `scripts/main.sh`
-  output while preserving the remaining CFML-generated helper scripts
 - `pixi run --environment default --frozen vendor-cfml-build` succeeds after
-  the generated-script surface is narrowed to explicit vendoring helpers
+  the vendored CFML maintainer path is moved onto `tools/vendor_cfml.py` and
+  CMake-native CFML distribution staging
 - `pixi run --environment default --frozen vendor-cfml-test` succeeds against
-  the vendored CFML distribution built by that narrowed maintainer path
+  the vendored CFML distribution built by that repo-owned maintainer path
 - `pixi run --environment default --frozen pycfml-build` succeeds after adding
   the repo-owned backend prerequisites to the default environment
 - `pixi run --environment wheeltest pycfml-test` passes against the
@@ -254,14 +241,11 @@ What has already been validated locally from the repository root:
 
 What is still hybrid:
 
-- vendor-prefixed script-oriented helpers such as `vendor-cfml-scripts`,
-  `vendor-cfml-scripts-fresh`, `vendor-cfml-refresh`,
+- vendor-prefixed maintainer helpers such as `vendor-cfml-refresh`,
   `vendor-cfml-refresh-branch`, `vendor-cfml-refresh-commit`,
-  `vendor-cfml-build`, and `vendor-cfml-test` still call `pybuild.py` and
-  generated `scripts/`
-- `pybuild.py` still owns cleanup of retired pyCFML-generated script names when
-  vendored helpers are regenerated, so the vendoring maintenance path has not
-  yet been fully separated from historical script-surface cleanup
+  `vendor-cfml-build`, and `vendor-cfml-test` still remain as a maintainer-only
+  vendoring surface even though they are now repo-owned and no longer rely on
+  generated scripts
 - local macOS builds still emit deployment-target mismatch warnings on this
   machine before `delocate` normalizes the repaired wheel tag
 - the Linux manylinux build was not run locally on this machine because no
@@ -288,8 +272,10 @@ What must not become the final package build unchanged:
 - it does not bundle the curated `src/__init__.py`
 - it does not bundle runtime libraries or reproduce the current RPATH fixes
 - it installs into source-tree-oriented prefixes instead of wheel staging roots
-- its compiler-flag layer has drifted from the currently validated pybuild flags
-- its Python wrapper manifest has drifted from `pybuild.toml`
+- its compiler-flag layer has drifted from the currently validated repo-owned
+  GNU Fortran target profile
+- its Python wrapper manifest has drifted from the repo-owned historical source
+  manifest now carried under `cmake/`
 
 Concrete examples already observed:
 
@@ -327,6 +313,10 @@ The vendored tree remains input data:
 The current root build stays flat and explicit.
 
 - `cfml_core`: static core Fortran library built from vendored CrysFML sources
+- `cfml_vendor_distribution`: maintainer target that stages `dist/CFML/lib`
+  and `dist/CFML/include` from the repo-owned core build
+- `cfml_vendor_test_programs`: maintainer target that builds vendored CFML test
+  programs into `dist/CFML/progs`
 - `pycfml_extension`: Python extension module target with output name
   `crysfml08lib`
 - `crysfml::cfml_core`: current alias for the core target
@@ -347,8 +337,8 @@ There should be one source of truth for each concern.
 - Runtime wheel repair belongs to standard platform tools, not handwritten shell
   scripts, once parity has been proven
 
-During transition, `pybuild.py` remains the oracle for parity, not the final
-implementation.
+The historical `pybuild.py` parity layer has been retired; the repo-owned CMake
+manifests and helper tools are now the active source of truth.
 
 ## Platform Release Policy
 
@@ -556,9 +546,8 @@ release matrix.
   release CI
 - use `delocate` on macOS after native wheel build in release CI
 - use `delvewheel` on Windows after native wheel build in release CI
-- keep the handwritten runtime-library copy and RPATH shell logic only in the
-  low-level maintainer fallback path until repair-based wheel parity no longer
-  needs that reference surface
+- retire the handwritten runtime-library copy and RPATH shell logic from the
+  active maintainer path once repair-based wheel parity is proven
 
 ### Phase 6: Source rebuild validation [landed in release CI]
 
@@ -567,7 +556,7 @@ release matrix.
 - run the package tests against the rebuilt wheel
 - make the wheel-from-sdist check mandatory for release readiness
 
-### Phase 7: Release migration [landed in release CI; maintainer fallback still present]
+### Phase 7: Release migration [landed in release CI]
 
 - move the release wheel matrix to cibuildwheel
 - split Linux into a dedicated manylinux-based release leg instead of
@@ -619,17 +608,15 @@ To keep the migration understandable, each commit should do one of these only:
 - switch release CI to cibuildwheel
 - remove benchmark dependencies from the default correctness path
 
-## Next Follow-Up Changes After Narrowing Generated CFML Helpers
+## Next Follow-Up Changes After Retiring pybuild
 
 The next implementation slice should do exactly these things:
 
-1. decide whether the retired pyCFML script names still listed in
-  `_remove_generated_files([...])` should remain cleanup-only compatibility
-  shims or be removed once those stale outputs no longer need to be scrubbed
-  on regeneration
-2. decide whether the remaining vendor-prefixed CFML maintenance tasks and
-   generated `scripts/` helpers should stay script-generated or be replaced by
-   a smaller repo-owned vendoring helper path
+1. decide whether the remaining vendor-prefixed CFML maintenance tasks should
+  stay as dedicated repo-owned maintainer helpers or collapse into documented
+  one-off maintainer commands
+2. decide whether `dist/CFML` staging should remain a source-tree maintainer
+  convenience output or move fully under the CMake build tree
 3. decide whether the remaining vendoring helper surface should stay in the
   source-distribution contract or move behind explicit sdist exclusions once
   vendoring maintenance is fully separated from the downstream build contract
