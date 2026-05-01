@@ -211,7 +211,8 @@ What is already repo-owned:
 - draft-release staging and PyPI publication that consume both validated wheels
   and the validated `sdist`
 - benchmark-only CI test legs removed from the default workflow path, and the
-  default correctness path no longer depends on `pytest-benchmark`
+  CI plus direct installed-wheel correctness path no longer depends on
+  `pytest-benchmark`
 
 What has already been validated locally from the repository root:
 
@@ -271,6 +272,10 @@ What is still hybrid:
   including the old unpackaged `dist/pyCFML` assembly logic, even though
   `pybuild.py --create-scripts` no longer emits those helper scripts and no
   longer retains the unreferenced `scripts/main.sh` output
+- `pixi.toml` still carries benchmark residue in the maintainer surface: the
+  `wheeltest` environment still lists `pytest-benchmark`, and the separate
+  `benchmark` task still needs cleanup now that the generated benchmark script
+  surface has been removed
 - plain `pixi run --environment <env> ...` currently tries to initialize
   cross-platform build dispatch for the `repair-windows` environment on this
   macOS machine and fails unless the already installed environment is reused
@@ -527,6 +532,9 @@ release matrix.
   the installed-wheel helper path
 - the remaining powder-pattern functional tests now call the pattern builders
   directly instead of importing the benchmark plugin
+- maintainer `pixi` configuration still needs follow-up cleanup to remove the
+  stale benchmark task and the unnecessary `pytest-benchmark` dependency from
+  the `wheeltest` environment
 - if performance measurements return later, keep them as explicit maintainer
   diagnostics or opt-in jobs rather than default release gates
 
@@ -644,3 +652,6 @@ The next implementation slice should do exactly these things:
 3. decide whether the remaining vendoring helper surface should stay in the
   source-distribution contract or move behind explicit sdist exclusions once
   vendoring maintenance is fully separated from the downstream build contract
+4. remove the stale benchmark residue from `pixi.toml`, including the
+  unnecessary `pytest-benchmark` entry in `wheeltest` and the obsolete
+  benchmark task that still points at a removed generated script
