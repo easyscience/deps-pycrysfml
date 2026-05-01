@@ -63,6 +63,24 @@ if(APPLE)
     if(DEFINED ENV{MACOSX_DEPLOYMENT_TARGET} AND NOT "$ENV{MACOSX_DEPLOYMENT_TARGET}" STREQUAL "")
         set(_crysfml_default_macos_deployment_target "$ENV{MACOSX_DEPLOYMENT_TARGET}")
     else()
+        execute_process(
+            COMMAND sw_vers -productVersion
+            OUTPUT_VARIABLE _crysfml_detected_macos_product_version
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET
+        )
+        string(REGEX MATCH "^[0-9]+\\.[0-9]+" _crysfml_default_macos_deployment_target "${_crysfml_detected_macos_product_version}")
+        if(_crysfml_default_macos_deployment_target STREQUAL "")
+            string(REGEX MATCH "^[0-9]+" _crysfml_default_macos_major_version "${_crysfml_detected_macos_product_version}")
+            if(NOT _crysfml_default_macos_major_version STREQUAL "")
+                set(_crysfml_default_macos_deployment_target "${_crysfml_default_macos_major_version}.0")
+            endif()
+            unset(_crysfml_default_macos_major_version)
+        endif()
+        unset(_crysfml_detected_macos_product_version)
+    endif()
+
+    if(NOT DEFINED _crysfml_default_macos_deployment_target OR _crysfml_default_macos_deployment_target STREQUAL "")
         set(_crysfml_default_macos_deployment_target "11.0")
     endif()
 
