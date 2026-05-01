@@ -61,21 +61,21 @@ jobs:
         shell: bash
         run: python -m pip install --upgrade pip
 
-      - name: Install Python dependences
-        shell: bash
-        run: python tools/install_optional_dependencies.py ci test
+      - name: Set up Pixi environment for repo-owned validation
+        uses: ./.github/actions/setup-pixi
+        with:
+          environments: ci-py314
+          activate-environment: ci-py314
+          frozen: true
 
       - name: Fix reinstalling gcc [macOS]  # needed because of `brew reinstall gcc`
         if: runner.os == 'macOS'
         shell: bash
         run: echo "MACOSX_DEPLOYMENT_TARGET=$(sw_vers -productVersion)" >> $GITHUB_ENV
 
-      - name: Build crysfml wheel with scikit-build-core
+      - name: Build crysfml wheel with Pixi task
         shell: bash
-        run: |
-          rm -rf "${{ env.WHEEL_DIR }}"
-          mkdir -p "${{ env.WHEEL_DIR }}"
-          python -m build --wheel --outdir "${{ env.WHEEL_DIR }}"
+        run: pixi run --environment ci-py314 pycfml-build
 
       - name: Fix Python package wheel dependencies
         if: runner.os == 'macOS'
@@ -86,7 +86,7 @@ jobs:
 
       - name: Test built crysfml wheel
         shell: bash
-        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}"
+        run: pixi run --environment ci-py314 pycfml-test
 
       - name: Upload zipped Python package wheel of pyCFML for next job
         uses: actions/upload-artifact@v4
@@ -129,9 +129,12 @@ jobs:
         shell: bash
         run: python3 -m pip install --upgrade pip
 
-      - name: Install Python dependences
-        shell: bash
-        run: python tools/install_optional_dependencies.py ci test
+      - name: Set up Pixi environment for repo-owned validation
+        uses: ./.github/actions/setup-pixi
+        with:
+          environments: ci-py314
+          activate-environment: ci-py314
+          frozen: true
 
       - name: Download zipped pyCFML wheel from previous job
         uses: actions/download-artifact@v4
@@ -141,4 +144,4 @@ jobs:
 
       - name: Test downloaded pyCFML wheel
         shell: bash
-        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}"
+        run: pixi run --environment ci-py314 pycfml-test

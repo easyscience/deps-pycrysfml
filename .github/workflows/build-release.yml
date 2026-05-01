@@ -124,9 +124,17 @@ jobs:
         shell: bash
         run: python -m pip install --upgrade pip
 
-      - name: Install Python dependences
+      - name: Select Pixi CI environment
+        id: pixi-env
         shell: bash
-        run: python tools/install_optional_dependencies.py ci test
+        run: echo "name=ci-py$(echo '${{ matrix.python-version }}' | tr -d '.')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Pixi environment for repo-owned validation
+        uses: ./.github/actions/setup-pixi
+        with:
+          environments: ${{ steps.pixi-env.outputs.name }}
+          activate-environment: ${{ steps.pixi-env.outputs.name }}
+          frozen: true
 
       - name: Fix reinstalling gcc [macOS]  # needed because of `brew reinstall gcc`
         if: runner.os == 'macOS'
@@ -159,11 +167,11 @@ jobs:
 
       - name: Validate wheel filenames for PyPI upload
         shell: bash
-        run: python3 tools/validate_pypi_wheel_filenames.py "${{ env.WHEEL_DIR }}"
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" validate-wheel-filenames --path "${{ env.WHEEL_DIR }}"
 
       - name: Test built crysfml wheel
         shell: bash
-        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}"
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" pycfml-test
 
       - name: Upload zipped Python package wheel of pyCFML for next job
         uses: actions/upload-artifact@v4
@@ -217,9 +225,17 @@ jobs:
         shell: bash
         run: python -m pip install --upgrade pip
 
-      - name: Install Python dependences
+      - name: Select Pixi CI environment
+        id: pixi-env
         shell: bash
-        run: python tools/install_optional_dependencies.py ci test
+        run: echo "name=ci-py$(echo '${{ matrix.python-version }}' | tr -d '.')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Pixi environment for repo-owned validation
+        uses: ./.github/actions/setup-pixi
+        with:
+          environments: ${{ steps.pixi-env.outputs.name }}
+          activate-environment: ${{ steps.pixi-env.outputs.name }}
+          frozen: true
 
       - name: Build Linux manylinux wheel with cibuildwheel
         uses: pypa/cibuildwheel@v3.4.1
@@ -231,11 +247,11 @@ jobs:
 
       - name: Validate wheel filenames for PyPI upload
         shell: bash
-        run: python3 tools/validate_pypi_wheel_filenames.py "${{ env.WHEEL_DIR }}"
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" validate-wheel-filenames --path "${{ env.WHEEL_DIR }}"
 
       - name: Test built manylinux wheel
         shell: bash
-        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}"
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" pycfml-test
 
       - name: Upload repaired Linux manylinux wheel for next job
         uses: actions/upload-artifact@v4
@@ -250,7 +266,7 @@ jobs:
   ##############################################################################
   test:  # current job name
 
-    needs: build  # previous job 'build' need to be finished first
+    needs: [resolve_release_tag, build]  # previous jobs need to be finished first
 
     if: always()  # start this job even if the previous job failed
 
@@ -286,9 +302,17 @@ jobs:
         shell: bash
         run: python3 -m pip install --upgrade pip
 
-      - name: Install Python dependences
+      - name: Select Pixi CI environment
+        id: pixi-env
         shell: bash
-        run: python tools/install_optional_dependencies.py ci test
+        run: echo "name=ci-py$(echo '${{ matrix.python-version }}' | tr -d '.')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Pixi environment for repo-owned validation
+        uses: ./.github/actions/setup-pixi
+        with:
+          environments: ${{ steps.pixi-env.outputs.name }}
+          activate-environment: ${{ steps.pixi-env.outputs.name }}
+          frozen: true
 
       - name: Download zipped pyCFML wheel from previous job
         uses: actions/download-artifact@v4
@@ -298,14 +322,14 @@ jobs:
 
       - name: Test downloaded pyCFML wheel
         shell: bash
-        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}"
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" pycfml-test
 
   ##############################################################################
   # JOB 4
   ##############################################################################
   test-linux-manylinux:
 
-    needs: build-linux-manylinux
+    needs: [resolve_release_tag, build-linux-manylinux]
 
     if: always()
 
@@ -339,9 +363,17 @@ jobs:
         shell: bash
         run: python3 -m pip install --upgrade pip
 
-      - name: Install Python dependences
+      - name: Select Pixi CI environment
+        id: pixi-env
         shell: bash
-        run: python tools/install_optional_dependencies.py ci test
+        run: echo "name=ci-py$(echo '${{ matrix.python-version }}' | tr -d '.')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Pixi environment for repo-owned validation
+        uses: ./.github/actions/setup-pixi
+        with:
+          environments: ${{ steps.pixi-env.outputs.name }}
+          activate-environment: ${{ steps.pixi-env.outputs.name }}
+          frozen: true
 
       - name: Download repaired manylinux wheel from previous job
         uses: actions/download-artifact@v4
@@ -351,7 +383,7 @@ jobs:
 
       - name: Test downloaded manylinux wheel
         shell: bash
-        run: python tools/run_installed_wheel_tests.py --wheel-dir "${{ env.WHEEL_DIR }}"
+        run: pixi run --environment "${{ steps.pixi-env.outputs.name }}" pycfml-test
 
   ##############################################################################
   # JOB 5
@@ -396,16 +428,16 @@ jobs:
         shell: bash
         run: python -m pip install --upgrade pip
 
-      - name: Install Python dependences
-        shell: bash
-        run: python tools/install_optional_dependencies.py ci test
+      - name: Set up Pixi environment for repo-owned validation
+        uses: ./.github/actions/setup-pixi
+        with:
+          environments: ci-py312
+          activate-environment: ci-py312
+          frozen: true
 
       - name: Validate sdist rebuild path
         shell: bash
-        run: >
-          python tools/validate_sdist_rebuild.py
-          --sdist-dir dist/sdist-validation/sdist
-          --wheel-dir dist/sdist-validation/wheel
+        run: pixi run --environment ci-py312 sdist-validate
 
       - name: Upload validated source distribution for release staging
         uses: actions/upload-artifact@v4
@@ -420,7 +452,7 @@ jobs:
   ##############################################################################
   upload-release-assets:
 
-    needs: [test, test-linux-manylinux, source-rebuild]
+    needs: [resolve_release_tag, test, test-linux-manylinux, source-rebuild]
 
     if: ${{ github.event_name == 'push' && github.ref_name == 'master' && needs.resolve_release_tag.outputs.tag_name != '' }}
 

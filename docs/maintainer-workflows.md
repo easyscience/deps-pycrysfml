@@ -95,6 +95,9 @@ Optional native diagnostics:
   repaired-wheel behavior on a native Windows host.
 - The Linux manylinux wheel path is validated in CI unless the maintainer has a
   compatible local container runtime and intentionally exercises that slice.
+- GitHub Actions should reuse the same repo-owned tasks through the versioned
+  `ci-py311`, `ci-py312`, `ci-py313`, and `ci-py314` Pixi environments rather
+  than calling the helper scripts directly.
 
 ## Maintenance Rules
 

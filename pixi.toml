@@ -6,9 +6,20 @@ platforms = ["osx-arm64", "win-64", "linux-64"]
 macos = "14.0"
 
 [dependencies]
-python = "3.14.*"
 ninja = "*"
 numpy = "*"
+
+[feature.py311.dependencies]
+python = "3.11.*"
+
+[feature.py312.dependencies]
+python = "3.12.*"
+
+[feature.py313.dependencies]
+python = "3.13.*"
+
+[feature.py314.dependencies]
+python = "3.14.*"
 
 [feature.dev.pypi-dependencies]
 pip = '*'
@@ -16,6 +27,17 @@ build = '*'
 scikit-build-core = '*'
 versioningit = '*'
 crysfml = { path = '.', editable = true, extras = ['ci', 'test'] }
+
+[feature.ci-tools.pypi-dependencies]
+pip = '*'
+build = '*'
+wheel = '*'
+packaging = '*'
+scikit-build-core = '*'
+versioningit = '*'
+pytest = '*'
+deepdiff = '*'
+matplotlib = '*'
 
 [feature.repair-macos]
 platforms = ["osx-arm64"]
@@ -37,10 +59,14 @@ deepdiff = '*'
 matplotlib = '*'
 
 [environments]
-default = ["dev"]
-wheeltest = ["wheeltest"]
-repair-macos = ["wheeltest", "repair-macos"]
-repair-windows = ["wheeltest", "repair-windows"]
+default = ["dev", "py314"]
+wheeltest = ["wheeltest", "py314"]
+repair-macos = ["wheeltest", "repair-macos", "py314"]
+repair-windows = ["wheeltest", "repair-windows", "py314"]
+ci-py311 = ["ci-tools", "py311"]
+ci-py312 = ["ci-tools", "py312"]
+ci-py313 = ["ci-tools", "py313"]
+ci-py314 = ["ci-tools", "py314"]
 
 [tasks.vendor-cfml-refresh]
 cmd = "python tools/vendor_cfml.py refresh --force"
@@ -83,6 +109,11 @@ description = "Install the built wheel in the clean environment and run tests"
 [tasks.sdist-validate]
 cmd = "python tools/validate_sdist_rebuild.py --sdist-dir dist/sdist-validation/sdist --wheel-dir dist/sdist-validation/wheel"
 description = "Build an sdist, rebuild a wheel from it, and test the rebuilt wheel"
+
+[tasks.validate-wheel-filenames]
+cmd = "python tools/validate_pypi_wheel_filenames.py {{ path }}"
+args = [{ arg = "path", default = "dist/pyCFML/wheel" }]
+description = "Validate wheel filenames against PyPI upload rules"
 
 [tasks.pycfml-repair-diagnostics-macos]
 cmd = "python tools/run_repair_diagnostics.py --wheel-dir dist/pyCFML/wheel"
