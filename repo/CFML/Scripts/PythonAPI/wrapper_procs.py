@@ -37,11 +37,10 @@ write_wrapping_initialization(f)
 write_wrapping_section(p,lucy,f)
 """
 import cfml_objects
-import glob
 import os
 import sys
 
-PRIMITIVES = ['integer','real','logical','character','complex','dict']
+PRIMITIVES = ['integer','real','logical','character','complex','list','dict']
 NUMERICALS = ['integer','real','rational','complex']
 LEN_DEFAULT = 256
 PROCS_TO_WRAP = {
@@ -52,10 +51,12 @@ PROCS_TO_WRAP = {
 'CFML_gSpaceGroups':['set_spacegroup_from_dbase',
                      'set_spacegroup_from_generators'],
 'CFML_IOForm':['read_xtal_structure'],
+'CFML_Maths':['set_eps_math'],
 'CFML_Metrics':['set_cell'],
 'CFML_Py_Utilities': ['calculate_laue_image',
                       'cw_powder_pattern_from_dict',
                       'magnetic_structure_factors_from_mcif',
+                      'patterns_simulation',
                       'read_crystal_structure',
                       'set_boundary',
                       'set_crystal_coordination',
@@ -416,12 +417,20 @@ def write_def_var_in_args_ptr(p,f):
                     else:
                         f.write(f"\n{'':>8}type(dict) :: di_{a.name}")
             elif a.ptype == 'list':
-                if a.optional:
-                    f.write(f"\n{'':>8}type(list) :: li_{a.name}")
-                    f.write(f"\n{'':>8}type(list), pointer :: "\
-                        f"ptr_{a.name} => null()")
+                if a.ftype == 'list':
+                    if a.optional:
+                        f.write(f"\n{'':>8}type(list), target :: {a.name}")
+                        f.write(f"\n{'':>8}type(list), pointer :: "\
+                            f"ptr_{a.name} => null()")
+                    else:
+                        f.write(f"\n{'':>8}type(list) :: {a.name}")
                 else:
-                    f.write(f"\n{'':>8}type(list) :: li_{a.name}")
+                    if a.optional:
+                        f.write(f"\n{'':>8}type(list) :: li_{a.name}")
+                        f.write(f"\n{'':>8}type(list), pointer :: "\
+                            f"ptr_{a.name} => null()")
+                    else:
+                        f.write(f"\n{'':>8}type(list) :: li_{a.name}")
         else:
             i = name.find('_type_spec')
             if i > -1:
@@ -492,6 +501,7 @@ def write_def_var_local(p,f):
         file
     """
     is_order = False
+    ii_added = False
     for name in p.arguments:
         a = p.arguments[name]
         if a.ptype == 'np.ndarray' and a.ndim > 1:
@@ -504,6 +514,22 @@ def write_def_var_local(p,f):
     f.write(f"\n\n{'':>8}! Local parameters")
     f.write(f"\n{'':>8}integer, parameter :: NMANDATORY = {p.nwman}")
     f.write(f"\n\n{'':>8}! Local variables")
+    for name in p.wreturn + p.inout:
+        a = None
+        if name in p.arguments:
+            a = p.arguments[name]
+        else:
+            if isinstance(p,cfml_objects.Function):
+                if name == p.xreturn.name:
+                    a = p.xreturn
+        if a is None:
+            raise Exception(f"write_def_var_local: {name} not found"\
+                f" in {p.name}")
+        if a.ptype == 'list' and a.ftype != 'list':
+            if not ii_added:
+                f.write(f"\n{'':>8}integer :: ii")
+                ii_added = True
+            f.write(f"\n{'':>8}type(dict) :: di_{a.name}")
     f.write(f"\n{'':>8}integer :: nargs")
     if p.has_optionals:
         f.write(f"\n{'':>8}integer :: ierror,ierror2")
@@ -930,7 +956,10 @@ def write_unwrapping_section_mandatory(p,c,f):
             else:
                 w_name = f'di_{a.name}'
         elif a.ptype == 'list':
-            w_name = f'li_{a.name}'
+            if a.ftype == 'list':
+                w_name = a.name
+            else:
+                w_name = f'li_{a.name}'
         f.write(f"\n{'':>8}if (ierror == 0) ierror = args%getitem(item,{n})")
         f.write(f"\n{'':>8}if (ierror == 0) call get_var_from_item"\
             f"('f_{p.name}','{a.name}',item,{w_name},ierror)")
@@ -1201,6 +1230,8 @@ def write_wrapping_section(p,lucy,f):
             continue
         if a.ptype == 'dict' and a.ftype == 'dict':
             continue
+        if a.ptype == 'list' and a.ftype == 'list':
+            continue
         if a.ptype == 'np.ndarray':
             if a.optional:
                 f.write(f"\n{'':>8}if (associated(ptr_{a.name})) then")
@@ -1221,6 +1252,27 @@ def write_wrapping_section(p,lucy,f):
                     f.write(f"\n{'':>12}ierror = dict_create(di_{a.name})")
                 f.write(f"\n{'':>12}if (ierror == 0) call wrap_type"\
                     f"({a.name},di_{a.name},ierror)")
+        elif a.ptype == 'list':
+            if a.optional:
+                raise Exception(f"Optional list not supported yet as returned variables")
+            else:
+                f.write(f"\n{'':>8}if (ierror == 0) then")
+                if a.ndim == 1:
+                    f.write(f"\n{'':>12}if (ierror == 0) ierror = list_create(li_{a.name})\n")
+                    f.write(f"{'':>12}if (ierror == 0) then\n")
+                    f.write(f"{'':>12}    do ii = 1 , size({a.name})\n")
+                    f.write(f"{'':>12}        ierror = dict_create(di_{a.name})\n")
+                    f.write(f"{'':>12}        if (ierror == 0) call wrap_type({a.name}(ii),di_{a.name},ierror)\n")
+                    f.write(f"{'':>12}        if (ierror == 0) ierror = li_{a.name}%append(di_{a.name})\n")
+                    f.write(f"{'':>12}        if (ierror == 0) call di_{a.name}%destroy\n")
+                    f.write(f"{'':>12}    end do\n")
+                    f.write(f"{'':>12}end if")
+                else:
+                    raise Exception(f"Returned list with ndim > 1 not supported yet")
+                #if name in p.wreturn:
+                #    f.write(f"\n{'':>12}ierror = list_create(li_{a.name})")
+                #f.write(f"\n{'':>12}if (ierror == 0) call wrap_type"\
+                #    f"({a.name},li_{a.name},ierror)")
         f.write(f"\n{'':>12}if (err_cfml%ierr /= 0) then")
         f.write(f"\n{'':>16}ierror = EXCEPTION_ERROR")
         f.write(f"\n{'':>16}call raise_exception(RuntimeError,"\

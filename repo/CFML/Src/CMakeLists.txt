@@ -506,15 +506,15 @@ else()
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
-# CFML_Powder
-file(GLOB SUBMOD_POWDER_SRC CFML_Powder/*.f90)
-set(POWDER_SRC CFML_Powder.f90
-                 ${SUBMOD_POWDER_SRC})
+# CFML_Diffraction
+file(GLOB SUBMOD_DIFFRACTION_SRC CFML_Diffraction/*.f90)
+set(DIFFRACTION_SRC CFML_Diffraction.f90
+                 ${SUBMOD_DIFFRACTION_SRC})
 if(${COMPILER_NAME} STREQUAL ifort)
-    set_source_files_properties(${POWDER_SRC}
+    set_source_files_properties(${DIFFRACTION_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS3}")
 else()
-    set_source_files_properties(${POWDER_SRC}
+    set_source_files_properties(${DIFFRACTION_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
@@ -595,7 +595,7 @@ set(CRYSFML08_SRC
     ${KWCPARSER_SRC}
     ${VTK_SRC}
     ${PYTHON_SRC}
-    ${POWDER_SRC}
+    ${DIFFRACTION_SRC}
     ${UTILITIES_SRC}
 	${WRAPS_UTILS_SRC}
     ${LAUE_SRC})

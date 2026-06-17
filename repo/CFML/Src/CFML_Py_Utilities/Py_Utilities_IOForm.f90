@@ -58,6 +58,48 @@ contains
 
     end function inside_limits
 
+    module function list_to_file(string_list) result(f) 
+        !> Converts a list of strings into an object of type file_list_type
+        type(list), intent(inout) :: string_list
+        type(file_type) :: f
+
+        ! Local variables
+        integer :: i,j,n,length
+        integer :: ierror
+        character(len=:), allocatable :: line
+        type(object) :: item
+
+        ierror = string_list%len(n)
+        if (ierror /= 0) then
+            err_cfml%ierr = -1
+            err_cfml%msg = 'CFML_Py_Utilities.list_to_file: error when getting number of elements of string_list.'
+            return
+        end if
+        f%nlines = n
+        allocate(f%line(n))
+        do i = 1 , n
+            j = i - 1
+            if (ierror == 0) ierror = string_list%getitem(item,j)
+            if (ierror == 0) call get_var_from_item('list_to_file','line%str',item,line,ierror)
+            length = len(line)
+            ! Remove '\n' or '\r\n' at the end of the line, if any
+            if (length > 0) then
+                if (iachar(line(length:length)) == 10) line = line(:length-1)
+            end if
+            length = len(line)
+            if (length > 0) then
+                if (iachar(line(length:length)) == 10) line = line(:length-1)
+            end if
+            f%line(i)%str = line
+        end do
+        if (ierror /= 0) then
+            err_cfml%ierr = -1
+            err_cfml%msg = 'CFML_Py_Utilities.list_to_file: error when reading string_list.'
+            return
+        end if
+
+    end function list_to_file
+
     module function read_crystal_structure(filename,database_path) Result(crystal)
         !> Build the object crystal from data given in a cfl, cif or mcif file
 

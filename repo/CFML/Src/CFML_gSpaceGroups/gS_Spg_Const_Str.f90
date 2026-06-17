@@ -54,12 +54,12 @@ SubModule (CFML_gSpaceGroups) gs_Spg_Const_Str
          gen(j) = gen(i)
       end do
       ngen=j
-      if(CFML_Debug) then
-        write(*,"(a)") " Obtained generators from the string list provided:"
-        do i=1,ngen
-            write(*,"(i4,2a)") i," -> ", gen(i)
-        end do
-      end if
+      !if(CFML_Debug) then
+      !  write(*,"(a)") " Obtained generators from the string list provided:"
+      !  do i=1,ngen
+      !      write(*,"(i4,2a)") i," -> ", gen(i)
+      !  end do
+      !end if
       call Init_SpaceGroup(Spg)
       do i=1,ngen
          Spg%generators_list=trim(Spg%generators_list)//trim(gen(i))//";"

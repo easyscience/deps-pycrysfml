@@ -1,15 +1,18 @@
- Module CFML_Powder
+ Module CFML_Diffraction
+
   !> This module containts submodules with subroutines and functions imported from FullProf and adapted
   !> to CrysFML. Not everything is implemented (or tested!) yet.
-    Use CFML_GlobalDeps,   only: CP, PI, TPI, Clear_Error, set_error, Err_CFML, CFML_debug
-    use CFML_Strings,      only: l_case, u_case, File_Type, Reading_File, Get_Num, Get_Words
-    use CFML_Profiles,     only: Keijser              !Subroutine Keijser(h,eta,hg,hl), not yet used
-    Use CFML_Metrics,      only: Cell_G_Type, Cart_Vector
-    Use CFML_Reflections,  only: Refl_type, RefP_type
-    Use CFML_gSpaceGroups, only: SPG_Type,rot_mat_type
-    Use CFML_Maths,        only: locate
-    use CFML_DiffPatt,     only: Pattern_Type, Interval_Type, Bck_Type, Excl_reg_type
-    use CFML_ioForm,       only: Phase_Type
+
+    Use CFML_GlobalDeps,      only: CP, PI, TPI, Clear_Error, set_error, Err_CFML, CFML_debug
+    use CFML_Strings,         only: l_case, u_case, File_Type, Reading_File, Get_Num, Get_Words
+    use CFML_Profiles,        only: Keijser              !Subroutine Keijser(h,eta,hg,hl), not yet used
+    Use CFML_Metrics,         only: Cell_G_Type, Cart_Vector
+    Use CFML_Reflections,     only: Refl_type, RefP_type
+    Use CFML_gSpaceGroups,    only: SPG_Type,rot_mat_type
+    Use CFML_Maths,           only: locate
+    use CFML_DiffPatt,        only: Pattern_Type, Interval_Type, Bck_Type, Excl_reg_type
+    use CFML_ioForm,          only: Phase_Type
+    use CFML_Symmetry_Tables, only: Laue_Class
 
     implicit none
 
@@ -46,7 +49,7 @@
        real(Kind=cp)                 :: sl_i,dl_i   !> Asymmetry parameters
        !> List of items for interpolation (to be allocated witn N_points)
        real(Kind=cp), dimension(:),allocatable :: ttheta  !> 2Theta in degrees
-       real(Kind=cp), dimension(:),allocatable :: HG, HL  !> Gaussiand and Lorentzian FWHM of the Voigt profile function
+       real(Kind=cp), dimension(:),allocatable :: HG, HL  !> Gaussian and Lorentzian FWHM of the Voigt profile function
     End Type IRF_CW_Type
 
     Type, Extends(IRF_Type), public :: IRF_TOF_Type
@@ -114,9 +117,8 @@
                                                                        !> Magnetic-MSG/Magnetic-MSSG/Nuc-XRA-Elect/
                                                                        !> Symmetry-Modes/Mag-Only-MSG/Mag-Only-MSSG
 
-    Character(len=70),    save,public :: DAT_TIM                      !> Date and time for the job
-    Integer, dimension(8),save,public :: NUM_datim                    !> Numerical values for date and time
-
+    Character(len=70),    save,public :: DAT_TIM                       !> Date and time for the job
+    Integer, dimension(8),save,public :: NUM_datim                     !> Numerical values for date and time
 
     Interface
 
@@ -400,12 +402,12 @@
       End Function Lorentz_abs_CW
 
       Module Function Powder_Lorentz_IntegInt_CW(job,cmono,rkks,muR,sinth2,costh) result(plor)     !loren <- FullProf
-         Character(len=*), intent(in)  :: job        !>  X or N for x-rays and neutrons
-         real(kind=cp),    intent(in)  :: cmono      !>  Cos(2theta_monok)^2
-         real(kind=cp),    intent(in)  :: rkks       !>  Polarization factor for synchrotron
-         real(kind=cp),    intent(in)  :: muR        !>  Absorption coefficient x Radius
-         real(kind=cp),    intent(in)  :: sinth2     !>  sintheta**2
-         real(kind=cp),    intent(in)  :: costh      !>  costheta
+         Character(len=*), intent(in)  :: job        !> X or N for x-rays and neutrons
+         real(kind=cp),    intent(in)  :: cmono      !> Cos(2theta_monok)^2
+         real(kind=cp),    intent(in)  :: rkks       !> Polarization factor for synchrotron
+         real(kind=cp),    intent(in)  :: muR        !> Absorption coefficient x Radius
+         real(kind=cp),    intent(in)  :: sinth2     !> sintheta**2
+         real(kind=cp),    intent(in)  :: costh      !> costheta
          real(kind=cp)                 :: plor
       End Function Powder_Lorentz_IntegInt_CW
 
@@ -436,4 +438,4 @@
             "  Time: ",tim(1:2)//":"//tim(3:4)//":"//tim(5:10)
       End Subroutine date
 
- End Module CFML_Powder
+ End Module CFML_Diffraction

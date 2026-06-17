@@ -1,0 +1,58 @@
+Title  Si3N4 alpha and beta phases single pattern simulation imported from a CIF file
+
+PATTERN_NeutronCW_3t2  1
+!             Radiation  Sample  
+  Patt_Type   Neutrons    Powder     CW
+  !         Zero   sycos   sysin
+  Zero_Sy  0.01  0.00001    -0.0001
+  Profile_function  TCH_pVoigt
+  WDT   14.0
+  !ASYM    0.000000   0.000000    !All this is provided in the IRF_FILE
+  !LAMBDA  1.225300   1.225300      0.0
+  !UVWXY   0.275264  -0.393932   0.216173   0.00000   0.06140   
+
+
+  !Gen_patt xmin, step, xmax  
+   Gen_patt 10.0  0.05 130.0
+   name_patt  Si3N4_CIF.xys
+
+  BACKGD
+   Chebychev 11
+     134.783      42.693     -21.728      27.751     -26.749      23.987
+     -21.185      17.611     -11.557       5.150      -6.855       2.264
+
+   Peaks 2 split-pseudo-voigt
+   ! Pos   Int    FWHM-left  FWHM-right  eta-left   eta-right
+    13.0  6450.01       3.2      5.8          0.9       0.6
+    48.0  1230.01       2.2      6.8          0.9       0.6
+
+  END_BACKGD
+  
+  IRF_File  3t2-si3n4.irf
+  
+END_PATTERN_NeutronCW_3t2
+
+PHASE_Si3N4_alpha   1
+
+  import Si3N4.cif
+
+  Contributes_to_patterns  1  
+
+  Scale_Factors  1.7778969
+
+  PH_Pattern 1
+              !  Value(Angstroms)   Gaussian Fraction
+      Iso_SIZE       9950                  0.11
+              !       Value        Lorentzian Fraction  (Verify Units) Dd/d?
+     !Iso_STRAIN       0.2                  0.23
+     
+     !Pref_OR Multiaxial_MD 2
+     !!!             Axis    Val   Fract
+     !Pref_axis_val 0 0 1   0.78    0.8
+     !Pref_axis_val 1 1 0   1.10    0.2
+  END_PH_Pattern
+
+END_PHASE_Si3N4_alpha
+
+
+CALCULATION_TYPE  simulation

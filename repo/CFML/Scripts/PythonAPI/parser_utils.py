@@ -108,6 +108,8 @@ def fortran_to_python(v : cfml_objects.FortranVar) -> str:
             ptype = 'str'
         elif v.ftype == 'complex':
             ptype = 'complex'
+        elif v.ftype == 'list':
+            ptype = 'list'
         else:
             ptype = 'dict'
     else:

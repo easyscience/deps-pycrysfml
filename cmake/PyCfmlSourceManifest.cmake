@@ -18,6 +18,7 @@ set(PYCFML_WRAP_SOURCE_NAMES
     Wraps_Atoms
     Wraps_Bonds_Tables
     Wraps_Strings
+    Wraps_Maths
     Wraps_BckPeaks
     Wraps_Scattering_Tables
     Wraps_Structure_Factors
@@ -39,7 +40,8 @@ set(PYCFML_WRAP_SOURCE_NAMES
     Wraps_Rational
     Wraps_gSpaceGroups
     Wraps_kvec_Symmetry
-    Wraps_Powder
+    Wraps_Diffraction
+    Wraps_Laue
     Wraps_Utilities
     Wraps_Py_Utilities
 )
@@ -49,6 +51,7 @@ set(PYCFML_PYTHON_MODULE_NAMES
     cfml_diffpatt
     cfml_gspacegroups
     cfml_ioform
+    cfml_maths
     cfml_metrics
     cfml_py_utilities
     cfml_reflections

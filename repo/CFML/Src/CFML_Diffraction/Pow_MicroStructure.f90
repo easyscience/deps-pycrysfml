@@ -1,4 +1,4 @@
-SubModule(CFML_Powder) Pow_Microstructure
+SubModule(CFML_Diffraction) Pow_Microstructure
 
    implicit none
 
@@ -300,7 +300,7 @@ SubModule(CFML_Powder) Pow_Microstructure
               end if
               return
 
-             case("-3m1")  ! -3m1
+             case("-3m1", "-3m1 H")  ! -3m1
                 !Order:    S_400         S_004         S_112
               h400=h*h*h*h       !  18
               h040=k*k*k*k       !  18
@@ -325,7 +325,7 @@ SubModule(CFML_Powder) Pow_Microstructure
               end if
               return
 
-             case("-31m")  ! -31m
+             case("-31m","-31m H")  ! -31m
                 !Order:    S_400         S_004         S_112
               h400=h*h*h*h       !  18
               h040=k*k*k*k       !  18
@@ -400,7 +400,7 @@ SubModule(CFML_Powder) Pow_Microstructure
               end if
               return
 
-             case("m3")  ! m3
+             case("m3","m-3")  ! m3
                 !Order:    S_400         S_220
               h400=h*h*h*h   !  18
               h040=k*k*k*k   !  18
@@ -419,7 +419,7 @@ SubModule(CFML_Powder) Pow_Microstructure
               end if
               return
 
-             case("m3m")  ! m3m
+             case("m3m","m-3m")  ! m3m
                 !Order:    S_400         S_220
               h400=h*h*h*h   !  18
               h040=k*k*k*k   !  18
@@ -445,7 +445,7 @@ SubModule(CFML_Powder) Pow_Microstructure
               scatv = SQRT(sq)
               uv=cart_vector('r',hkl,cell)/scatv
            Else
-              Call Set_Error(1,"Uniaxial anisotropic strain need a input the cell object!")
+              Call Set_Error(1,"SPHERICAL_HARMONICS anisotropic strain need a input the cell object!")
               return
            End if
 
@@ -465,10 +465,10 @@ SubModule(CFML_Powder) Pow_Microstructure
                   i_fin=6
 
              case("2/m")  ! 2/m      9 free parameters
+                  ! Compute Y00,Y20,Y22+,Y22-,Y40,Y42+,Y42-,Y44+,Y44- in that order
                   yy=uv(1)
                   zz=uv(2)
                   xx=uv(3)
-                  ! Compute Y00,Y20,Y22+,Y22-,Y40,Y42+,Y42-,Y44+,Y44- in that order
                   dv(1) = 1.0
                   dv(2) = 0.5*(3.0*zz**2-1.0)
                   dv(3) = xx**2-yy**2
@@ -537,7 +537,7 @@ SubModule(CFML_Powder) Pow_Microstructure
                   dv(5) = 3.07920*yy*zz*(3.0*xx**2-yy**2)
                   i_fin=5
 
-             case( "-3m1","-31m")   ! -3 m R (Hexagonal setting, unique axis c, up to 6-th order)  ! -3 m 1 ! -3 1 m
+             case( "-3m1","-31m","-3m1 H","-31m H")   ! -3 m R (Hexagonal setting, unique axis c, up to 6-th order)  ! -3 m 1 ! -3 1 m
                   ! Ylm's up to 6th order:  Y00,Y20,Y40,Y43-,Y60,Y63-,Y66+
                   !  Compute Y00,Y20,Y40,Y43-,Y60,Y63-,Y66+ in that order
                   dv(1) = 1.0
@@ -573,7 +573,7 @@ SubModule(CFML_Powder) Pow_Microstructure
                   i_fin=5
 
              case("m3")   ! m 3  spacegroups 195-206
-                        ! Cubic harmonics Klm's up to 8th order: K00,K41,K61,K62,K81
+                          ! Cubic harmonics Klm's up to 8th order: K00,K41,K61,K62,K81
                   dv(1) =  1.0
                   dv(2) =  2.5    *(xx**4 + yy**4 + zz**4) -  1.5
                   dv(3) = 21.65625*(xx**6 + yy**6 + zz**6) - 29.53125*(xx**4 + yy**4 + zz**4) + 8.43750
@@ -584,7 +584,7 @@ SubModule(CFML_Powder) Pow_Microstructure
                   i_fin=5
 
              case("m3m")   ! m 3 m  spacegroups 207-230
-                        ! Cubic harmonics Klm's up to 8th order: K00,K41,K61,K81
+                           ! Cubic harmonics Klm's up to 8th order: K00,K41,K61,K81
                   dv(1) =  1.0
                   dv(2) =  2.5    *(xx**4 + yy**4 + zz**4) -  1.5
                   dv(3) = 21.65625*(xx**6 + yy**6 + zz**6) - 29.53125*(xx**4 + yy**4 + zz**4) + 8.43750
@@ -764,7 +764,7 @@ SubModule(CFML_Powder) Pow_Microstructure
 
         Case("CONDIT_HKL")
            if(present(nv)) then
-             do i=1,size(nv)
+             do i=1,size(nv,dim=2)
                !Condition that hkl is perpendicular to the zone axis nv(1:3,i) ... in this case n4 should be equal to n5
                mleft= dot_product(nv(1:3,i),ihkl)
                if(nv(4,i) == nv(5,i) .and. mleft == 0) then  !mleft=0, n4=n5 it is applied
@@ -833,16 +833,16 @@ SubModule(CFML_Powder) Pow_Microstructure
           !
            scatv = SQRT(sq)
            uv=cart_vector('r',hkl,cell)/scatv
-           yy=uv(1)
-           zz=uv(2)
-           xx=uv(3)
+           yy=uv(1)   !sinTheta . cosPhi           ! sin2x=2sinxcosx  cos2x=1-2sin^2x
+           zz=uv(2)   !sinTheta . SinPhi
+           xx=uv(3)   !cosTheta
            Select Case (Laue)
               Case("2/m")
                  !   Compute Y00,Y20,Y22+,Y22-,Y40,Y42+,Y42-,Y44+,Y44- in that order
-                 dv(1) = 1.0
-                 dv(2) = 0.5*(3.0*zz**2-1.0)
-                 dv(3) = xx**2-yy**2
-                 dv(4) = 2.0*xx*yy
+                 dv(1) = 1.0                    !Y00
+                 dv(2) = 0.5*(3.0*zz**2-1.0)    !Y20   xx=cosTheta
+                 dv(3) = xx**2-yy**2            !Y22+  xx=cos^2(Theta) - Sin^2Theta . cos^2Phi)
+                 dv(4) = 2.0*xx*yy              !Y22-
                  dv(5) = 0.12500*(35.0*zz**4-30.0*zz**2+3.0)
                  dv(6) = 0.77778*(7.0*zz**2-1.0)*dv(3)
                  dv(7) = 0.77778*(7.0*zz**2-1.0)*dv(4)
@@ -853,9 +853,26 @@ SubModule(CFML_Powder) Pow_Microstructure
               Case ("-3m")
                  !
                  !     Trigonal Anisotropic Broadening using Spherical Harmonics up
-                 !     to 6-th order (Hexagonal setting, unique axis c)
+                 !     to 6-th order (Hexagonal setting, unique axis c)  x perp m
                  !
                  !     Compute Ylm's up to 6th order:  Y00,Y20,Y40,Y43-,Y60,Y63-,Y66+
+                 !
+                 dv(1) = 1.0                                     !Y00
+                 dv(2) = 0.5*(3.0*zz*zz-1.0)                     !Y20   zz=cosTheta
+                 dv(3) = 0.125*(35.0*zz*zz*zz*zz - 30.0*zz*zz + 3.0)  !Y40
+                 dv(4) = 3.07920*yy*zz*(3.0*xx*xx-yy*yy)  !Y43-  yy=
+                 dv(5) = 231.0*zz*zz*zz*zz*zz*zz-315.0*zz*zz*zz*zz+105.0*zz*zz-5.0
+                 dv(5) = 0.06250*dv(5)  !Y60
+                 dv(6) = 1.41685*(11.0*zz*zz-3.0)*yy*zz*(3.0*xx*xx-yy*yy)
+                 dv(7) = (xx*xx-yy*yy)*(xx*xx*xx*xx+yy*yy*yy*yy-14.0*xx*xx*yy*yy)
+                 i_fin=7
+
+              Case ("-31m")   !This has to be changed
+                 !
+                 !     Trigonal Anisotropic Broadening using Spherical Harmonics up
+                 !     to 6-th order (Hexagonal setting, unique axis c) y perp m
+                 !
+                 !     Compute Ylm's up to 6th order:  Y00,Y20,Y40,Y43+,Y60,Y63+,Y66+
                  !
                  dv(1) = 1.0
                  dv(2) = 0.5*(3.0*zz*zz-1.0)

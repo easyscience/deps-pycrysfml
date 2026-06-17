@@ -4,16 +4,17 @@ PATTERN_NeutronCW_3t2  1
 !             Radiation  Sample  
   Patt_Type   Neutrons    Powder     CW
   !         Zero   sycos   sysin
-  Zero_Sy  0.01  0.00001    -0.0001
+  Zero_Sy  0.0   0.0000      0.000 
   Profile_function  TCH_pVoigt
   WDT   14.0
   ASYM    0.000000   0.000000
   LAMBDA  1.225300   1.225300      0.0
-  UVWXY   0.275264  -0.393932   0.216173   0.00000   0.06140   
+  UVWXY   0.025264  -0.023932   0.116173   0.00000   0.0   
 
 
   !Gen_patt xmin, step, xmax  
   Gen_patt 10.0  0.05 130.0
+  name_patt 2phases_Si3N4_3t2.xys
 
   BACKGD
    Chebychev 11
@@ -22,8 +23,8 @@ PATTERN_NeutronCW_3t2  1
 
    Peaks 2 split-pseudo-voigt
    ! Pos   Int    FWHM-left  FWHM-right  eta-left   eta-right
-    13.0  6450.01       3.2      5.8          0.9       0.6
-    48.0  1230.01       2.2      6.8          0.9       0.6
+    13.0  2450.01       3.2      5.8          0.9       0.6
+    48.0   530.01       2.2      6.8          0.9       0.6
 
   END_BACKGD
 
@@ -44,24 +45,24 @@ PHASE_Si3N4_alpha   1
 
   Contributes_to_patterns  1  
 
-  Scale_Factors  0.1975441E-01  
+  Scale_Factors  0.2
 
   PH_Pattern 1
               !  Value(Angstroms)   Gaussian Fraction
-     Iso_SIZE         950                  0.11
-              !  Value(Angstroms)   Lorentzian Fraction
-     Iso_STRAIN       0.2                  0.23
-     !            Model      axis     Value      Gaussian Fraction
-     Aniso_SIZE  Platelet    0 0 1    0.123              0.11
+     !Iso_SIZE         950                  0.11
+     !         !  Value(Angstroms)   Lorentzian Fraction
+     !Iso_STRAIN       0.2                  0.23
+     !!            Model      axis     Value      Gaussian Fraction
+     !Aniso_SIZE  Platelet    0 0 1    5.123              0.11
+     !!
+     !!    Strain      Model     LaueClass   NumPar    LorentzianFraction
+     !Aniso_STRAIN  Quartic_Form   "-31m H"    4            0.21
+     !val_Aniso_STRAIN   5.0      2.000    -1.0    0.0      !Values      
      !
-     Aniso_STRAIN  Quartic_Form   Laue "-31m H"
-     !  S_400   S_004    S_220  S_202
-        0.0      0.001     0.0    0.0
-
-     !Pref_OR  2
-     !! Axis    Val  Fract
-     ! 0 0 1   0.78    0.8
-     ! 1 1 0   1.10    0.2
+     !Pref_OR Multiaxial_MD 2
+     !!!             Axis    Val   Fract
+     !Pref_axis_val 0 0 1   0.78    0.8
+     !Pref_axis_val 1 1 0   1.10    0.2
   END_PH_Pattern
 
 END_PHASE_Si3N4_alpha
@@ -76,8 +77,8 @@ PHASE_Si3N4_beta    2
    Atom   N2     N       0.33333  0.66667  0.25000  0.89315   1.00000
 
     Contributes_to_patterns  1  
-    Scale_Factors  0.1968744E-02 
-    Iso_SIZE    450  0.05
+    Scale_Factors  0.1 
+    !Iso_SIZE    1450  0.05
 
 END_PHASE_Si3N4_beta
 

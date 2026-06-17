@@ -33,7 +33,7 @@ SubModule (CFML_IOForm) Format_CIF
       write(unit=ipr,fmt="(a)") "_audit_creation_method  'CrysFML' "
       write(unit=Ipr,fmt="(a)") " "
       write(unit=ipr,fmt="(a)") " "
-      if(present(Str)) write(unit=ipr,fmt="(a)") "#  "//trim(Str)
+      if(present(Str))  write(unit=ipr,fmt="(a)") "#  "//trim(Str)
       write(unit=ipr,fmt="(a)") "#============================================================================="
       write(unit=ipr,fmt="(a)") "data_global"
       write(unit=ipr,fmt="(a)") "#============================================================================="

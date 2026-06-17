@@ -5,7 +5,7 @@ Module nFP_read_files
    use CFML_GlobalDeps,   only: CP, Err_CFML, clear_error, set_error,CFML_DEBUG, set_CFML_DEBUG
    Use CFML_Strings,      only: File_Type, U_Case, Cut_String, Get_Words, &
                                 Get_Num, Reading_File, l_case, Get_Separator_Pos
-   use CFML_gSpaceGroups, only: SpG_Type, Write_SpaceGroup_Info
+   use CFML_gSpaceGroups, only: SpG_Type, Write_SpaceGroup_Info, Get_Laue_Num
    use CFML_Metrics,      only: Cell_Type, Cell_G_Type, Cell_LS_Type, Cell_GLS_Type, Write_Crystal_Cell
    use CFML_Atoms,        only: AtList_Type, Atm_type, Atm_Std_Type, Atm_Ref_Type, &
                                 ModAtm_Std_Type, ModAtm_Ref_type, Write_Atom_List, &
@@ -16,7 +16,7 @@ Module nFP_read_files
    use CFML_IOForm
    use CFML_KeyCodes
    use CFML_Molecules
-   use CFML_Powder
+   use CFML_Diffraction
 
    implicit none
 
@@ -41,7 +41,7 @@ Module nFP_read_files
    integer :: NC_Phas  ! Number of Phase blocks into command block
    integer :: NB_Mol   ! Number of Molecules blocks
 
-   integer,          dimension(NMAX_MOLEX) :: ph_molcrys   ! Number of molecules
+   integer,          dimension(NMAX_MOLEX) :: ph_molcrys=0 ! Number of molecules
    type(File_type)                         :: Ffile        ! File and lines information
    type(BlockInfo_Type)                    :: Bl_Comm      ! Command block
    type(BlockInfo_Type), dimension(NB_MAX) :: Bl_Patt      ! Pattern blocks
@@ -165,12 +165,15 @@ Module nFP_read_files
           stop
        end if
        !Reading and constructing Pat
+       !write(*,"(a)") "  ..... Calling: Read_CFL_Pattern"
        call Read_CFL_Pattern(ffile, Pat(i), Bl_Patt(i)%Nl(1), Bl_Patt(i)%Nl(2),gen_pat(i))
        if (Err_CFML%IErr == 1 .or. Err_CFML%flag) then
           write(unit=*,fmt="(a)")  ' => Error reading/loading Pattern: '//trim(err_CFML%Msg)//" => Pattern",i
           stop
        end if
        Pat(i)%irf=0
+       !if(CFML_Debug) write(*,"(i5,a)") i," =>  "//Pat(i)%mode
+       !if(CFML_Debug) write(*,"(i5,a)") i," =>  "//Pat(i)%sample
        if(Pat(i)%mode == "CW") N_CW_patt=N_CW_patt+1
        if(Pat(i)%mode == "TF") N_TOF_patt=N_TOF_patt+1
     end do
@@ -258,17 +261,18 @@ Module nFP_read_files
         end if
         call Write_InfoBlock_Backgd(Bck(i),lun,i)
         ! Calculation of the background
-        !write(*,*) " => Calculation of smooth background ..."
         Select Case(u_case(Bck(i)%Funct_typ))
           Case("CHEBYCHEV")
             Select Type(pt => Pat(i)%Pdat)
              class is (DiffPat_E_Type)
                 xmin=pt%xmin !max(Excl(i)%Exc(1)%maxb,pt%xmin)
                 xmax=pt%xmax
+                !if(CFML_Debug) write(*,"(a,i4,20f10.3)") " => Calculation of smooth background ...",Bck(i)%Num_FPar,Bck(i)%Fpar
                 call Calc_BackGround_Chebychev(pt, Bck(i)%Num_FPar, Bck(i)%Fpar, Xmin, Xmax)
             End Select
         End Select
         !write(*,*) " => Calculation of peaked background ..."
+
         Select Case(u_case(Bck(i)%Peak_typ))
           Case("PSEUDO-VOIGT")
             Select Type(pt => Pat(i)%Pdat)
@@ -304,27 +308,30 @@ Module nFP_read_files
     if(allocated(prph)) deallocate(prph)
     allocate(prph(NB_Phas))
 
+    ph_molcrys=0
     do i=1, NB_Phas
       ! Look for molecules in the different phases
       !> Molex definitions?
       call clear_error()
-      write(*,"(a,2i4)") " Calling Get_SubBlock_MolPhases with: ",Bl_Phas(i)%Nl
+      !if(CFML_Debug) write(*,"(a,2i4)") " Calling Get_SubBlock_MolPhases with: ",Bl_Phas(i)%Nl
       call Get_SubBlock_MolPhases(ffile, Bl_Phas(i)%Nl(1), Bl_Phas(i)%Nl(2), NB_Mol, Bl_Mol)
       if (Err_CFML%IErr == 1) then
          write(unit=*,fmt="(a)")  ' => Error reading Molex zone: '//trim(err_CFML%Msg)
          stop
       end if
       ph_molcrys(i)=NB_Mol
+      !if(CFML_Debug) write(*,"(a,i4)") " NB_Mol: ",ph_molcrys(i)
     end do
 
-    print*,'  ---- Blocks Zone ----'
-    print*,'  Number of Patterns: ', NB_Patt
-    print*,'    Number of Phases: ', NB_Phas
-    print*,' Number of molecules: ', NB_Mol
+    !print*,'  ---- Blocks Zone ----'
+    !print*,'  Number of Patterns: ', NB_Patt
+    !print*,'    Number of Phases: ', NB_Phas
+    !print*,' Number of molecules: ', NB_Mol
 
     if(allocated(rot_mats)) deallocate(rot_mats) !Rotational parts of conventional
     allocate(rot_mats(NB_Phas))                  !symmetry operators
 
+    ph(1:NB_Phas)%nmol=0
     do i=1,NB_Phas
        call Read_XTal_Structure(cfl_file,ph(i)%Cell, ph(i)%Spg, ph(i)%Atm_list, IPhase=i)
        if (Err_CFML%IErr == 1) then
@@ -332,8 +339,13 @@ Module nFP_read_files
           write(unit=*,fmt='(a)') ' => '//trim(err_CFML%Msg)
           stop
        end if
-       ph(i)%Atm_list%Iph=i   ! Actualizar
+       ph(i)%Iph=i
+       ph(i)%Atm_list%Iph=i
        ph(i)%name=BL_Phas(i)%StrName
+       if(len_trim(ph(i)%Spg%Laue) /= 0) then
+          ph(i)%iLaue= Get_Laue_Num(ph(i)%Spg%Laue)
+          if(ph(i)%iLaue == 0) write(*,"(a)") " => The Laue class is undefined!"
+       end if
 
        !Storing rotational matrices
        rot_mats(i)%numops=ph(i)%Spg%Numops
@@ -342,7 +354,7 @@ Module nFP_read_files
        do n=1,ph(i)%Spg%Numops
          rot_mats(i)%rot(:,:,n)=ph(i)%Spg%Op(n)%Mat(1:3,1:3)
        end do
-
+       !if(CFML_Debug) write(*,"(a,i4)") " ph_molcrys(i): ",ph_molcrys(i)
        if(ph_molcrys(i) > 0) then
           ph(i)%nmol=ph_molcrys(i)
           call Read_CFL_Molecules(ffile,ph_molcrys(i),Bl_Phas(i)%Nl(1), Bl_Phas(i)%Nl(2),Ph(i))
@@ -361,6 +373,8 @@ Module nFP_read_files
 
        do j=1,Ph(i)%Ncontr
          k=Ph(i)%patterns(j)
+         Ph(i)%pat_sample(j)=Pat(k)%sample
+         Ph(i)%pat_mode(j)=Pat(k)%mode
          if(Pat(k)%sample == "P") then
            np=Pat(k)%Pdat%npts
            if(allocated(prph(i)%prc(j)%yp)) deallocate(prph(i)%prc(j)%yp)
@@ -368,6 +382,7 @@ Module nFP_read_files
            prph(i)%prc(j)%n_pts=np
          end if
        end do
+
        write(unit=lun,fmt='(/,a)')  '  ==========================='
        write(unit=lun,fmt='(a,i4)') '  Information about Phase',i
        write(unit=lun,fmt='(a,/)')  '  ==========================='
@@ -380,7 +395,7 @@ Module nFP_read_files
        !call Write_SpaceGroup_Info(Ph(i)%SpG,lun)
        !call Write_Atom_List(Ph(i)%atm_list,i, Iunit=lun)
 
-
+       !if(CFML_Debug) write(*,"(a,i4)") " Ph(i)%Nmol: ",Ph(i)%Nmol
        if(Ph(i)%Nmol > 0) then
          write(unit=lun,fmt='(/,a)')  '  ====================================='
          write(unit=lun,fmt='(a,i4)') '  Information about Molecules in Phase ',i
@@ -391,8 +406,14 @@ Module nFP_read_files
        end if
        write(unit=lun,fmt='(a)')' '
        !Read now powder and single crystal attributes
+       !write(*,"(a)") "  ..... Calling: Read_Phase_PowSxt_Attributes"
+       !write(*,"(i5,20a4)") i," ", Ph(i)%pat_mode(1:nc)
+       !write(*,"(i5,20a4)") i," ", Ph(i)%pat_sample(1:nc)
        Call Read_Phase_PowSxt_Attributes(ffile,Bl_Phas(i)%Nl(1), Bl_Phas(i)%Nl(2),Ph(i)%pat_mode(1:nc),Ph(i)%pat_sample(1:nc),Ph(i))
-
+       if (Err_CFML%IErr == 1) then
+          write(unit=*,fmt='(a)') ' => '//trim(err_CFML%Msg)
+          stop
+       end if
        call Write_CFL_Phase(Lun,Ph(i),i)
 
     end do
@@ -532,33 +553,33 @@ Module nFP_read_files
 
         j=index(line,'patterns')
         if(j /= 0) then
-        	 line=line(j+8:)
-        	 call Get_Num(line, vet, ivet, iv)
-        	 if(iv == 0) then
-        	   call Set_Error(1,"At least 1 pattern should be specified after PATTERNS keyword")
-        	   return
-        	 end if
-        	 allocate(Phase%patterns(iv),Phase%pat_mode(iv),Phase%pat_sample(iv),Phase%pow(iv),Phase%sxt(iv))
-        	 Phase%patterns=vet(1:iv)
-        	 Phase%pat_mode=" "
-        	 Phase%pat_sample=" "
-        	 Phase%Ncontr=iv
-        	 contr_pat=.true.
-        	 cycle
+           line=line(j+8:)
+           call Get_Num(line, vet, ivet, iv)
+           if(iv == 0) then
+             call Set_Error(1,"At least 1 pattern should be specified after PATTERNS keyword")
+             return
+           end if
+           allocate(Phase%patterns(iv),Phase%pat_mode(iv),Phase%pat_sample(iv),Phase%pow(iv),Phase%sxt(iv))
+           Phase%patterns=vet(1:iv)
+           Phase%pat_mode=" "
+           Phase%pat_sample=" "
+           Phase%Ncontr=iv
+           contr_pat=.true.
+           cycle
         end if
         j=index(line,"scale_factors")
         if(j /= 0) then
-        	 line=line(j+13:)
-        	 call Get_Num(line, vet, ivet, iv)
-        	 if(iv == 0) exit
-        	 allocate(Phase%scale_factors(iv))
-        	 Phase%scale_factors=vet(1:iv)
-        	 scale_pat=.true.
-        	 cycle
+           line=line(j+13:)
+           call Get_Num(line, vet, ivet, iv)
+           if(iv == 0) exit
+           allocate(Phase%scale_factors(iv))
+           Phase%scale_factors=vet(1:iv)
+           scale_pat=.true.
+           cycle
         end if
      end do
      if (.not. scale_pat .and. contr_pat) then
-     	 allocate(Phase%scale_factors(Phase%Ncontr))
+        allocate(Phase%scale_factors(Phase%Ncontr))
         Phase%scale_factors=1.0
      end if
 
@@ -572,9 +593,9 @@ Module nFP_read_files
      character(len=*), dimension(:), intent(in) :: samples !Array containing the Sample component of all the patterns
      Type(Phase_Type),           intent(in out) :: Phase
      !---- Local Variables ----!
-     integer                          :: i, j, k, L, iv, n_pat, ier, ndir, ini
-     character(len=:),allocatable     :: line, keyv,num_line,char_line
-     !logical                          :: contr_pat, scale_pat
+     integer                          :: i, j, k, L, iv, n_pat, ier, ndir, ini, np
+     character(len=:),allocatable     :: line, keyv, skey ,num_line,char_line
+     logical                          :: aniso_strain, aniso_size, quartic, harm
      integer,           dimension(15) :: ivet
      real(kind=cp),     dimension(15) :: vet
      !real(kind=cp),     dimension(3)  :: axis
@@ -589,11 +610,15 @@ Module nFP_read_files
        if(samples(k) == "X") Phase%n_sxt=Phase%n_sxt+1
        Phase%pat_mode(j)=modes(k)
        Phase%pat_sample(j)=samples(k)
+       !write(*,"(i5,a)") j,"  =>  "//Phase%pat_mode(j)//"   "//Phase%pat_sample(j)
      end do
+
      if(Phase%n_pow > 0) then
+       if(allocated(Phase%Pow)) deallocate(Phase%Pow)
        allocate(Phase%Pow(Phase%n_pow))
      end if
      if(Phase%n_sxt > 0) then
+       if(allocated(Phase%Sxt)) deallocate(Phase%Sxt)
        allocate(Phase%Sxt(Phase%n_sxt))
      end if
      !Read now the attributes for each pattern
@@ -610,229 +635,532 @@ Module nFP_read_files
         if(line(1:10) == "ph_pattern") then
           read(line(11:),*,iostat=ier) n_pat
           if(ier /= 0) then
-        	   call Set_Error(1,"The number of the pattern should be specified after PH_PATTERN keyword")
-        	   return
+             call Set_Error(1,"The number of the pattern should be specified after PH_PATTERN keyword")
+             return
           end if
           if(samples(n_pat) == "P") then
+            !Initializing the attributes
              Phase%Pow(n_pat)%powder=.true.
-             do
+             Phase%Pow(n_pat)%iso_size=0.0
+             Phase%Pow(n_pat)%iso_strain=0.0
+             Phase%Pow(n_pat)%Gauss_iso_size_frac=0.0
+             Phase%Pow(n_pat)%Lorentz_iso_strain_frac=0.0
+             Phase%Pow(n_pat)%iso_strain=0.0
+             Phase%Pow(n_pat)%iso_size=0.0
+             Phase%Pow(n_pat)%pref=0.0
+             Phase%Pow(n_pat)%extinct=0.0
+             Phase%Pow(n_pat)%Gauss_aniso_size_frac=0.0
+             Phase%Pow(n_pat)%Lorentz_aniso_strain_frac=0.0
+             aniso_strain=.false.; aniso_size=.false.; quartic=.false.; harm=.false.
+
+             do_global: do
                 j=j+1
                 if(i+j > n_end) exit
                 char_line=adjustl(ffile%line(i+j)%str)
-                keyv=trim(l_case(char_line))
+                keyv=trim(char_line)
                 if(len_trim(keyv) == 0) cycle
                 if(keyv(1:1) == "!") cycle
+                L=index(keyv,"!")
+                if(L /= 0) keyv=keyv(1:L-1)
                 L=min(index(keyv," "),len_trim(keyv)+1)
-                Select Case(keyv(1:L-1))
+                !write(*,"(i5,a)") i+j,"   "//keyv
+                S_key: Select Case(l_case(keyv(1:L-1)))
                   Case("calc_type")
                     calc_typ(Phase%iph,n_pat)=adjustl(char_line(L:))
                   Case("iso_size")
                       num_line=keyv(L:)
-        	            call Get_Num(num_line, vet, ivet, iv)
-        	            if(iv == 0) then
-        	              write(unit=*,fmt="(a)")  " WARNING: At least 1 number (normally two!) should be specified after the ISO_SIZE keyword"
-        	              write(unit=*,fmt="(a)")  " ISO_SIZE keyword ignored"
-        	            else if(iv == 1) then
-        	               Phase%Pow(n_pat)%iso_size=vet(1)
-        	               Phase%Pow(n_pat)%Gauss_iso_size_frac=0.0
-        	            else
-        	               Phase%Pow(n_pat)%iso_size=vet(1)
-        	               Phase%Pow(n_pat)%Gauss_iso_size_frac=vet(2)
-        	            end if
+                      call Get_Num(num_line, vet, ivet, iv)
+                      if(iv == 0) then
+                        write(unit=*,fmt="(a)")  " WARNING: At least 1 number (normally two!) should be specified after the ISO_SIZE keyword"
+                        write(unit=*,fmt="(a)")  " ISO_SIZE keyword ignored"
+                      else if(iv == 1) then
+                         Phase%Pow(n_pat)%iso_size=vet(1)
+                         Phase%Pow(n_pat)%Gauss_iso_size_frac=0.0
+                      else
+                         Phase%Pow(n_pat)%iso_size=vet(1)
+                         Phase%Pow(n_pat)%Gauss_iso_size_frac=vet(2)
+                      end if
+                      !write(*,"(a,2f14.5)") " Isotropic size and Gaussian fraction: ", Phase%Pow(n_pat)%iso_size,Phase%Pow(n_pat)%Gauss_iso_size_frac
 
                   Case("iso_strain")
                       num_line=keyv(L:)
-        	            call Get_Num(num_line, vet, ivet, iv)
-        	            if(iv == 0) then
-        	              write(unit=*,fmt="(a)")  " WARNING: At least 1 number (normally two!) should be specified after the ISO_STRAIN keyword"
-        	              write(unit=*,fmt="(a)")  " ISO_STRAIN keyword ignored"
-        	            else if(iv == 1) then
-        	               Phase%Pow(n_pat)%iso_strain=vet(1)
-        	               Phase%Pow(n_pat)%Lorentz_iso_strain_frac=0.0
-        	            else
-        	               Phase%Pow(n_pat)%iso_strain=vet(1)
-        	               Phase%Pow(n_pat)%Lorentz_iso_strain_frac=vet(2)
-        	            end if
+                      call Get_Num(num_line, vet, ivet, iv)
+                      if(iv == 0) then
+                        write(unit=*,fmt="(a)")  " WARNING: At least 1 number (normally two!) should be specified after the ISO_STRAIN keyword"
+                        write(unit=*,fmt="(a)")  " ISO_STRAIN keyword ignored"
+                      else if(iv == 1) then
+                         Phase%Pow(n_pat)%iso_strain=vet(1)
+                         Phase%Pow(n_pat)%Lorentz_iso_strain_frac=0.0
+                      else
+                         Phase%Pow(n_pat)%iso_strain=vet(1)
+                         Phase%Pow(n_pat)%Lorentz_iso_strain_frac=vet(2)
+                      end if
+                      !write(*,"(a,2f14.5)") " Isotropic strain and Lorentzian fraction: ", Phase%Pow(n_pat)%iso_strain,Phase%Pow(n_pat)%Lorentz_iso_strain_frac
 
                   Case("pref_or")
-                      num_line=keyv(L:)
-        	            call Get_Num(num_line, vet, ivet, iv)
-        	            if(iv == 0) then
-        	              call Set_Error(1,"At least 1 number (number of preferred orientation axes) should be specified after the PREF_OR keyword")
-        	              return
-        	            else
-        	              Phase%Pow(n_pat)%n_pref=ivet(1)
-        	            end if
-        	            do k=1, Phase%Pow(n_pat)%n_pref
+
+                      call cut_string(keyv)    !Model=(MULTIAXIAL_MD or MULTIAXIAL_HP_MD)   n_pre
+                      call get_words(keyv,dire,ndir)
+                      if(ndir < 2) then
+                        call Set_Error(1,"At least 1 number (number of preferred orientation axes) should be specified after the 'PREF_OR Pref_Model' keywords")
+                        return
+                      else
+                        Phase%Pow(n_pat)%Pref_Model=dire(1)
+                        read(dire(2),*,iostat=ier) Phase%Pow(n_pat)%n_pref
+                        if(ier /= 0) then
+                          call Set_Error(1,"Error reading the number of preferred orientation axes ")
+                          return
+                        end if
+                      end if
+                      if(ndir > 2) then !This corresponds to the number of integration steps for MULTIAXIAL_HP_HD (default = 15)
+                        read(dire(3),*,iostat=ier) Phase%Pow(n_pat)%nor_steps
+                        if(ier /= 0)  Phase%Pow(n_pat)%nor_steps=15
+                      end if
+                      !Select Case(trim(l_case(dire(1))))
+                      !   Case("multiaxial_hd")
+                      !
+                      !   Case("multiaxial_hp_hd")
+                      k=0
+                      do_pref: do
                          j=j+1
                          if(i+j > n_end) exit
                          num_line=adjustl(ffile%line(i+j)%str)
-        	               if(len_trim(num_line) == 0) cycle
-        	               if(num_line(1:1) == "!") cycle
-        	               call Get_Num(num_line, vet, ivet, iv)
-        	               if(iv < 4) then
-        	                 call Set_Error(1,"Preferred orientation items should be 5: p1 p2 p3  value  fraction")
-        	                 return
-        	               end if
-        	               if(iv < 5 .and. Phase%Pow(n_pat)%n_pref == 1) then
-        	                 Phase%Pow(n_pat)%axes_pref(1:3,k)=vet(1:3)
-        	                 Phase%Pow(n_pat)%pref(1,k)=vet(4)
-        	                 Phase%Pow(n_pat)%pref(2,k)=1.0
-        	               else if(iv == 5) then
-        	                 Phase%Pow(n_pat)%axes_pref(1:3,k)=vet(1:3)
-        	                 Phase%Pow(n_pat)%pref(1:2,k)=vet(4:5)
-        	               end if
-        	               !axis=vet(1:3)
-        	               !write(*,"(a,3F12.5)") " Axis:", axis
-        	               !Calculate the fourth component of axes_pref
-        	               !write(*,"(3F12.5)") (Phase%cell%GR(:,j),j=1,3)
-        	               mod2ax=dot_product(vet(1:3),matmul(Phase%cell%GR,vet(1:3)))
-        	               Phase%Pow(n_pat)%axes_pref(4,k)=mod2ax
-        	            end do
+                         if(num_line(1:1) == "!") cycle do_pref
+                         skey=trim(l_case(num_line))
+                         L=min(index(skey," "),len_trim(skey)+1)
+                         skey=skey(1:L-1)
+                         if(skey /= "pref_axis_val") cycle do_pref
+                         num_line= num_line(L:)
+                         L=index(num_line,"!")
+                         if(L /= 0) num_line=num_line(1:L-1)
+                         call Get_Num(num_line, vet, ivet, iv)
+                         if(iv < 4) then
+                           call Set_Error(1,"Preferred orientation items should be 5: p1 p2 p3  value  fraction")
+                           return
+                         end if
+                         k=k+1
+                         if(k > Phase%Pow(n_pat)%n_pref) exit do_pref
+                         if(iv < 5 .and. Phase%Pow(n_pat)%n_pref == 1) then
+                           Phase%Pow(n_pat)%axes_pref(1:3,k)=vet(1:3)
+                           Phase%Pow(n_pat)%pref(1,k)=vet(4)
+                           Phase%Pow(n_pat)%pref(2,k)=1.0
+                         else if(iv == 5) then
+                           Phase%Pow(n_pat)%axes_pref(1:3,k)=vet(1:3)
+                           Phase%Pow(n_pat)%pref(1:2,k)=vet(4:5)
+                         end if
+                         !write(*,"(a)") " Preferred Orientation axis, value and fraction:"
+                         !write(*,"(2(a,3F12.5))") " Axis:", Phase%Pow(n_pat)%axes_pref(1:3,k),"  Value & Fraction:", Phase%Pow(n_pat)%pref(1:2,k)
+                         !Calculate the fourth component of axes_pref
+                         !write(*,"(3F12.5)") (Phase%cell%GR(:,j),j=1,3)
+                         mod2ax=dot_product(vet(1:3),matmul(Phase%cell%GR,vet(1:3)))
+                         Phase%Pow(n_pat)%axes_pref(4,k)=mod2ax
+                         !write(*,"(a,4F12.5)") " Axis (with fourth component):", Phase%Pow(n_pat)%axes_pref(1:4,k)
+                      end do do_pref
 
                   Case("extinction")
                       num_line=keyv(L:)
-        	            call Get_Num(num_line, vet, ivet, iv)
-        	            if(iv == 0) then
-        	              write(unit=*,fmt="(a)")  " WARNING: 1 real number should be specified after the EXTINCTION keyword"
-        	              write(unit=*,fmt="(a)")  " EXTINCTION keyword ignored"
-        	            else if(iv == 1) then
-        	               Phase%Pow(n_pat)%extinct=vet(1)
-        	            end if
+                      call Get_Num(num_line, vet, ivet, iv)
+                      if(iv == 0) then
+                        write(unit=*,fmt="(a)")  " WARNING: 1 real number should be specified after the EXTINCTION keyword"
+                        write(unit=*,fmt="(a)")  " EXTINCTION keyword ignored"
+                      else if(iv == 1) then
+                         Phase%Pow(n_pat)%extinct=vet(1)
+                      end if
 
                   Case("absorption")
                       num_line=keyv(L:)
-        	            call Get_Num(num_line, vet, ivet, iv)
-        	            if(iv == 0) then
-        	              write(unit=*,fmt="(a)")  " WARNING: at least 1 real number should be specified after the ABSORPTION keyword"
-        	              write(unit=*,fmt="(a)")  " ABSORPTION keyword ignored"
-        	            else if(iv == 1) then
-        	               Phase%Pow(n_pat)%abs_corr(1)=vet(1)
-        	            else if(iv == 2) then
-        	               Phase%Pow(n_pat)%abs_corr(1:2)=vet(1:2)
-        	            end if
-
-                   Case("aniso_size")
-                      call cut_string(keyv)    !  Model  "Laue"  Nani_size   or  platelet axis_size aniso_size(1) frac_gauss
-                      call get_words(keyv,dire,ndir)
-                      Select Case (ndir)
-                         Case(0)
-        	                 write(unit=*,fmt="(a)")  " WARNING: at least the 'size model' should be specified after the ANISO_SIZE keyword"
-        	                 write(unit=*,fmt="(a)")  " ANISO_SIZE keyword ignored"
-        	                 cycle
-                         Case(1)
-                           Phase%Pow(n_pat)%aniso_size_model=dire(1)
-                         Case(2:)
-                           if(dire(2)(1:1) == '"') then
-                              Phase%Pow(n_pat)%Laue_Class=dire(2)(2:len_trim(dire(2))-1)
-                              if(ndir > 2) then
-                                read(dire(3),*) Phase%Pow(n_pat)%Nani_size
-                              end if
-                           else if (trim(dire(1)) == "platelet" .or. trim(dire(1)) == "needle") then
-                              call cut_string(keyv) ! axis  aniso_size(1)
-                              call Get_Num(keyv, vet, ivet, iv)
-                              if(iv < 4) then
-                                 call set_error(1,"For Platelet/Needle model at least four numbers should be provided: axis(3) value")
-                                 return
-                              else if(iv == 4) then
-                                Phase%Pow(n_pat)%axis_size(1:3)=vet(1:3)
-                                Phase%Pow(n_pat)%aniso_size(1)=vet(4)
-                                Phase%Pow(n_pat)%Nani_size=1
-                              else if(iv > 4) then
-                                Phase%Pow(n_pat)%axis_size(1:3)=vet(1:3)
-                                Phase%Pow(n_pat)%aniso_size(1:2)=vet(4:5)
-                                Phase%Pow(n_pat)%Nani_size=2
-                              end if
-                           else ! The second directive is a number equal to the number of parameters
-                              read(dire(2),*) Phase%Pow(n_pat)%Nani_size
-                           end if
-                      End Select
-
-                      if(Phase%Pow(n_pat)%Nani_size > 2) then
-                         ini=1
-                         do
-                            j=j+1
-                            if(i+j > n_end) exit
-                            num_line=adjustl(ffile%line(i+j)%str)
-        	                  if(num_line(1:1) == "!" .or. len_trim(num_line) == 0) cycle
-        	                  call Get_Num(num_line, vet, ivet, iv)
-        	                  if(iv == 0) then
-        	                    call Set_Error(1,"Error reading the ANISO_SIZE parameters")
-        	                    return
-        	                  else
-        	                    Phase%Pow(n_pat)%aniso_size(ini:ini+iv-1)=vet(1:iv)
-        	                    ini=ini+iv
-        	                    if(ini > Phase%Pow(n_pat)%Nani_size) exit
-        	                  end if
-       	                 end do
+                      call Get_Num(num_line, vet, ivet, iv)
+                      if(iv == 0) then
+                        write(unit=*,fmt="(a)")  " WARNING: at least 1 real number should be specified after the ABSORPTION keyword"
+                        write(unit=*,fmt="(a)")  " ABSORPTION keyword ignored"
+                      else if(iv == 1) then
+                         Phase%Pow(n_pat)%abs_corr(1)=vet(1)
+                      else if(iv == 2) then
+                         Phase%Pow(n_pat)%abs_corr(1:2)=vet(1:2)
                       end if
 
-                   Case("aniso_strain")
+                  Case("aniso_size")
+
+                    if(.not. aniso_size)   then
+                      aniso_size=.true.
+                      call cut_string(keyv)    !Spherical_Harmonics   "Laue"  Nani_size
+                                               !Platelet/Needle  GaussFract   !This is a single parameter readin the same line or below
+                                               !Quadratic_form  GaussFract
+                      call get_words(keyv,dire,ndir)
+
+                      Sz_ndir: Select Case (ndir)
+                         Case(0,1)
+                           write(unit=*,fmt="(a)")  " WARNING: at least the 'size model' and the Gaussian Fraction should be specified after the ANISO_SIZE keyword"
+                           write(unit=*,fmt="(a)")  " ANISO_SIZE keyword ignored"
+                           cycle do_global
+                         Case(2)
+                           Phase%Pow(n_pat)%aniso_size_model=dire(1)
+                           read(dire(2),*,iostat=ier) Phase%Pow(n_pat)%Gauss_aniso_size_frac
+                           Select Case(trim(l_case(dire(1))))
+                              Case("platelet","needle")
+                                k=0
+                                do_plat: do
+                                   j=j+1
+                                   if(i+j > n_end) exit
+                                   num_line=adjustl(ffile%line(i+j)%str)
+                                   if(len_trim(num_line) == 0) cycle do_plat
+                                   if(num_line(1:1) == "!") cycle do_plat
+                                   skey=trim(l_case(num_line))
+                                   L=min(index(skey," "),len_trim(skey)+1)
+                                   skey=skey(1:L-1)
+                                   if(skey == "platelet_axis_val" .or. skey == "needle_axis_val") then
+                                      num_line= num_line(L:)
+                                      L=index(num_line,"!")
+                                      if(L /= 0) num_line=num_line(1:L-1)
+                                      call Get_Num(num_line, vet, ivet, iv)
+                                      if(iv < 4) then
+                                        call Set_Error(1,"Platelet/Needle_axis_val items should be 5: p1 p2 p3  value  fraction")
+                                        return
+                                      end if
+                                      k=k+1
+                                      if(k > 2) exit !Only one Platelet/Needle axis is allowed
+                                      Phase%Pow(n_pat)%axis_size(1:3)=vet(1:3)
+                                      Phase%Pow(n_pat)%aniso_size(1)=vet(4)
+                                      Phase%Pow(n_pat)%Nani_size=1
+                                   else
+                                      call Set_Error(1,"Platelet/Needle_axis_val keyword not provided!")
+                                      return
+                                   end if
+                                   exit
+                                end do do_plat
+                                mod2ax=dot_product(vet(1:3),matmul(Phase%cell%GR,vet(1:3)))
+                                Phase%Pow(n_pat)%axis_size(4)=mod2ax
+
+                              Case("quadratic_form")
+
+                                k=0
+                                do_quad: do
+                                   j=j+1
+                                   if(i+j > n_end) exit
+                                   num_line=adjustl(ffile%line(i+j)%str)
+                                   if(len_trim(num_line) == 0) cycle do_quad
+                                   if(num_line(1:1) == "!") cycle do_quad
+                                   skey=trim(l_case(num_line))
+                                   L=min(index(skey," "),len_trim(skey)+1)
+                                   skey=skey(1:L-1)
+                                   if(skey == "val_aniso_size") then !The first non comment/void line should be "val_aniso_size"
+                                      num_line= num_line(L:)
+                                      L=index(num_line,"!")
+                                      if(L /= 0) num_line=num_line(1:L-1)
+                                      call Get_Num(num_line, vet, ivet, iv)
+                                      if(iv < 6) then
+                                        call Set_Error(1,"QUADRATIC_FORM. Val_Aniso_Size items should be 6 reals: qH2   qK2   qL2   qHK   qHL   qKL")
+                                        return
+                                      end if
+                                      Phase%Pow(n_pat)%aniso_size(1:6)=vet(1:6)
+                                      Phase%Pow(n_pat)%Nani_size=6
+                                   else
+                                      call Set_Error(1,"Val_Aniso_Size keyword not provided!")
+                                      return
+                                   end if
+                                   exit
+                                end do do_quad
+
+                           End Select
+
+                         Case(3:)
+
+                           Phase%Pow(n_pat)%aniso_size_model=dire(1)
+                           if(CFML_DEBUG) write(*,"(a)") "  READ SIZE MODEL: "//dire(1)
+                            S_aniso_size: Select Case(trim(l_case(dire(1))))
+
+                              Case("platelet","needle") !Here the axis, value and GaussianFraction are provided in the same line
+                                  call cut_string(keyv) ! axis  aniso_size  GaussianFraction
+                                  call Get_Num(keyv, vet, ivet, iv)
+                                  if( iv /= 5) then
+                                    call Set_Error(1,"Platelet/Needle_axis_val items should be 5: p1 p2 p3  value  fraction")
+                                    return
+                                  else
+                                    Phase%Pow(n_pat)%axis_size(1:3)=vet(1:3)
+                                    Phase%Pow(n_pat)%aniso_size(1)=vet(4)
+                                    Phase%Pow(n_pat)%Gauss_aniso_size_frac=vet(5)
+                                  end if
+                                  mod2ax=dot_product(vet(1:3),matmul(Phase%cell%GR,vet(1:3)))
+                                  Phase%Pow(n_pat)%axis_size(4)=mod2ax
+
+                              Case("spherical_harmonics")
+                                  if(.not. harm) call Set_Laue_Names("spherharm_names",SpherHarm_Names)
+                                  Phase%Pow(n_pat)%Laue_Class=dire(2)
+                                  read(dire(3),*,iostat=ier) Phase%Pow(n_pat)%Nani_size
+                                  if(ier /= 0) then
+                                    call Set_Error(1,"Error reading the number of spherical harmonic parameters")
+                                    return
+                                  end if
+                                  L=Get_Laue_Num(Phase%pow(n_pat)%Laue_Class)
+                                  np=SpherHarm_Names(L)%n_par
+                                  if(Phase%Pow(n_pat)%Nani_size /= np) then
+                                    write(*,"(a)") " WARNING: The read number of parameters is different from the number of parameters of the Laue Class"
+                                    write(*,"(a)") " Only the number of parameters of the Laue Class are selected"
+                                    Phase%Pow(n_pat)%Nani_size=np
+                                  end if
+
+                                  read(dire(4),*,iostat=ier) Phase%Pow(n_pat)%Gauss_aniso_size_frac
+                                  if(ier /= 0) then
+                                    call Set_Error(1,"SPHERICAL_HARMONICS. Error reading the Gaussian Fraction of anisotropic size")
+                                    return
+                                  end if
+                                  !Now read the value of parameters
+                                  k=0
+                                  do_sph: do
+                                     j=j+1
+                                     if(i+j > n_end) exit
+                                     num_line=adjustl(ffile%line(i+j)%str)
+                                     if(len_trim(num_line) == 0) cycle do_sph
+                                     if(num_line(1:1) == "!") cycle do_sph
+                                     skey=trim(l_case(num_line))
+                                     L=min(index(skey," "),len_trim(skey)+1)
+                                     skey=skey(1:L-1)
+                                     !write(*,"(a,2i4)") "  skey="//skey//"  k & np = ",k,np
+                                     if(skey == "val_aniso_size") then !The first non comment/void line should be "val_aniso_size"
+                                        num_line= num_line(L:)
+                                        L=index(num_line,"!")
+                                        if(L /= 0) num_line=num_line(1:L-1)
+                                        call Get_Num(num_line, vet, ivet, iv)
+                                        !L=min(np,k+iv)
+                                        Phase%Pow(n_pat)%aniso_size(k+1:k+iv)=vet(1:iv)
+                                        k=k+iv
+                                        if(k < Phase%Pow(n_pat)%Nani_size) cycle do_sph
+                                     else
+                                        call Set_Error(1,"SPHERICAL_HARMONICS. Val_Aniso_Size keyword not provided OR the provided number of parameters is too low")
+                                        return
+                                     end if
+                                     exit
+                                  end do do_sph
+                                  harm=.true.
+                                  write(*,"(20f10.4)") Phase%Pow(n_pat)%aniso_size(1:np)
+
+                              Case("hkl")
+                                  !if(CFML_DEBUG) write(*,"(a)") trim(dire(1))//" "//trim(dire(2))//" "//trim(dire(3))//" "//trim(dire(4))
+                                  Phase%Pow(n_pat)%aniso_size_model=trim(dire(1))//" "//trim(dire(2))
+                                  read(dire(3),*,iostat=ier) Phase%Pow(n_pat)%aniso_size(1)
+                                  if(ier /= 0) then
+                                    call Set_Error(1,"HKL. Error reading the  hkl-value parameter")
+                                    return
+                                  end if
+                                  if(ndir == 4) then
+                                    read(dire(4),*,iostat=ier) Phase%Pow(n_pat)%Gauss_aniso_size_frac
+                                    if(ier /= 0) then
+                                      call Set_Error(1,"HKL. Error reading the  Gaussian hkl-value")
+                                      return
+                                    end if
+                                  else
+                                    Phase%Pow(n_pat)%Gauss_aniso_size_frac=0.0
+                                  end if
+                                  Phase%Pow(n_pat)%Nani_size=1
+
+                              Case("condit_hkl")
+
+                                  read(dire(2),*,iostat=ier) Phase%Pow(n_pat)%Nani_size
+                                  if(ier /= 0) then
+                                    call Set_Error(1,"CONDIT_HKL. Error reading the number of hkl-conditions parameters")
+                                    return
+                                  end if
+                                  if(allocated(Phase%Pow(n_pat)%nv)) deallocate(Phase%Pow(n_pat)%nv)
+                                  allocate(Phase%Pow(n_pat)%nv(5,Phase%Pow(n_pat)%Nani_size))
+                                  Phase%Pow(n_pat)%nv=0
+                                  read(dire(3),*,iostat=ier) Phase%Pow(n_pat)%Gauss_aniso_size_frac
+                                  if(ier /= 0) then
+                                    call Set_Error(1,"CONDIT_HKL. Error reading the Gaussian Fraction of anisotropic size")
+                                    return
+                                  end if
+                                  k=0
+                                  do_cond: do
+                                     j=j+1
+                                     if(i+j > n_end) exit
+                                     num_line=adjustl(ffile%line(i+j)%str)
+                                     if(len_trim(num_line) == 0) cycle do_cond
+                                     if(num_line(1:1) == "!") cycle do_cond
+                                     skey=trim(l_case(num_line))
+                                     L=min(index(skey," "),len_trim(skey)+1)
+                                     skey=skey(1:L-1)
+                                     if(skey == "val_aniso_size") then !The first non comment/void line should be "val_aniso_size"
+                                         num_line= num_line(L:)
+                                         L=index(num_line,"!")
+                                         if(L /= 0) num_line=num_line(1:L-1)
+                                         call Get_Num(num_line, vet, ivet, iv)
+                                         if(iv /= 6) then
+                                          call Set_Error(1,"CONDIT_HKL. Error reading the Val_Aniso_Size items, should be: n1 n2 n3 n4 n5  value")
+                                          return
+                                        end if
+                                        k=k+1
+                                        Phase%Pow(n_pat)%nv(1:5,k)=ivet(1:5)
+                                        Phase%Pow(n_pat)%aniso_size(k)=vet(6)
+                                        if(k == Phase%Pow(n_pat)%Nani_size) exit do_cond
+                                     else
+                                        call Set_Error(1,"CONDIT_HKL. Val_Aniso_Size keyword not provided!")
+                                        return
+                                     end if
+                                  end do do_cond
+
+                            End Select S_aniso_size
+
+                      End Select Sz_ndir
+                    else
+                      call Set_Error(1,"Error: A single anisotropic size keyword is allowed")
+                      return
+                    end if
+
+                  Case("aniso_strain")
+
+                    if(.not. aniso_strain)   then
+                      aniso_strain=.true.
                       call cut_string(keyv)    !  Model  "Laue"  Nani_strain   or  uniaxial axis_size aniso_strain(1) frac_lorentz
                       call get_words(keyv,dire,ndir)
-                      Select Case (ndir)
-                         Case(0)
-        	                 write(unit=*,fmt="(a)")  " WARNING: at least the 'strain model' should be specified after the ANISO_STRAIN keyword"
-        	                 write(unit=*,fmt="(a)")  " ANISO_STRAIN keyword ignored"
-        	                 cycle
-                         Case(1)
-                           Phase%Pow(n_pat)%aniso_strain_model=dire(1)
-                         Case(2:)
-                           if(dire(2)(1:1) == '"') then
-                              Phase%Pow(n_pat)%Laue_Class=dire(2)(2:len_trim(dire(2))-1)
-                              if(ndir > 2) then
-                                read(dire(3),*) Phase%Pow(n_pat)%Nani_strain
-                              end if
-                           else if (trim(dire(1)) == "uniaxial") then
-                              call cut_string(keyv) ! axis  aniso_size(1)
-                              call Get_Num(keyv, vet, ivet, iv)
-                              if(iv < 4) then
-                                 call set_error(1,"For uniaxial model at least four numbers should be provided: axis(3) value")
-                                 return
-                              else if(iv == 4) then
-                                Phase%Pow(n_pat)%axis_strain(1:3)=vet(1:3)
-                                Phase%Pow(n_pat)%aniso_strain(1)=vet(4)
-                                Phase%Pow(n_pat)%Nani_strain=1
-                              else if(iv > 4) then
-                                Phase%Pow(n_pat)%axis_strain(1:3)=vet(1:3)
-                                Phase%Pow(n_pat)%aniso_strain(1:2)=vet(4:5)
-                                Phase%Pow(n_pat)%Nani_strain=2
-                              end if
-                           else ! The second directive is a number equal to the number of parameters
-                              read(dire(2),*) Phase%Pow(n_pat)%Nani_size
-                           end if
-                      End Select
+                      S_ndir: Select Case (ndir)
+                         Case(0,1)
+                           write(unit=*,fmt="(a)")  " WARNING: at least the 'strain model' and Gaussian fraction should be specified after the ANISO_STRAIN keyword"
+                           write(unit=*,fmt="(a)")  " ANISO_STRAIN keyword ignored"
+                           cycle
+                         Case(2)
 
-                      if(Phase%Pow(n_pat)%Nani_strain > 2) then
-                         ini=1
-                         do
-                            j=j+1
-                            if(i+j > n_end) exit
-                            num_line=adjustl(ffile%line(i+j)%str)
-        	                  if(num_line(1:1) == "!" .or. len_trim(num_line) == 0) cycle
-        	                  call Get_Num(num_line, vet, ivet, iv)
-        	                  if(iv == 0) then
-        	                    call Set_Error(1,"Error reading the ANISO_STRAIN parameters")
-        	                    return
-        	                  else
-        	                    Phase%Pow(n_pat)%aniso_strain(ini:ini+iv-1)=vet(1:iv)
-        	                    ini=ini+iv
-        	                    if(ini > Phase%Pow(n_pat)%Nani_strain) exit
-        	                  end if
-       	                 end do
-                      end if
+
+                         Case(3:)
+
+                           Phase%Pow(n_pat)%aniso_strain_model=dire(1)
+
+                           S_aniso_strain: Select Case(trim(l_case(dire(1))))
+
+                              Case("uniaxial_strain")   !Here the axis, value and LorentzFraction are provided in the same line
+                                  call cut_string(keyv) ! axis  aniso_size  LorentzFraction
+                                  call Get_Num(keyv, vet, ivet, iv)
+                                  if( iv /= 5) then
+                                    call Set_Error(1,"Uniaxial_Strain_axis_val items should be 5: p1 p2 p3  value  fraction")
+                                    return
+                                  else
+                                    Phase%Pow(n_pat)%axis_strain(1:3)=vet(1:3)
+                                    Phase%Pow(n_pat)%aniso_strain(1)=vet(4)
+                                    Phase%Pow(n_pat)%Lorentz_aniso_strain_frac=vet(5)
+                                  end if
+                                  mod2ax=dot_product(vet(1:3),matmul(Phase%cell%GR,vet(1:3)))
+                                  Phase%Pow(n_pat)%axis_strain(4)=mod2ax
+
+                              Case("spherical_harmonics")
+                                  if(.not. harm) call Set_Laue_Names("spherharm_names",SpherHarm_Names)
+                                  Phase%Pow(n_pat)%Laue_Class=dire(2)
+                                  read(dire(3),*,iostat=ier) Phase%Pow(n_pat)%Nani_strain
+                                  if(ier /= 0) then
+                                    call Set_Error(1,"STRAIN. Error reading the number of spherical harmonic parameters")
+                                    return
+                                  end if
+                                  L=Get_Laue_Num(Phase%pow(n_pat)%Laue_Class)
+                                  np=SpherHarm_Names(L)%n_par
+                                  if(Phase%Pow(n_pat)%Nani_strain /= np) then
+                                    write(*,"(a)") " WARNING: The read number of parameters is different from the number of parameters of the Laue Class"
+                                    write(*,"(a)") " Only the number of parameters of the Laue Class are selected"
+                                    Phase%Pow(n_pat)%Nani_strain=np
+                                  end if
+                                  read(dire(4),*,iostat=ier) Phase%Pow(n_pat)%Lorentz_aniso_strain_frac
+                                  if(ier /= 0) then
+                                    call Set_Error(1,"SPHERICAL_HARMONICS. Error reading the Lorentzian Fraction of anisotropic strain")
+                                    return
+                                  end if
+                                  !Now read the value of parameters
+                                  k=0
+                                  do_ssph: do
+                                     j=j+1
+                                     if(i+j > n_end) exit
+                                     num_line=adjustl(ffile%line(i+j)%str)
+                                     if(len_trim(num_line) == 0) cycle do_ssph
+                                     if(num_line(1:1) == "!") cycle do_ssph
+                                     skey=trim(l_case(num_line))
+                                     L=min(index(skey," "),len_trim(skey)+1)
+                                     skey=skey(1:L-1)
+                                     if(skey == "val_aniso_strain") then !The first non comment/void line should be "val_aniso_strain"
+                                        num_line= num_line(L:)
+                                        L=index(num_line,"!")
+                                        if(L /= 0) num_line=num_line(1:L-1)
+                                        call Get_Num(num_line, vet, ivet, iv)
+                                        Phase%Pow(n_pat)%aniso_strain(k+1:k+iv)=vet(1:iv)
+                                        k=k+iv
+                                        if(k < Phase%Pow(n_pat)%Nani_strain) cycle do_ssph
+                                     else
+                                        call Set_Error(1,"SPHERICAL_HARMONICS. Val_Aniso_Strain keyword not provided OR the provided number of parameters is too low")
+                                        return
+                                     end if
+                                     exit
+                                  end do do_ssph
+                                  harm=.true.
+
+                              Case("quartic_form")
+
+                                  !Set Laue indices and names
+                                  if(.not. quartic) call Set_Laue_Names("quartic_names",Quartic_Names)
+                                  Phase%Pow(n_pat)%Laue_Class=dire(2)
+                                  read(dire(3),*,iostat=ier) Phase%Pow(n_pat)%Nani_strain
+                                  if(ier /= 0) then
+                                    call Set_Error(1,"STRAIN. Error reading the number of quartic_form parameters")
+                                    return
+                                  end if
+                                  L=Get_Laue_Num(Phase%pow(n_pat)%Laue_Class)
+                                  np=Quartic_Names(L)%n_par
+                                  if(Phase%Pow(n_pat)%Nani_strain /= np) then
+                                    write(*,"(a)") " WARNING: The read number of parameters is different from the number of parameters of the Laue Class"
+                                    write(*,"(a)") " Only the number of parameters of the Laue Class are selected"
+                                    Phase%Pow(n_pat)%Nani_strain=np
+                                  end if
+
+                                  read(dire(4),*,iostat=ier) Phase%Pow(n_pat)%Lorentz_aniso_strain_frac
+                                  if(ier /= 0) then
+                                    call Set_Error(1,"QUARTIC_FORM. Error reading the Lorentzian Fraction of anisotropic strain")
+                                    return
+                                  end if
+                                  !Now read the value of parameters
+                                  k=0
+                                  do_quar: do
+                                     j=j+1
+                                     if(i+j > n_end) exit
+                                     num_line=adjustl(ffile%line(i+j)%str)
+                                     if(len_trim(num_line) == 0) cycle do_quar
+                                     if(num_line(1:1) == "!") cycle do_quar
+                                     skey=trim(l_case(num_line))
+                                     L=min(index(skey," "),len_trim(skey)+1)
+                                     skey=skey(1:L-1)
+                                     if(skey == "val_aniso_strain") then !The first non comment/void line should be "val_aniso_strain"
+                                        num_line= num_line(L:)
+                                        L=index(num_line,"!")
+                                        if(L /= 0) num_line=num_line(1:L-1)
+                                        call Get_Num(num_line, vet, ivet, iv)
+                                        Phase%Pow(n_pat)%aniso_strain(k+1:k+iv)=vet(1:iv)
+                                        k=k+iv
+                                        if(k < Phase%Pow(n_pat)%Nani_strain) cycle do_quar
+                                     else
+                                        call Set_Error(1,"QUARTIC_FORM. Val_Aniso_Strain keyword not provided!")
+                                        return
+                                     end if
+                                     exit
+                                  end do do_quar
+                                  quartic=.true.
+
+                           End Select S_aniso_strain
+
+
+                      End Select  S_ndir
+
+                    else
+                      call Set_Error(1,"Error: A single anisotropic strain keyword is allowed")
+                      return
+                    end if
 
                   Case("end_ph_pattern")
-                    exit
-                End Select
-             end do
 
-          else if(samples(n_pat) == "X") then
+                    exit do_global
+
+                End Select S_key
+
+             end do do_global
+
+
+          else if(samples(n_pat) == "X") then  !Single Crystal attributes
              !To be implemented
 
           end if
         end if
-     end do
+     end do ! i=N_ini,N_end
 
   End Subroutine Read_Phase_PowSxt_Attributes
 
@@ -888,8 +1216,8 @@ Module nFP_read_files
 
      !> Init
      call clear_error()
-
-     !First look for the positions of molecules in the curren phase
+     M%Nmol=0 !Initialize the number of molecules for the current phase
+     !First look for the positions of molecules in the current phase
      k=0
      do i=n_ini,n_end
        line=adjustl(cfl%line(i)%str)

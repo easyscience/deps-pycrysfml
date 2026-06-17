@@ -175,14 +175,14 @@ SubModule (CFML_gSpaceGroups) gs_Spg_Const_VGen
       !> Construct the list of the generators on top of Op.
       !> The identity is always the first operator
       allocate(Mat(d,d))
-      if(CFML_DEBUG) write(*,"(a)") " Subroutine SpaceG_Constructor_GenV"
+      !if(CFML_DEBUG) write(*,"(a)") " Subroutine SpaceG_Constructor_GenV "
       do i=1,ngen
-         if(CFML_DEBUG) write(*,"(i3,a)") i," -> "//trim(gen(i))
+         !if(CFML_DEBUG) write(*,"(i3,a)") i," -> "//trim(gen(i))
          call Get_Mat_From_Symb_Int(gen(i),Mat,invt)
          if (Err_CFML%Ierr /= 0) return
          Op(i+1)%Mat=Mat
          Op(i+1)%time_inv=invt
-         if(CFML_DEBUG) write(*,"(i3,2a)") i," -> ", String_from_Op(Op(i+1))
+         !if(CFML_DEBUG) write(*,"(i3,2a)") i," -> ", String_from_Op(Op(i+1))
       end do
       ngen=ngen+1
 

@@ -1,0 +1,128 @@
+COMM Nd2NiO4,  1.5K, Pccn (old D2B)
+! Current global Chi2 (Bragg contrib.) =      3.803    
+! Files => DAT-file: ndni_ltr.dat,  PCR-file: ndni_ltn
+!Job Npr Nph Nba Nex Nsc Nor Dum Iwg Ilo Ias Res Ste Nre Cry Uni Cor Opt Aut
+   1   7   2  -5   2   0   0   1   1   0   1   0   0   0   0   0   0   0   1
+!
+!Ipr Ppl Ioc Mat Pcr Ls1 Ls2 Ls3 NLI Prf Ins Rpa Sym Hkl Fou Sho Ana
+   0   0   1   0   1   0   4   0   0   1   1   1   1   0   2   0   0
+!
+! Lambda1  Lambda2    Ratio    Bkpos    Wdt    Cthm     muR   AsyLim   Rpolarz  2nd-muR -> Patt# 1
+ 1.594600 1.594600  1.00000   90.000  10.000  0.0000  0.0000  180.00    0.0000  0.0000
+!
+!NCY  Eps  R_at  R_an  R_pr  R_gl     Thmin       Step       Thmax    PSD    Sent0
+ 25  0.10  1.00  1.00  1.00  1.00     10.0000   0.050000   159.9500   0.000   0.000
+!
+! Excluded regions (LowT  HighT) for Pattern#  1
+        0.00       10.00
+      159.00      180.00
+! 
+!
+      42    !Number of refined parameters
+!
+!  Zero    Code    SyCos    Code   SySin    Code  Lambda     Code MORE ->Patt# 1
+  0.05229   21.0  0.00000    0.0  0.00000    0.0 0.000000    0.00   0
+!
+!   Background coefficients/codes  for Pattern#  1  (Chebychev polynomials, up to 24 coefficients)
+     101.627      -7.104       6.354       2.781       7.614      -0.908
+       31.00       41.00       51.00      121.00      131.00      141.00
+      -1.129      -0.980       1.296       0.000       0.000       0.000
+       61.00      401.00      411.00        0.00        0.00        0.00
+       0.000       0.000       0.000       0.000       0.000       0.000
+        0.00        0.00        0.00        0.00        0.00        0.00
+       0.000       0.000       0.000       0.000       0.000       0.000
+        0.00        0.00        0.00        0.00        0.00        0.00
+!-------------------------------------------------------------------------------
+!  Data for PHASE number:   1  ==> Current R_Bragg for Pattern#  1:   3.5544
+!-------------------------------------------------------------------------------
+Nd2NiO4
+!
+!Nat Dis Ang Pr1 Pr2 Pr3 Jbt Irf Isy Str Furth       ATZ    Nvk Npr More
+   5   0   0 0.0 0.0 1.0   0   0   0   1   0        411.178   0   7   1
+!
+!Jvi Jdi Hel Sol Mom Ter  Brind   RMua    RMub    RMuc   Jtyp  Nsp_Ref Ph_Shift N_Domains
+   5   0   0   0   0   0  1.0000  0.0000  0.0000  0.0000    1      0      0      0
+!
+!
+P c c n                  <--Space group symbol
+!Atom   Typ       X        Y        Z     Biso       Occ     In Fin N_t Spc /Codes
+Nd     ND     -0.00811 -0.01780  0.36292  0.18437   0.50000   0   0   0    0  
+                361.00   351.00   341.00   371.00      0.00
+Ni     NI      0.00000  0.00000  0.00000  0.27455   0.25000   0   0   0    0  
+                  0.00     0.00     0.00   381.00      0.00
+O1     O       0.25000  0.25000 -0.02719  0.80097   0.25000   0   0   0    0  
+                  0.00     0.00   291.00   331.00      0.00
+O2     O       0.25000  0.75000  0.00713 -0.07660   0.25000   0   0   0    0  
+                  0.00     0.00   271.00   421.00      0.00
+O3     O       0.03579  0.06146  0.17965  0.56879   0.50000   0   0   0    0  
+                251.00   241.00   161.00   261.00      0.00
+!-------> Profile Parameters for Pattern #   1  ----> Phase #   1
+!  Scale          Shape1      Bov      Str1      Str2      Str3   Strain-Model
+ 0.7888377       0.00000   0.00000   0.00000   0.00000   0.00000       3
+      11.00000     0.000     0.000     0.000     0.000     0.000
+!       U            V            W             X            Y         GauSiz      LorSiz    Size-Model
+     0.057446    -0.009289     0.088797     0.000000     0.084360     0.000000     0.000000       0
+       171.00       181.00       191.00         0.00       201.00         0.00         0.00
+!     a          b         c        alpha      beta       gamma      # Cell Info
+   5.469738   5.504532  12.080734  90.000000  90.000000  90.000000   
+   91.00000  101.00000  111.00000    0.00000    0.00000    0.00000
+!  Pref1    Pref2      Asy1     Asy2     Asy3     Asy4      S_L      D_L
+  0.00000  0.00000  0.00000  0.00000  0.00000  0.00000  0.09436  0.00000
+     0.00     0.00     0.00     0.00     0.00     0.00   301.00     0.00
+!      S_400        S_040        S_004        S_220        S_202        S_022
+    21.135365    16.607134     0.000000   -37.671185     0.000000     0.000000
+       211.00       221.00         0.00       231.00         0.00         0.00
+!  Lorentzian strain coeff.+ code 
+       0.08907     151.00000
+!-------------------------------------------------------------------------------
+!  Data for PHASE number:   2  ==> Current R_Bragg for Pattern#  1:   4.6732
+!-------------------------------------------------------------------------------
+Nd2NiO4(magnetic reflections) Ni+Nd:GxCyFz
+!
+!Nat Dis Ang Pr1 Pr2 Pr3 Jbt Irf Isy Str Furth       ATZ    Nvk Npr More
+   2   0   0 0.0 0.0 1.0  -1   0  -1   1   0         86.795   0   7   0
+!
+!
+P m m m                  <--Space group symbol for hkl generation
+!Nsym Cen Laue MagMat
+   4   2   3   1
+!
+SYMM  x,y,z
+MSYM  u,v,w,0.0
+SYMM  x+1/2,-y,-z+1/2
+MSYM  -u,v,w,0.0
+SYMM  -x,y+1/2,-z+1/2
+MSYM   u,-v,w,0.0
+SYMM  -x+1/2,-y+1/2,z
+MSYM   -u,-v,w,0.0
+!
+!Atom   Typ  Mag Vek    X      Y      Z       Biso    Occ      Rm      Rphi  Rtheta
+!     Im   Iphi   Itheta  beta11  beta22  beta33    MagPh
+Ni     MNI2  1  0  0.00000 0.00000 0.00000 0.27455  0.25000   1.645 117.938  86.197  
+                      0.00    0.00    0.00  381.00     0.00  391.00  321.00  311.00
+     0.000   0.000   0.000   0.000   0.000   0.000  0.00000
+      0.00    0.00    0.00    0.00    0.00    0.00     0.00
+Nd     JND3  1  0 -0.00811-0.01780 0.36292 0.18437  0.50000   2.532 304.100 112.379  
+                    361.00  351.00  341.00  371.00     0.00  281.00   81.00   71.00
+     0.000   0.000   0.000   0.000   0.000   0.000  0.00000
+      0.00    0.00    0.00    0.00    0.00    0.00     0.00
+!-------> Profile Parameters for Pattern #   1  ----> Phase #   2
+!  Scale          Shape1      Bov      Str1      Str2      Str3   Strain-Model
+ 0.7888377       0.00000   0.00000   0.00000   0.00000   0.00000       3
+      11.00000     0.000     0.000     0.000     0.000     0.000
+!       U            V            W             X            Y         GauSiz      LorSiz    Size-Model
+     0.057446    -0.009289     0.088797     0.000000     0.084360     0.000000     0.000000       0
+       171.00       181.00       191.00         0.00       201.00         0.00         0.00
+!     a          b         c        alpha      beta       gamma      # Cell Info
+   5.469738   5.504532  12.080734  90.000000  90.000000  90.000000   
+   91.00000  101.00000  111.00000    0.00000    0.00000    0.00000
+!  Pref1    Pref2      Asy1     Asy2     Asy3     Asy4      S_L      D_L
+  0.00000  0.00000  0.00000  0.00000  0.00000  0.00000  0.09436  0.00000
+     0.00     0.00     0.00     0.00     0.00     0.00   301.00     0.00
+!      S_400        S_040        S_004        S_220        S_202        S_022
+    21.135365    16.607134     0.000000   -37.671185     0.000000     0.000000
+       211.00       221.00         0.00       231.00         0.00         0.00
+!  Lorentzian strain coeff.+ code 
+       0.08907     151.00000
+!  2Th1/TOF1    2Th2/TOF2  Pattern to plot
+      10.000     159.000       1

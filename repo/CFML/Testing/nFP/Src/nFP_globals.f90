@@ -7,7 +7,7 @@ Module nFP_globals
    use CFML_DiffPatt,    only: Pattern_Type, Interval_Type, Bck_Type, Excl_reg_type
    use CFML_Reflections, only: RefList_Type, refl_type, RefP_type
    use CFML_KeyCodes,    only: GenParList_Type
-   use CFML_Powder
+   use CFML_Diffraction
 
    !---- Variables ----!
    implicit none

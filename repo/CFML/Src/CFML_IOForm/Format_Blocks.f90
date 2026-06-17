@@ -256,7 +256,7 @@ Submodule (CFML_IOForm) Format_Blocks
 
       !> Init
       call clear_error()
-
+      Exclr%num_excl=0
       call Get_SubBlock_KEY('EXCLUDED_REGIONS', ffile, n_ini, n_end, Ind)
       if (all(Ind ==0)) return
 
@@ -324,6 +324,8 @@ Submodule (CFML_IOForm) Format_Blocks
       j=ind(1)
       ip=1
       if(present(ipatt)) ip=ipatt
+      Bck%Num_Peaks=0
+      Bck%Peak_typ="                  "
       do while(j <= ind(2)-2)
          j=j+1
          line = adjustl(ffile%line(j)%str)
@@ -842,7 +844,7 @@ Submodule (CFML_IOForm) Format_Blocks
 
       do while (i < N_end)
          call Get_SubBlock_KEY('MOLEX', ffile, i, n_fin, Ind, StrName)
-         !write(*,"(a,2i5,a)") " Ind ->",Ind,"  "//trim(StrName)
+         !if (CFML_DEBUG) write(*,"(a,2i5,a)") " Ind ->",Ind,"  "//trim(StrName)
          if (Err_CFML%IErr /= 0) return
          if (all(ind == 0)) then
             i=i+1

@@ -1,0 +1,14 @@
+! Resolution Function of a Laboratory Diffractometer (lambda=CuKalpha) ireso    1
+! To be used with IRESO=1 in FullProf.2k (version > 2.4)
+!     Lambda1    Lambda2   Ratio(I2/I1)
+WAVE   1.540560 1.544400  0.5000
+!    NPROF    Shape1    Shape2   Shape3
+PROF    7        0.0       0.0      0.0
+!  Cos(2thM)^2 for polarization = 0 for neutrons
+CTHM  0.7998
+!     2theta-min   step   2theta-max
+THRG     2.0       0.05      130.00
+!        S_L        D_L
+ASYM   0.06600   0.00000
+!   Uins        Vins         Wins       Xins       Yins      Zins
+ 0.006001    -0.001730     0.000901   0.02500   0.00000   0.00000

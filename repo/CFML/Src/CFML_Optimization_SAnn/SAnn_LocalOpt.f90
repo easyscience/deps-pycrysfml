@@ -73,7 +73,7 @@
             x1(1:n) = x(1:n)+h*r(irndm,1:n)
             call Boundary_Cond(n,x1,low,high,bound)
             CALL Model_Functn(x1, f1)
-           ! write(*,*) "  f1-1=",f1
+            !write(*,*) "  f1-1=",f1
             nfev = nfev+1
             IF (f1 >= f) then
                IF (nfev > maxfn) exit do_outm
@@ -81,7 +81,7 @@
                x1(1:n) = x(1:n)+h*r(irndm,1:n)
                call Boundary_Cond(n,x1,low,high,bound)
                CALL Model_Functn(x1, f1)
-              ! write(*,*) "  f1-2=",f1
+               !write(*,*) "  f1-2=",f1
                nfev = nfev+1
                IF (f1 >= f) then
                   IF (nfev > maxfn) exit do_outm

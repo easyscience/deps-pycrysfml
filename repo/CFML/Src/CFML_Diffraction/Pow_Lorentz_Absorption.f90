@@ -1,4 +1,4 @@
-SubModule(CFML_Powder) Pow_Lorentz_Absorption
+SubModule(CFML_Diffraction) Pow_Lorentz_Absorption
   !>
   !> Derived from FullProf Modules (Lorentz, polarization and absorption corrections)
   !>
@@ -82,7 +82,7 @@ SubModule(CFML_Powder) Pow_Lorentz_Absorption
 
      !Absorption correction
      if (tmv >= 0.000001 .and. ILO /= "FILMS") then
-
+      
        Select Case (ILO)
 
          Case('DBS','SYN') !For debye-scherrer geometry (neutrons cylindrical sample can and synchrotron capillary)

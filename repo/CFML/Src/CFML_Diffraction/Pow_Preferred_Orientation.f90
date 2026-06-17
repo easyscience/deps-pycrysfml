@@ -1,4 +1,4 @@
-SubModule(CFML_Powder) Pow_Preferred_Orientation
+SubModule(CFML_Diffraction) Pow_Preferred_Orientation
   !>
   !> Derived from FullProf Module: Multiaxial March-Model for preferred orientation
   !>
@@ -8,7 +8,7 @@ SubModule(CFML_Powder) Pow_Preferred_Orientation
 
     Module Subroutine Preferred_orientation(model,n_pref,axes_pref,gr,mRot,par,Rfl,pref_corr,lambda,norstep,der)
     !> Multi-Axial March-Dollase Model for Preferred Orientation
-      character(len=*),              intent(in) :: model      !> MAX_MD, MAXHP_MD
+      character(len=*),              intent(in) :: model      !> MULTIAXIAL_MD, MULTIAXIAL_HP_MD
       integer,                       intent(in) :: n_pref     !> Number of preferred orientation axes for multiaxial March-Dollase model
       real(kind=cp), dimension(:,:), intent(in) :: axes_pref  !> (4,n_pref) Axes for preferred orientation, forth componet is the modulus squared
       real(kind=cp), dimension(3,3), intent(in) :: gr         !> Reciprocal metric tensor
@@ -16,8 +16,8 @@ SubModule(CFML_Powder) Pow_Preferred_Orientation
       real(kind=cp), dimension(:,:), intent(in) :: par        !> (2,n_pref) Preferred orientation parameters (value and fraction)
       Class(Refl_Type),              intent(in) :: Rfl        !> Bragg reflection
       real(kind=cp),                 intent(out):: pref_corr  !> Preferred orientation correction factor for reflection Rfl
-      real(kind=cp),       optional, intent(in) :: lambda     !> Needed for MAXHP_MD model to calculate sinth
-      integer,             optional, intent(in) :: norstep    !> Number of steps for integration in model MAXHP_MD
+      real(kind=cp),       optional, intent(in) :: lambda     !> Needed for MULTIAXIAL_HP_MD model to calculate sinth
+      integer,             optional, intent(in) :: norstep    !> Number of steps for integration in model MULTIAXIAL_HP_MD
       real(kind=cp), dimension(:,:), optional, intent(out) :: der !> derivatives w.r.t. free parameters
       !--- Local variables ---!
       integer        :: k,L, na, norstp
@@ -29,9 +29,9 @@ SubModule(CFML_Powder) Pow_Preferred_Orientation
 
 
       s= 2.0 * Rfl%s  ! 2senTheta/Lambda = 1/d => modulus of the vector Rfl%h
-      Select Case(model)
+      Select Case(u_case(model))
 
-        Case('MAX_MD')
+        Case('MULTIAXIAL_MD')
           do na=1,n_pref
             dol(na)=par(1,na)
             frx(na)=par(2,na)
@@ -56,11 +56,11 @@ SubModule(CFML_Powder) Pow_Preferred_Orientation
             prec(na)=prec1/real(mRot%numops)                        ! <or>
           end do
 
-        Case('MAXHP_MD')
+        Case('MULTIAXIAL_HP_MD')
          ! Multi-axial March-Dollase model for preferred orientation (high pressure anvil cells)
          ! j. synchrotron rad. (1996). 3, 112-119
-         ! "observation and modelling of preferred orientation in two-dimensional powder patterns"
-         ! n. g. wright, r. j. nelmes, s. a. belmonte and m. i. mcmahon
+         ! "Observation and modelling of preferred orientation in two-dimensional powder patterns"
+         ! N. G. Wright, R. J. Nelmes, S. A. Belmonte and M. I. Mcmahon
          ! pod: preferred orientation direction (crystallographic direction),
          ! poa: preferred orientation axis (sample/environment axis)
          !  Crystallites tend to aling their pod along the poa
@@ -73,7 +73,7 @@ SubModule(CFML_Powder) Pow_Preferred_Orientation
          !    <p(alpha)>hkl = 1/2pi integral[0,2pi]{ [sin^2(alpha)/r + r^2 cos^2(alpha)]^(-3/2)} d(delta) <expression 4>
          !
          !    cos(alpha) = cos(theta)sin(psi)sin(delta) - sin(theta)cos(psi) <expression 6>
-         !    squaring and taking into account that the cross term integrates to zero, we have to use
+         !    Squaring and taking into account that the cross term integrates to zero, we have to use
          !        b(alpha)=cos^2(theta)sin^2(psi)sin^2(delta) + sin^2(theta)cos^2(psi)
          !    and calculate:
          !
