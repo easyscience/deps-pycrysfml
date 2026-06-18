@@ -524,6 +524,7 @@ SubModule (CFML_IOForm) Format_CFL
       !---- Local variables ----!
       integer :: i,iv,j,j_ini,j_end,k,npts,ier
       real(kind=cp) :: xmin,step,xmax
+      logical       :: gen_patt
       character(len=:), allocatable :: key,key_, mode
 
       call clear_error()
@@ -532,7 +533,7 @@ SubModule (CFML_IOForm) Format_CFL
          err_CFML%Msg="Read_CFL_Pattern@CFML_IOForm: 0 lines "
          return
       end if
-
+      gen_patt=.false.
       j_ini=1
       j_end=cfl%nlines
       if (present(i_ini)) j_ini=i_ini
@@ -602,6 +603,9 @@ SubModule (CFML_IOForm) Format_CFL
          if(u_case(line(1:11)) == "FORMAT_FILE") then
            mode=adjustl(line(13:))
          end if
+         if(u_case(line(1:9)) == "NAME_PATT") then
+           pat%filename=adjustl(trim(line(11:)))
+         end if
          if(u_case(line(1:8)) == "GEN_PATT") then
            read(unit=line(9:),fmt=*,iostat=ier) xmin,step,xmax
            if(ier /= 0) then
@@ -612,7 +616,8 @@ SubModule (CFML_IOForm) Format_CFL
            pat%pdat%xmax=xmax
            pat%pdat%step=step
            pat%pdat%npts=npts
-           if(present(genp)) genp=.true.
+           gen_patt=.true.
+           if(present(genp)) genp=gen_patt
            call allocate_pattern(pat%pdat)
 
            Select Type (c => pat%cond)
@@ -632,7 +637,8 @@ SubModule (CFML_IOForm) Format_CFL
            end do
          end if
       end do
-      if(len_trim(pat%filename) > 4 .and. len_trim(mode) > 2) then
+
+      if(len_trim(pat%filename) > 4 .and. len_trim(mode) > 2 .and. .not. gen_patt) then
          pat%pdat=Load_Pattern(pat%Filename, Mode)
          if(.not. allocated(pat%pdat%x) .or. .not. allocated(pat%pdat%y)) then
            err_CFML%Ierr=1; err_CFML%Flag=.true.
@@ -933,18 +939,18 @@ SubModule (CFML_IOForm) Format_CFL
          end select
       end do
 
-      if(CFML_DEBUG) then
-        select type (cond)
-          type is(PowPatt_CW_Conditions_Type)
-            write(*,"(a,f12.4)")  "WDT", cond%wdt
-            write(*,"(a,2f12.4)") "ASYM", cond%asym1,cond%asym2
-            write(*,"(a,3f12.4)") "LAMBDA", cond%lambda,cond%ratio
-            write(*,"(a)") "PROFILE_FUNCTION "//trim(cond%profile)
-            write(*,"(a,3f12.4)") "THETA_RANGE ",cond%tthmin,cond%tthmax,cond%step
-            write(*,"(a,5f12.4)") "UVWXY",cond%u,cond%v,cond%w,cond%x,cond%y
-            write(*,"(a,3f12.4)") "ZERO_SY",cond%zero,cond%sycos,cond%sysin
-        end select
-      end if
+      !if(CFML_DEBUG) then
+      !  select type (cond)
+      !    type is(PowPatt_CW_Conditions_Type)
+      !      write(*,"(a,f12.4)")  "WDT", cond%wdt
+      !      write(*,"(a,2f12.4)") "ASYM", cond%asym1,cond%asym2
+      !      write(*,"(a,3f12.4)") "LAMBDA", cond%lambda,cond%ratio
+      !      write(*,"(a)") "PROFILE_FUNCTION "//trim(cond%profile)
+      !      write(*,"(a,3f12.4)") "THETA_RANGE ",cond%tthmin,cond%tthmax,cond%step
+      !      write(*,"(a,5f12.4)") "UVWXY",cond%u,cond%v,cond%w,cond%x,cond%y
+      !      write(*,"(a,3f12.4)") "ZERO_SY",cond%zero,cond%sycos,cond%sysin
+      !  end select
+      !end if
 
    End Subroutine Read_CFL_Pat_Conditions
 
@@ -1666,6 +1672,11 @@ SubModule (CFML_IOForm) Format_CFL
       real(kind=cp)                 :: sig
       character(len=:), allocatable :: profile
 
+      if(pat%pDat%npts == 0) then
+         write(lun,'(/,a)') 'The PATTERN_'//trim(pat%name)//" has ZERO points: it is not allocated! "
+        return
+      end if
+
       i_pat = 1
       if (present(iPat)) i_pat = iPat
 
@@ -1745,7 +1756,10 @@ SubModule (CFML_IOForm) Format_CFL
       integer, optional, intent(in) :: iPh
 
       !----- Local variables -----!
-      integer :: i,j,k,i_ph
+      integer :: i,j,k,L,i_ph,np
+      character(len=60) :: info_string
+      character(len=10) :: form
+      character(len=:), allocatable :: keyv, compm
 
       i_ph = ph%iph
       if (present(iPh)) i_ph = iPh
@@ -1774,7 +1788,9 @@ SubModule (CFML_IOForm) Format_CFL
       end if
 
       if (allocated(ph%pow)) then   !Powder attributes have been allocated and read
-         write(lun,'(/,4x,a)',advance='no') ' Powder Attributes:'
+         write(lun,'(/4x,a)')  ' ------------------'
+         write(lun,'(4x,a)')   ' Powder Attributes:'
+         write(lun,'(4x,a)')   ' ------------------'
          do i = 1 , size(ph%patterns)
             if(ph%pow(i)%powder) then
                do j=1,ph%Ncontr
@@ -1783,23 +1799,109 @@ SubModule (CFML_IOForm) Format_CFL
                      write(lun,"(a,i3)") "  Pattern # ",i
                      write(lun,"(a)")    "  ========="
 
-                     if(ph%pat_mode(j) == "TF") write(lun,"(a,f14.6)") "           Primay Extinction: ",ph%pow(j)%Extinct
-                     write(lun,"(a,f14.6)")      " Isotropic Size & GaussFract: ",ph%pow(j)%iso_size,   ph%pow(j)%Gauss_iso_size_frac
-                     write(lun,"(a,2f14.6)")     " Isotropic Strain & LorFract: ",ph%pow(j)%iso_strain, ph%pow(j)%Lorentz_iso_strain_frac
+                     if(ph%pat_mode(j) == "TF") write(lun,"(a,f14.6)") "           Primary Extinction: ",ph%pow(j)%Extinct
+                     write(lun,"(a,2f14.6)")     "  Isotropic Size & GaussFract: ",ph%pow(j)%iso_size,   ph%pow(j)%Gauss_iso_size_frac
+                     write(lun,"(a,2f14.6)")     "  Isotropic Strain & LorFract: ",ph%pow(j)%iso_strain, ph%pow(j)%Lorentz_iso_strain_frac
+
                      if(len_trim(ph%pow(j)%aniso_size_model) /= 0) then
-                         write(lun,"(a,i3)")      "  Anisotropic size model # ",ph%pow(j)%aniso_size_model
-                         write(lun,"(a,15f12.6)") "  Anisotropic size parameters: ",ph%pow(j)%aniso_size(1:ph%pow(j)%Nani_size)
+                         write(lun,"(a,a)")       "  Anisotropic Size Model # ",ph%pow(j)%aniso_size_model
+                         k=index(trim(ph%pow(j)%aniso_size_model)," ")
+                         if(k > 2) then
+                            keyv=l_case(ph%pow(j)%aniso_size_model(1:L-1))
+                            compm=ph%pow(j)%aniso_size_model(L+1:)
+                         else
+                            keyv=l_case(trim(ph%pow(j)%aniso_size_model))
+                         end if
+                         Select Case(keyv)
+                           Case("platelet","needle")
+                              write(lun,"(a,3f12.6,a)")  "  Size Axis of platelet/needle: [",ph%pow(j)%axis_size(1:3)," ]"
+                              write(lun,"(a,f12.6)")  "    Anisotropic Size Parameter: ",ph%pow(j)%aniso_size(1)
+
+                           Case("quadratic_form")
+                              write(lun,"(a)")         "                                        qH2         qK2         qL2         qHK         qHL         qKL "
+                              write(lun,"(a,6f12.6)")  "    Anisotropic Size Parameters: ",ph%pow(j)%aniso_size(1:6)
+
+                           Case("spherical_harmonics")
+                               write(lun,"(a)")        "    Laue Class: "//ph%pow(j)%Laue_Class
+                               L=Get_Laue_Num(ph%pow(j)%Laue_Class)
+                               if(L > 0) then
+                                  form="(   a)"
+                                  np=SpherHarm_Names(L)%n_par
+                                  write(form(2:4),"(i2)") np+1
+                                  write(lun,"(a,i2)")      "      Number of Free Parameters: ",np
+                                  write(lun,form)          "   Names of Spherical Harmonics:      ",(SpherHarm_Names(L)%names(k)//"       ",k=1,np)
+                                  write(lun,"(a,20f12.6)")  "    Anisotropic Size Parameters: ",ph%pow(j)%aniso_size(1:np)
+                               end if
+
+                           Case("condit_hkl")
+                              write(lun,"(a)")  "  Conditions of the form: n1 H + n2 K + n3 L = n4 n + n5 "
+                              do L=1,ph%pow(j)%Nani_size
+                                 info_string=" "
+                                 write(info_string,"(5(i2,a))") ph%pow(j)%nv(1,L)," H  +",ph%pow(j)%nv(2,L)," K  +",ph%pow(j)%nv(3,L)," L  =",ph%pow(j)%nv(4,L)," n  +",ph%pow(j)%nv(5,L), " :"
+                                 write(lun,"(tr1,a,f12.6)") trim(info_string)//"    SizeParam =", ph%pow(j)%aniso_size(L)
+                              end do
+
+                           Case("hkl")
+                              write(lun,"(a)")        "  Reflections of the form: "//compm//" "//" are size-broadened"
+                              write(lun,"(a,f12.6)")  "                SizeParam: ", ph%pow(j)%aniso_size(1)
+
+                         End Select
+
+
                      end if
+
                      if(len_trim(ph%pow(j)%aniso_strain_model) /= 0) then
-                         write(lun,"(a,i3)")      "  Anisotropic strain model # ",ph%pow(j)%aniso_strain_model
-                         write(lun,"(a,15f12.6)") "  Anisotropic strain parameters: ",ph%pow(j)%aniso_strain(1:ph%pow(j)%Nani_strain)
+                         write(lun,"(a,a)")      "  Anisotropic strain model # ",ph%pow(j)%aniso_strain_model
+
+                         k=index(trim(ph%pow(j)%aniso_strain_model)," ")
+                         if(k > 2) then
+                            keyv=l_case(ph%pow(j)%aniso_strain_model(1:L-1))
+                            compm=ph%pow(j)%aniso_strain_model(L+1:)
+                         else
+                            keyv=l_case(trim(ph%pow(j)%aniso_strain_model))
+                         end if
+
+                         Select Case(keyv)
+
+                           Case("uniaxial_strain")
+                              write(lun,"(a,3f12.6,a)")  "  Size Axis of Uniaxial Strain: [",ph%pow(j)%axis_strain(1:3)," ]"
+
+                           Case("spherical_harmonics","quartic_form")
+                               write(lun,"(a)")        "    Laue Class: "//ph%pow(j)%Laue_Class
+                               L=Get_Laue_Num(ph%pow(j)%Laue_Class)
+                               if(L > 0) then
+                                  Select Case(keyv)
+                                    Case("spherical_harmonics")
+                                        form="(   a)"
+                                        np=SpherHarm_Names(L)%n_par
+                                        write(form(2:4),"(i2)") np+1
+                                        write(lun,"(a,i2)") "      Number of Free Parameters: ",np
+                                        write(lun,form)     "   Names of Spherical Harmonics:      ",(SpherHarm_Names(L)%names(k)//"       ",k=1,np)
+                                    Case("quartic_form")
+                                        form="(   a)"
+                                        np=Quartic_Names(L)%n_par
+                                        write(form(2:4),"(i2)") np+1
+                                        write(lun,"(a,i2)") "      Number of Free Parameters: ",np
+                                        write(lun,form)     "    Names of Quartic Parameters:      ",(Quartic_Names(L)%names(k)//"       ",k=1,np)
+                                  End Select
+                               end if
+                               write(lun,"(a,20f12.6)")  "  Anisotropic Strain Parameters: ",ph%pow(j)%aniso_size(1:np)
+
+                         End Select
+
                      end if
+
                      if(ph%pow(j)%n_pref > 0) then
+                        write(lun,"(a)")                "  Preferred Orientation Model: "//trim(ph%pow(j)%pref_model)
+                        if(u_case(trim(ph%pow(j)%pref_model)) == "MULTIAXIAL_HP_MD") write(lun,"(a,i3)") "  Number of integration steps: ",ph%pow(j)%nor_steps
+                        write(lun,"(a,i2)")             "  Number of Orientation  axes: ",ph%pow(j)%n_pref
                         do k=1,ph%pow(j)%n_pref
-                             write(lun,"(2(a,3f12.6))") "  Preferred Orientation  axis: ",ph%pow(j)%axes_pref(:,k) , "  Pref.Or. Value & Fraction:", ph%pow(j)%pref(:,k)
+                             write(lun,"(2(a,3f12.6))") "  Preferred Orientation  axis: ",ph%pow(j)%axes_pref(1:3,k) , &
+                                                        "  Pref.Or. Value & Fraction:", ph%pow(j)%pref(:,k), ph%pow(j)%axes_pref(4,k)
                         end do
                      end if
                      if(ph%pat_mode(j) == "TF") write(lun,"(a,2f14.6)") "        Absorption correction: ",ph%pow(j)%abs_corr
+
                   end if !ph%patterns(j) == i
                end do ! j=1,ph%Ncontr
             end if ! ph%pow(i)%powder
@@ -1831,11 +1933,12 @@ SubModule (CFML_IOForm) Format_CFL
       integer, dimension(MAX_PHASES)   :: ip
       integer                          :: i, j,nt_phases, iph, n_ini, n_end
       integer                          :: k
-
+      character(len=:), allocatable    :: atm_file, ext
+      type(File_Type)                  :: ext_file
       real(kind=cp),dimension(:),allocatable:: xvet
 
       type(kvect_info_Type)            :: Kvec
-      logical                          :: commands
+      logical                          :: commands, import
 
       !> Init
       call clear_error()
@@ -1845,7 +1948,7 @@ SubModule (CFML_IOForm) Format_CFL
          return
       end if
 
-      commands=.false.
+      commands=.false.; import=.false.
 
       !> Calculating number of Phases
       nt_phases=0; ip=cfl%nlines; ip(1)=1
@@ -1889,6 +1992,52 @@ SubModule (CFML_IOForm) Format_CFL
       if (present(Job_Info)) then
          call Get_Job_Info(cfl,Job_info, n_ini, n_end)
       end if
+
+      do i=n_ini,n_end
+         line=adjustl(cfl%line(i)%str)
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '!') cycle
+         if(l_case(line(1:6)) == "import") then
+            j=index(line,"!")
+            if(j > 8) then
+              atm_file=trim(adjustl(line(7:j-1)))
+            else
+              atm_file=adjustl(trim(line(7:)))
+            end if
+            !Read the external CIF file or Shelx file
+            ext_file=Reading_File(trim(atm_file))
+            if (err_CFML%Ierr /= 0) return
+            Ext=get_extension(trim(atm_file))
+
+            Select Case (trim(u_case(ext)))
+              case ('CIF')
+                  if (present(database_path)) then
+                    call Read_XTal_CIF(ext_file, Cell, SpG, AtmList, database_path=database_path)
+                  else
+                    call Read_XTal_CIF(ext_file, Cell, SpG, AtmList)
+                  end if
+               case ('INS','RES')
+                 if (present(database_path)) then
+                    call Read_XTal_SHX(ext_file, Cell, SpG, AtmList, database_path=database_path)
+                 else
+                    call Read_XTal_SHX(ext_file, Cell, SpG, AtmList)
+                 end if
+
+               case ('MCIF')
+                 if (present(database_path)) then
+                    call Read_XTal_MCIF(ext_file, Cell, Spg, AtmList,database_path=database_path)
+                 else
+                    call Read_XTal_MCIF(ext_file, Cell, Spg, AtmList)
+                 end if
+               case default
+                  Err_CFML%Ierr=1
+                  Err_CFML%Msg="The extension of the external file provided by importing within a CFL is not supported. Pease, check it! Ext= "//trim(atm_file)
+                  return
+            end select
+            !Return to the calling program because all the needed items for defining the structure are provided
+            return
+         end if
+      end do
 
       !> Reading Cell Parameters
       if (present(CFrame)) then
@@ -1935,7 +2084,6 @@ SubModule (CFML_IOForm) Format_CFL
 
          if (len_trim(line) <=0) cycle
          if (line(1:1) == '!') cycle
-         if (line(1:1) == ' ') cycle
 
          if (u_case(line(1:4)) /= 'ATOM') cycle
 

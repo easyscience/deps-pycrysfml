@@ -135,7 +135,7 @@ endif()
 
 # Testing programs
 if (TESTING)
-    install(TARGETS groups08 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+    # install(TARGETS groups08 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
     install(TARGETS nFP DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
     if (DEFINED HDF5)
         install(TARGETS get_data DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
@@ -144,9 +144,9 @@ endif()
 
 # Python API
 if (PYTHON_API)
-    install(TARGETS crysfml08lib DESTINATION ${CMAKE_INSTALL_PREFIX}/crysfml)
+    install(TARGETS crysfml08lib DESTINATION ${CMAKE_INSTALL_PREFIX}/pycrysfml)
     file(GLOB PY_FILES ${CMAKE_CURRENT_SOURCE_DIR}/PythonAPI/Python/*.py)
-    install(FILES ${PY_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/crysfml)
+    install(FILES ${PY_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/pycrysfml)
 endif()
 
 

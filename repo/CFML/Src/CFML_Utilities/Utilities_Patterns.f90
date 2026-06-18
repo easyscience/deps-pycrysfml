@@ -4,6 +4,301 @@ implicit none
 
 contains
 
+    module subroutine allocate_profile_contributions_for_phases(prph)
+        ! Before calling this subroutine, public arrays Ph and Pat defined at
+        ! CFML_Powder must be allocated.
+
+        ! Arguments
+        type(profile_contrib_phase), dimension(:), allocatable, intent(inout) :: prph
+
+        ! Local variables
+        integer :: i,j,k,nc,np
+
+        call clear_error()
+        if (.not. allocated(Ph)) then
+            err_cfml%ierr = -1
+            err_cfml%msg = 'allocate_profile_contributions_for_phases: array of phases is not allocated.'
+            return
+        end if
+        if (.not. allocated(Pat)) then
+            err_cfml%ierr = -1
+            err_cfml%msg = 'allocate_profile_contributions_for_phases: array of patterns is not allocated.'
+            return
+        end if
+        if(allocated(prph)) deallocate(prph)
+        allocate(prph(size(Ph)))
+        do i = 1 , size(Ph)
+            nc = Ph(i)%Ncontr
+            if (allocated(prph(i)%prc)) deallocate(prph(i)%prc) !Profiles of each phase and each pattern
+            allocate(prph(i)%prc(nc))
+            do j = 1 , Ph(i)%Ncontr
+                k = Ph(i)%patterns(j)
+                if (Pat(k)%sample == "P") then
+                    np = Pat(k)%Pdat%npts
+                    if (allocated(prph(i)%prc(j)%yp)) deallocate(prph(i)%prc(j)%yp)
+                    allocate(prph(i)%prc(j)%yp(np))
+                    prph(i)%prc(j)%n_pts = np
+                end if
+            end do
+        end do
+
+    end subroutine allocate_profile_contributions_for_phases
+
+    module subroutine compute_patterns()
+        !> Computes pattern Pat(n) from phases stored in Ph
+
+        ! Local variables
+        integer :: i,j,k,l,n,npts
+        logical :: is,sf_neutron,sf_xray
+        type(profile_contrib_phase), dimension(:), allocatable :: prph
+
+        call clear_error()
+        call allocate_profile_contributions_for_phases(prph)
+        if (err_cfml%ierr /= 0) return
+        
+        ! Allocate patterns
+        do i = 1 , size(Pat)
+            select type (pt => Pat(i)%Pdat)
+                class is (DiffPat_E_type)
+                    if (allocated(pt%ycalc)) deallocate(pt%ycalc)
+                    allocate(pt%ycalc(pt%npts))
+                    pt%ycalc = pt%bgr
+            end select
+        end do
+
+        ! Compute structure factors
+        do i = 1 , size(Ph)
+            ! Compute structure factors
+            call sf_clear_init_symop()
+!            !First, convert all molecules to individual atoms before calculation of structure factors
+!            !=> Posponed
+!            N_mol=Ph(i)%Nmol
+!            if (Ph(i)%Nmol > 0) then
+!                N_atms = Ph(i)%atm_list%natoms + sum(Ph(i)%mol(1:N_mol)%natoms)
+!                n = 0
+!                select type (Atm => Ph(i)%atm_list%Atom)
+!                type is (Atm_Std_type)
+!                    d=0
+!                    call Allocate_Atom_List(N_atms, AtL, 'Atm_Std_type', d)
+!                    type_Atm='Atm_Std_type'
+!                type is (Atm_Ref_type)
+!                    d=0
+!                    call Allocate_Atom_List(N_atms, AtL, 'Atm_Ref_type', d)
+!                    type_Atm='Atm_Ref_type'
+!                type is (ModAtm_Std_type)
+!                    d=size(atm(1)%Xs)-3
+!                    call Allocate_Atom_List(N_atms, AtL, 'ModAtm_Std_type', d)
+!                    type_Atm='ModAtm_Std_type'
+!                type is (ModAtm_Ref_type)
+!                    d=size(atm(1)%Xs)-3
+!                    call Allocate_Atom_List(N_atms, AtL, 'ModAtm_Ref_type', d)
+!                    type_Atm='ModAtm_Ref_type'
+!                end select
+!
+!                n=0
+!                do j = 1 , Ph(i)%Nmol
+!                    call Molec_to_AtList(Ph(i)%Mol(j), type_Atm, At, 'F', Ph(i)%Cell)
+!                    select type (Atm => AtL%Atom)
+!                        type is (Atm_Std_type)
+!                            select type (a_atom => At%Atom)
+!                                type is(Atm_Std_type)
+!                                    Atm(n+1:n+At%natoms)=a_atom(1:At%natoms)
+!                            end select
+!                        type is (Atm_Ref_type)
+!                            select type (a_atom => At%Atom)
+!                                type is(Atm_Ref_type)
+!                                    Atm(n+1:n+At%natoms)=a_atom(1:At%natoms)
+!                            end select
+!                        type is (ModAtm_Std_type)
+!                            select type (a_atom => At%Atom)
+!                                type is(ModAtm_Std_type)
+!                                    Atm(n+1:n+At%natoms)=a_atom(1:At%natoms)
+!                            end select
+!                        type is (ModAtm_Ref_type)
+!                            select type (a_atom => At%Atom)
+!                                type is(ModAtm_Ref_type)
+!                                    Atm(n+1:n+At%natoms)=a_atom(1:At%natoms)
+!                            end select
+!                    end select
+!                    n = n + At%natoms
+!                    call allocate_atom_list(0,At,' ',0)
+!                end do
+!            else
+!                AtL=Ph(i)%atm_list
+!            end if
+            ! Initialization of structure factors
+            sf_neutron = .false.
+            sf_xray = .false.
+            do j = 1 , Ph(i)%Ncontr
+                n = Ph(i)%patterns(j)
+                if (Pat(n)%cond%job == 1 .and. .not. sf_neutron) then
+                    ! Neutrons
+                    call init_structure_factors(RL(i),Ph(i)%atm_list,Ph(i)%spg,mode="NUC")
+                    if (err_cfml%ierr /= 0) return
+                    call structure_factors(RL(i),Ph(i)%atm_list,Ph(i)%spg,mode="NUC")
+                    if (err_cfml%ierr /= 0) return
+                    sf_neutron = .true.
+                else if(Pat(n)%cond%job == 0 .and. .not. sf_xray) then
+                    ! Xrays
+                    select type (cond => Pat(n)%cond)
+                        type is (Powpatt_cw_conditions_type)
+                            call init_structure_factors(RL(i),Ph(i)%atm_list,Ph(i)%spg,mode="XRA",lambda=cond%lambda(1))
+                            if (err_cfml%ierr /= 0) return
+                            call structure_factors(RL(i),Ph(i)%atm_list,Ph(i)%spg,mode="XRA",lambda=cond%lambda(1))
+                            if (err_cfml%ierr /= 0) return
+                            sf_xray = .true.
+                    end select
+                end if
+            end do
+            ! Compute profiles contributions of phases to patterns
+            do j = 1 , Ph(i)%Ncontr
+                k = Ph(i)%patterns(j) !number of the pattern to which the phase contributes
+                if (Pat(k)%sample /= "P") cycle
+                if (Pat(k)%mode == "CW") then
+                    call Profile_Contribution_CW(i,j,RL(i),prph(i)%prc(j)%yp)
+                else if(Pat(k)%mode == "TF") then
+                end if
+            end do ! Ph(i)%Ncontr
+        end do ! N_phases
+        ! Compute patterns
+        do j = 1 , size(Pat)
+            select type (pt => Pat(j)%Pdat)
+                class is (DiffPat_E_type)
+                pt%ycalc = pt%bgr
+            end select
+            do i = 1 , size(Ph)
+                is = .false.
+                do k = 1 , size(Ph(i)%patterns)
+                    if (Ph(i)%patterns(k) == j) then
+                        is = .true.
+                        exit
+                    end if
+                end do
+                if (is) then
+                    select type (pt => Pat(j)%Pdat)
+                        class is (DiffPat_E_type)
+                            do k = 1 , pt%npts
+                                pt%ycalc(k) = pt%ycalc(k) + prph(i)%prc(j)%yp(k)
+                            end do
+                    end select
+                end if
+            end do
+            select type (pt => Pat(j)%Pdat)
+                class is (DiffPat_E_type)
+                    do i = 1 , pt%npts
+                        !pt%y(i)=Random_Poisson(pt%ycalc(i))
+                        pt%sigma(i)=sqrt(pt%ycalc(i))
+                    end do
+            end select
+        end do
+
+    end subroutine compute_patterns
+
+    subroutine Profile_Contribution_CW(iph,ipat,RL,yp)
+
+        ! Arguments
+        integer,                     intent(in)     :: iph,ipat
+        type(RefP_type),             intent(in)     :: RL !It has been totally filled before
+        real(kind=cp), dimension(:), intent(out)    :: yp
+
+        ! Local variables
+        integer       :: j,i1,i2,k,kn,nref,n_pat,irad
+        real(kind=cp) :: pos,Bragg,fwhm,eta,asym1,asym2,scalef,corr,intens,ratio
+        real(kind=cp), dimension(2) :: Lambda
+        real(kind=cp), dimension(:), allocatable :: y
+        logical :: twowaves
+
+        nref  = RL%Nref
+        n_pat = Ph(iph)%patterns(ipat)
+        select type(cond => Pat(n_pat)%cond)
+            type is(PowPatt_CW_Conditions_type)
+                asym1 = cond%asym1
+                asym2 = cond%asym2
+                twowaves = cond%twowaves
+                lambda = cond%Lambda
+                ratio = cond%ratio
+        end select
+
+        scalef = Ph(iph)%scale_factors(ipat)
+        yp(:) = 0.0_cp
+
+        select case(Pat(n_pat)%radiation)
+            case("X") 
+                irad = 1
+            case("N") 
+                irad = 2
+            case("E") 
+                irad = 3
+            case default 
+                irad = 2
+        end select
+        do k = 1 , Nref  !Calculate the position of the reflection for each pattern and the contributing points
+            i1 = RL%ptr(1,k,ipat)
+            if (i1 == 0) cycle !The reflection is not contributing to pattern n_pat
+            i2 = RL%ptr(2,k,ipat)
+            Bragg = RL%pos(k,ipat)
+            fwhm = RL%fwhm(k,ipat)
+            eta = RL%eta(k,ipat)
+            corr = RL%corr(k,ipat)
+            !Calculate the profile of the reflection
+            select type (rf => RL%Ref)
+                class is (Srefl_type)
+                    intens = scalef * corr * rf(k)%mult * rf(k)%fc(irad)**2
+                    write(77,'(4i8,3f12.4)') rf(k)%H(1:3),rf(k)%mult,corr,rf(k)%fc(irad)
+            end select
+            if (asym1 > 0.000001_cp) then
+                if (allocated(y)) deallocate(y)
+                allocate(y(i1:i2)); y=0.0_cp
+                call calc_pseudo_voigt(Pat(n_pat)%Pdat%x(i1:i2),y(i1:i2),bragg,eta,fwhm,asym1,asym2)
+                yp(i1:i2) = yp(i1:i2) + y(i1:i2) * intens
+            else
+                do j = i1 , i2
+                    yp(j) = yp(j) + pseudovoigt(Pat(n_pat)%Pdat%x(j) - bragg, [fwhm,eta]) * intens
+                end do
+            end if
+            if(twowaves) then
+                kn = k + Nref
+                Bragg = RL%pos(kn,ipat)
+                fwhm = RL%fwhm(kn,ipat)
+                eta = RL%eta(kn,ipat)
+                i1 = RL%ptr(1,kn,ipat)
+                i2 = RL%ptr(2,kn,ipat)
+                corr = RL%corr(kn,ipat)
+                !Calculate the profile of the reflection
+                select type (rf => RL%Ref)
+                    class is (Srefl_type)
+                        intens = scalef * corr * rf(kn)%mult * rf(kn)%fc(irad)**2 * ratio
+                end select
+                if (asym1 > 0.000001_cp) then
+                    if (allocated(y)) deallocate(y)
+                    allocate(y(i1:i2))
+                    y = 0.0_cp
+                    call calc_pseudo_voigt(Pat(n_pat)%Pdat%x(i1:i2),y(i1:i2),bragg,eta,fwhm,asym1,asym2)
+                    yp(i1:i2) = yp(i1:i2) + y(i1:i2) * intens
+                else
+                    do j = i1 , i2
+                        yp(j) = yp(j) + pseudovoigt(Pat(n_pat)%Pdat%x(j) - bragg, [fwhm,eta]) * intens
+                    end do
+                end if
+            end if
+        end do
+
+        ! Exclude regions
+!      do j=1,Pat(n_pat)%PDat%npts
+!        pos=Pat(n_pat)%PDat%x(j)
+!        do k=1,Excl(n_pat)%num_excl
+!           if(pos >= Excl(n_pat)%Exc(k)%mina .and. pos <= Excl(n_pat)%Exc(k)%maxb) then
+!             yp(j)=0.0
+!             Exit
+!           end if
+!        end do
+!      end do
+
+    end subroutine Profile_Contribution_CW
+
+    ! ------------------------------------------------
+    ! Procedures below should be removed in the future.
+
     module subroutine cw_powder_pattern(cell,spg,a,ppc,xc,yc,tth)
         !> Computes a powder pattern from cell, space group,
         !> atom list and experimental conditions
@@ -50,29 +345,6 @@ contains
 
     end subroutine cw_powder_pattern
 
-    module subroutine cw_powder_pattern_from_cfl(cfl_name,xc,yc)
-        !> Computes a powder pattern from information provided by a
-        !> CFL file.
-        character(len=*),                         intent(in)    :: cfl_name !> name of the CFL fi;e
-        real(kind=cp), dimension(:), allocatable, intent(out)   :: xc       !> two theta angle
-        real(kind=cp), dimension(:), allocatable, intent(out)   :: yc       !> calculated intensity
-
-        ! Local variables
-        type(file_type) :: cfl_file
-        class(cell_g_type), allocatable :: cell
-        class(spg_type), allocatable :: spg
-        type(atlist_type) :: a
-        type(powpatt_cw_conditions_type) :: ppc
-
-        call clear_error()
-        cfl_file = reading_file(cfl_name)
-        if (err_cfml%ierr /= 0) return
-        call cw_read_cfl(cfl_file,cell,spg,a,ppc)
-        if (err_cfml%ierr /= 0) return
-        call cw_powder_pattern(cell,spg,a,ppc,xc,yc)
-
-    end subroutine cw_powder_pattern_from_cfl
-
     subroutine cw_powder_pattern_profile(ppc,hkl,xc,yc,tth)
 
         ! Arguments
@@ -83,7 +355,7 @@ contains
         real(kind=cp), dimension(:), optional,    intent(in)  :: tth  !> two theta axis provided by the user
 
         ! Local variables
-        integer :: i,i1,i2,j,npts
+        integer :: i,j,i1,i2,npts
         real(kind=cp) :: bragg,chw,cs,eta,fwhm,hg,hl,intens,lorentzf,ss,th1,th2,tt
         real(kind=cp), dimension(:), allocatable :: y
 
@@ -138,6 +410,7 @@ contains
                     i1 = max(i1,1)
                     i2 = min(i2,npts)
                     intens = lorentzf * ref(i)%mult * ref(i)%fc(2)**2 * ppc%scale_factor
+                    write(88,'(4i8,3f12.4)') ref(i)%H(1:3),ref(i)%mult,lorentzf,ref(i)%fc(2)
                     if (ppc%is_asym) then
                         if (allocated(y)) deallocate(y)
                         allocate(y(i1:i2))

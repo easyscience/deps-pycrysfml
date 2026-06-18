@@ -1,4 +1,4 @@
-submodule (CFML_Wraps) Wraps_Powder
+submodule (CFML_Wraps) Wraps_Diffraction
 
     implicit none
     contains

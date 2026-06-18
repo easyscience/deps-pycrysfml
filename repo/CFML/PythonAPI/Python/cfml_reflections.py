@@ -7,7 +7,9 @@ def get_maxnumref(sintlmax : float,volcell : float,**kwargs):
     reflections up to SinTLMax for a volume VolCell of the
     primitive cell. If SinTLMin is given, the result is the
     number of reflections in the interval [SinTLMin,SinTLMax].
-    If Mult is provided the result is divided by half this multiplicity,
+    We obtain an estimation of the expected mumber of unique reflections.
+    If Mult is provided, it increases the number of reflections for safety: Numref=nint(Mult*Numref)
+    If Multip is provided the result is divided by half this multiplicity,
     so we obtain an estimation of the expected mumber of unique reflections.
 
     Parameters
@@ -16,23 +18,28 @@ def get_maxnumref(sintlmax : float,volcell : float,**kwargs):
         Python type    : float
         Fortran type   : real
         Fortran intent : in
-        Description    : maximum value of sin(theta) / lambda
+        Description    : maximum sintheta/lambda
     volcell
         Python type    : float
         Fortran type   : real
         Fortran intent : in
-        Description    : volume of the primitive cell
+        Description    : direct cell volume
     kwargs:
         sintlmin
             Python type    : float
             Fortran type   : real
             Fortran intent : in
-            Description    : minimum value of sin(theta) / lambda
+            Description    : minimum sintheta/lambda
         mult
+            Python type    : float
+            Fortran type   : real
+            Fortran intent : in
+            Description    : factor for controlling numref= nint(mult*numref)
+        multip
             Python type    : int
             Fortran type   : integer
             Fortran intent : in
-            Description    : multiplicity
+            Description    : multiplicity: numref=2*numref/(max(1,multip))
 
     Returns
     -------

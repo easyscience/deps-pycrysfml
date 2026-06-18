@@ -1,0 +1,64 @@
+Title  SrTiO3 simulation
+
+PATTERN_NeutronCW_3t2  1
+!             Radiation  Sample  
+  Patt_Type   Neutrons    Powder     CW
+  !         Zero   sycos   sysin
+  Zero_Sy  0.00  0.00000    0.0000
+  Profile_function  TCH_pVoigt
+  WDT   14.0
+  ASYM    0.000000   0.000000
+  LAMBDA  1.494   1.494      0.0
+  UVWXY   0.0000   0.000   0.026173   0.00000   0.00   
+
+
+  !Gen_patt xmin, step, xmax  
+  Gen_patt 10.0  0.05 180.0
+  Name_Patt  SrTiO3_simple.xys
+
+  BACKGD
+   !Order of the polynomial 2 => Three coefficients
+   Chebychev 2
+     134.783  2.1 -0.2
+  END_BACKGD
+
+END_PATTERN_NeutronCW_3t2
+
+PHASE_SrTiO3   1
+  !        a           b          c      alpha      beta      gamma
+  Cell    3.88        3.88      3.88     90.000000  90.000000 90.000000
+  SPGR  P m -3 m
+
+  !    Atom   Typ         X        Y        Z      Biso       Occ
+  Atom Ti    Ti       0.00000  0.00000  0.00000  0.23226   1.00000
+  Atom Sr    Sr       0.50000  0.50000  0.50000  0.32967   1.00000
+  Atom O      O       0.50000  0.00000  0.00000  0.40639   3.00000
+
+  Contributes_to_patterns  1  
+
+  Scale_Factors  0.0197  
+
+  PH_Pattern 1
+              !  Value(Angstroms)   Gaussian Fraction
+     Iso_SIZE         950                  0.11
+              !  Value(Angstroms)   Lorentzian Fraction
+     Iso_STRAIN       0.2                  0.23
+     !            Model      axis     Value      Gaussian Fraction
+!     Aniso_SIZE  Platelet    0 0 1    0.123              0.11
+!     !
+!     Aniso_STRAIN  Quartic_Form   Laue "m3m"
+!     !  S_400   S_004     
+!        0.32      0.1101    
+
+   Pref_OR  2
+   ! Axis    Val  Fract
+    0 0 1   0.78    0.8
+    1 1 0   1.10    0.2
+    
+  END_PH_Pattern
+
+END_PHASE_SrTiO3
+
+
+
+CALCULATION_TYPE  simulation

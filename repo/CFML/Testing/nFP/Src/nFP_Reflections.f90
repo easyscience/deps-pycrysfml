@@ -1,5 +1,5 @@
 Module nFP_Reflections
-   Use CFML_GlobalDeps,                only: CP, PI, TPI, Err_CFML, Clear_Error
+   Use CFML_GlobalDeps,                only: CP, PI, TPI, Err_CFML, Clear_Error, CFML_Debug
    Use CFML_gSpaceGroups,              only: Spg_Type,kvect_info_type, SuperSpaceGroup_type, Allocate_KVector
    Use CFML_Maths,                     only: Trace, Sort, Equal_vector, locate
    Use CFML_Metrics,                   only: Cell_G_Type
@@ -9,7 +9,7 @@ Module nFP_Reflections
    Use CFML_IOForm,                    only: Powder_attributes_Type
    use CFML_Profiles,                  only: Get_FWHM_Eta, calc_pseudo_voigt, pseudovoigt, Init_Prof_Val
    use CFML_Reflections
-   use CFML_Powder
+   use CFML_Diffraction
    use nFP_Globals
    implicit none
    private
@@ -47,7 +47,7 @@ Module nFP_Reflections
       sintlmax=sintl_max()
       if(allocated(RL)) deallocate(RL)
       allocate(RL(N_Phases))
-      write(*,*) " Maximum sintheta/Lambda =",sintlmax
+      !if(CFML_Debug) write(*,*) " Maximum sintheta/Lambda =",sintlmax
       twowaves=.false.
 
       do i=1,N_Phases
@@ -70,7 +70,7 @@ Module nFP_Reflections
               end if
            end if
 
-         type is (SuperSpaceGroup_Type)
+         Type is (SuperSpaceGroup_Type)
            if(Ph(i)%mag) then
               if(Ph(i)%mag_only) then
                 call Gener_Reflections(Ph(i)%Cell,0.0,sintlmax,RL(i),spg,i,MagExt=.true.,Unique=.true.,mag_only=.true.,Friedel=.true.,Ref_typ='MRefl',kout=Ph(i)%kvec)
@@ -146,7 +146,9 @@ Module nFP_Reflections
            if(Pat(n_pat)%sample /= "P") cycle
 
            if(Pat(n_pat)%mode == "CW") then
+
              call Reflections_Contribution_CW_ini(i,j,RL(i),wdt(n_pat))
+
            else if(Pat(n_pat)%mode == "TF") then
 
               do k=1,RL(i)%Nref  !Calculate the position of the reflection for each pattern and the contributing points
@@ -199,6 +201,7 @@ Module nFP_Reflections
           Call Get_HG_HL_CW(iph,n_pat,k,1,HG,HL)
           ! Calculate the FWHM for each reflection and complete the type
           Call Get_FWHM_Eta(HG,HL,fwhm,eta)
+          !write(*,"(3i4,4F12.4)") nint(RL%Ref(k)%hr),Hg,HL,fwhm,eta
           pos_left =pt-fwhm*wdt
           pos_right=pt+fwhm*wdt
           RL%ptr(1,k,ipat)=max(1,locate(xp,pos_left,npts))
@@ -213,10 +216,19 @@ Module nFP_Reflections
           plor=Powder_Lorentz_IntegInt_CW("N",0.0,0.0,0.0,sint*sint,cost)
           pref_corr=1.0_cp
           if(Ph(iph)%Pow(n_pat)%n_pref > 0) then
-            call Preferred_orientation("MAX_MD",Ph(iph)%Pow(n_pat)%n_pref, &
-                      Ph(iph)%Pow(n_pat)%axes_pref, &
-                      Ph(iph)%Cell%gr,Rot_Mats(iph), &
-                      Ph(iph)%Pow(n_pat)%pref,RL%Ref(k),pref_corr)
+            Select Case(u_case(trim(Ph(iph)%Pow(n_pat)%Pref_Model)))
+              Case("MUTIAXIAL_MD")
+                 call Preferred_orientation(Ph(iph)%Pow(n_pat)%Pref_Model,Ph(iph)%Pow(n_pat)%n_pref, &
+                           Ph(iph)%Pow(n_pat)%axes_pref, &
+                           Ph(iph)%Cell%gr,Rot_Mats(iph), &
+                           Ph(iph)%Pow(n_pat)%pref,RL%Ref(k),pref_corr)
+              Case("MUTIAXIAL_HP_MD")
+                 call Preferred_orientation(Ph(iph)%Pow(n_pat)%Pref_Model,Ph(iph)%Pow(n_pat)%n_pref, &
+                           Ph(iph)%Pow(n_pat)%axes_pref, &
+                           Ph(iph)%Cell%gr,Rot_Mats(iph), &
+                           Ph(iph)%Pow(n_pat)%pref,RL%Ref(k),pref_corr, &
+                           lambda(1),Ph(iph)%Pow(n_pat)%nor_steps)
+              End Select
           end if
           RL%corr(k,ipat)=plor1*pref_corr
           !write(*,"(i6,2(a,i3),f12.5,2i6)")k," ipat",ipat," n_pat",n_pat,RL%pos(k,ipat),RL%ptr(1:2,k,ipat)
@@ -354,12 +366,16 @@ Module nFP_Reflections
      real(kind=cp), intent(out):: HG,HL
 
      !--- Local variables ---!
-     integer       :: j
-     real(kind=cp) :: sinth,costh,tanth,costh2,lambda,frac_gsz, frac_lstr,isosz,isostr, &
-                      u,v,w,x,y,z,dst2,dsiz,HG2,isosize_broad, isostr_broad,sq
+     integer       :: j_irf,j
+     real(kind=cp) :: sinth,costh,tanth,costh2,lambda,iso_frac_gsz, iso_frac_lstr,   &
+                      isosz,u,v,w,x,y,z,dst2,dsiz,HG2,isosize_broad, isostr_broad,sq,&
+                      aniso_frac_gsz, aniso_frac_lstr
      real(kind=cp), dimension(3)  :: hkl
-     real(kind=cp), dimension(15) :: par
-     j=Pat(npat)%irf
+     !real(kind=cp), dimension(15) :: par
+     character(len=:), allocatable :: Key_Model
+     integer, dimension(5,2) :: nv_mio
+
+     j_irf=Pat(npat)%irf
      lambda=Pat(npat)%Pdat%wave(iwav)
      sinth=RL(nph)%Ref(nrf)%s*lambda
      sq=4.0_cp*(RL(nph)%Ref(nrf)%s)**2 ! 1/d^2
@@ -368,41 +384,135 @@ Module nFP_Reflections
      costh=sqrt(1.0_cp-sinth*sinth)
      costh2=costh*costh
      tanth=sinth/costh
-     isosz=0.0;  dsiz=0.0; isosize_broad=0.0; par=0.0
-     isostr=0.0; dst2=0.0;  isostr_broad=0.0
-     frac_gsz=0.0; frac_lstr=0.0
+     isosz=0.0; isosize_broad=0.0
+     isostr_broad=0.0
+     iso_frac_gsz=0.0; iso_frac_lstr=0.0
+     aniso_frac_gsz=0.0; aniso_frac_lstr=0.0
+     !Isotropic size
      isosz=Ph(nph)%pow(npat)%iso_size
      if(isosz > 1.0) then
-       frac_gsz=Ph(nph)%pow(npat)%Gauss_iso_size_frac
+       iso_frac_gsz=Ph(nph)%pow(npat)%Gauss_iso_size_frac
        isosize_broad=180.0_cp*lambda/isosz/PI !division by costh below
      end if
-     isostr_broad=Ph(nph)%pow(npat)%iso_strain
-     if(isostr > 0.0) then
-       frac_lstr=Ph(nph)%pow(npat)%Lorentz_iso_strain_frac
+     !Anisotropic size
+     Key_Model=u_case(Ph(nph)%pow(npat)%aniso_size_model)
+     if(len_trim(Key_Model) > 2) then
+       j=index(Key_model," ")
+       if( j > 2) Key_Model= Key_Model(1:j-1)
+       aniso_frac_gsz=Ph(nph)%pow(npat)%Gauss_aniso_size_frac
+       !if(CFML_DEBUG) write(*,"(a)")  "  Key_Model = "//key_model//" <-- from "//Ph(nph)%pow(npat)%aniso_size_model
+       Select Case(Key_Model)
+          Case("QUADRATIC_FORM","HKL")
+             call Calc_Anisotropic_Size(Ph(nph)%pow(npat)%aniso_size_model,   & !Size model
+                                        Ph(nph)%Pow(npat)%Laue_Class,         & !Laue Class
+                                        Ph(nph)%pat_mode(npat),               & !CW or TOF
+                                        Ph(nph)%Pow(npat)%aniso_size,         & !Size parameters
+                                        hkl, sq, lambda, dsiz)                  ! hkl, 1/d^2, Lambda, Lorentzian Broadening
+             !if(CFML_Debug) write(*,"(a,6f10.4)") " hkl, sq, lambda, dsiz", hkl, sq, lambda, dsiz
+          Case("PLATELET","NEEDLE")
+             call Calc_Anisotropic_Size(Ph(nph)%pow(npat)%aniso_size_model,   & !Size model
+                                        Ph(nph)%Pow(npat)%Laue_Class,         & !Laue Class
+                                        Ph(nph)%pat_mode(npat),               & !CW or TOF
+                                        Ph(nph)%Pow(npat)%aniso_size,         & !Size parameters
+                                        hkl, sq, lambda, dsiz,                & ! hkl, 1/d^2, Lambda, Lorentzian Broadening
+                                        psz=Ph(nph)%pow(npat)%axis_size,      & ! Axis
+                                        cell=Ph(nph)%cell)                      ! Unit cell
+             !if(CFML_Debug) write(*,"(a,6f10.4)") " hkl, sq, lambda, dsiz", hkl, sq, lambda, dsiz
+
+          Case("CONDIT_HKL")
+              call Calc_Anisotropic_Size(Ph(nph)%pow(npat)%aniso_size_model,   & !Size model
+                                        Ph(nph)%Pow(npat)%Laue_Class,         & !Laue Class
+                                        Ph(nph)%pat_mode(npat),               & !CW or TOF
+                                        Ph(nph)%Pow(npat)%aniso_size,         & !Size parameters
+                                        hkl, sq, lambda, dsiz,                & ! hkl, 1/d^2, Lambda, Lorentzian Broadening
+                                        nv=Ph(nph)%Pow(npat)%nv)
+
+             !if(CFML_Debug) write(*,"(a,6f10.4)") " hkl, sq, lambda, dsiz", hkl, sq, lambda, dsiz
+
+          Case("SPHERICAL_HARMONICS")
+             call Calc_Anisotropic_Size(Ph(nph)%pow(npat)%aniso_size_model,   & !Size model
+                                        Ph(nph)%Pow(npat)%Laue_Class,         & !Laue Class
+                                        Ph(nph)%pat_mode(npat),               & !CW or TOF
+                                        Ph(nph)%Pow(npat)%aniso_size,         & !Size parameters
+                                        hkl, sq, lambda, dsiz,                & ! hkl, 1/d^2, Lambda, Lorentzian Broadening
+                                        cell=Ph(nph)%cell)                      ! Unit cell
+             if(CFML_Debug) write(*,"(a,6f10.4)") " hkl, sq, lambda, dsiz", hkl, sq, lambda, dsiz
+          Case Default
+             dsiz=0.0
+       End Select
+     else
+       dsiz=0.0
      end if
-     call Calc_Anisotropic_Strain("QUARTIC_FORM","P6/mmm","CW", par, hkl, sq, dst2)
+     !Isotropic strain
+     isostr_broad=Ph(nph)%pow(npat)%iso_strain
+     if(isostr_broad > 0.0) then
+       iso_frac_lstr=Ph(nph)%pow(npat)%Lorentz_iso_strain_frac
+     end if
+     !Anisotropic strain
+     Key_Model=u_case(Ph(nph)%pow(npat)%aniso_strain_model)
+     !write(*,"(a)") Ph(nph)%pow(npat)%aniso_strain_model//" "//Ph(nph)%Pow(npat)%Laue_Class//" "//Ph(nph)%pat_mode(npat)
+     if(len_trim(Key_Model) > 2) then
+       j=index(Key_model," ")
+       if( j > 2) Key_Model= Key_Model(1:j-1)
+       aniso_frac_lstr=Ph(nph)%pow(npat)%Lorentz_aniso_strain_frac
+       Select Case(Key_Model)
+        Case("QUARTIC_FORM")
+          !write(*,"(a,20f10.4)") " Values:",Ph(nph)%Pow(npat)%aniso_strain(1:Ph(nph)%Pow(npat)%Nani_strain),aniso_frac_lstr
+           call Calc_Anisotropic_Strain(Ph(nph)%pow(npat)%aniso_strain_model, & !Strain model
+                                        Ph(nph)%Pow(npat)%Laue_Class,         & !Laue Class
+                                        Ph(nph)%pat_mode(npat),               & !CW or TOF, here is always CW
+                                        Ph(nph)%Pow(npat)%aniso_strain,       & !Strain parameters
+                                        hkl, sq, dst2)                          ! hkl, 1/d^2, Gaussian Broadening
+          if(CFML_Debug) write(*,"(a,5f10.4)") " hkl, sq, dst2: ", hkl, sq, dst2
+        Case("SPHERICAL_HARMONICS")
+           call Calc_Anisotropic_Strain(Ph(nph)%pow(npat)%aniso_strain_model, & !Strain model
+                                        Ph(nph)%Pow(npat)%Laue_Class,         & !Laue Class
+                                        Ph(nph)%pat_mode(npat),               & !CW or TOF, here is always CW
+                                        Ph(nph)%Pow(npat)%aniso_strain,       & !Strain parameters
+                                        hkl, sq, dst2, cell=Ph(nph)%cell)       ! hkl, 1/d^2, Gaussian Broadening
+        Case("UNIAXIAL_STRAIN")
+           call Calc_Anisotropic_Strain(Ph(nph)%pow(npat)%aniso_strain_model, & !Strain model
+                                        Ph(nph)%Pow(npat)%Laue_Class,         & !Laue Class
+                                        Ph(nph)%pat_mode(npat),               & !CW or TOF, here is always CW
+                                        Ph(nph)%Pow(npat)%aniso_strain,       & !Strain parameters
+                                        hkl, sq, dst2,                        & ! hkl, 1/d^2, Gaussian Broadening
+                                        pst=Ph(nph)%pow(npat)%axis_strain,    & ! Uniaxial strain axis
+                                        cell=Ph(nph)%cell)
+
+        Case Default
+           dst2=0.0
+       End Select
+     else
+        dst2=0.0
+     end if
+     !write(*,"(4f12.4,a)") hkl,dst2,"  Key_Model: "//key_Model
+
      u=0.0_cp; v=0.0_cp; w=0.0_cp; x=0.0_cp; y=0.0_cp; z=0.0_cp
 
      Select Type( cd => Pat(npat)%cond)
        Class is (PowPatt_CW_Conditions_Type)
-          u=cd%u
+          u=cd%u + dst2 *(1.0_cp - aniso_frac_lstr)**2 + isostr_broad * (1.0_cp - iso_frac_lstr)**2
           v=cd%v
           w=cd%w
-          x=cd%x
-          y=cd%y
+          x=cd%x + sqrt(dst2)*aniso_frac_lstr + isostr_broad * iso_frac_lstr
+          y=cd%y + isosize_broad*(1.0_cp - iso_frac_gsz) + dsiz * (1.0_cp - aniso_frac_gsz)
      End Select
 
-     If(j > 0 ) Then
-        u= u + cw_irf(j)%u_i(iwav)
-        v= v + cw_irf(j)%v_i(iwav)
-        w= w + cw_irf(j)%w_i(iwav)
-        x= x + cw_irf(j)%x_i(iwav)
-        y= y + cw_irf(j)%y_i(iwav)
-        z= z + cw_irf(j)%z_i(iwav)
+     If(j_irf > 0 ) Then   !Instrumental contribution
+        u= u + cw_irf(j_irf)%u_i(iwav)
+        v= v + cw_irf(j_irf)%v_i(iwav)
+        w= w + cw_irf(j_irf)%w_i(iwav)
+        x= x + cw_irf(j_irf)%x_i(iwav)
+        y= y + cw_irf(j_irf)%y_i(iwav)
+        z= z + cw_irf(j_irf)%z_i(iwav)
+        !if(CFML_DEBUG) write(*,"(a,3i4,7f10.4)")  "hkl, tanth, costh, irf%x,irf%y, x, y: ", nint(hkl), &
+        !                        tanth, costh, cw_irf(j_irf)%x_i(iwav),cw_irf(j_irf)%y_i(iwav), x, y,aniso_frac_gsz
      End if
-        HG2=((u + (dst2 + isostr_broad) * (1.0_cp - frac_lstr)**2)  * tanth + v) *tanth + w +  (frac_gsz*(isosize_broad+dsiz)/costh)**2
-        HG=sqrt(HG2)
-        HL= (x+ sqrt(dst2)*frac_lstr)* tanth + (y+(dsiz+isosize_broad)*(1.0_cp - frac_gsz))/costh
+     HG2=(u * tanth + v) *tanth + w  &
+          + ((iso_frac_gsz*isosize_broad  +  aniso_frac_gsz*dsiz) / costh)**2
+     HG=sqrt(HG2)
+     HL= x* tanth + y/costh
+
    End Subroutine Get_HG_HL_CW
 
    !Function for determining sinTheta/Lambda min and max for all the patterns
@@ -412,7 +522,7 @@ Module nFP_Reflections
      real(kind=cp) :: xm,sintl
      sintlmax=0.0
      do i=1,N_patterns
-       write(*,*) "  xmax:", Pat(i)%PDat%xmax, " wave1",Pat(i)%PDat%wave(1), Pat(i)%mode
+       !if(CFML_Debug) write(*,*) "  xmax:", Pat(i)%PDat%xmax, " wave1",Pat(i)%PDat%wave(1), Pat(i)%mode
        xm=Pat(i)%PDat%xmax*1.05
        Select Case(Pat(i)%mode)
          Case("CW")

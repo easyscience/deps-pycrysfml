@@ -330,7 +330,7 @@ Submodule (CFML_Structure_Factors) SF_Scattering_Species
            if(.not. atm%atom(i)%magnetic) cycle
            symbcar=atm%atom(i)%SfacSymb
            do j=1,NUM_MAG_FORM
-              if(CFML_debug) write(*,"(i4,tr2,a)") j,trim(symbcar)//" <-> "//trim(Magnetic_Form(j)%Symb)
+              !if(CFML_debug) write(*,"(i4,tr2,a)") j,trim(symbcar)//" <-> "//trim(Magnetic_Form(j)%Symb)
               if (trim(symbcar) /= trim(Magnetic_Form(j)%Symb)) cycle
               if (any(jx == j) ) exit
               n=n+1

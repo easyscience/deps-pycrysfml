@@ -33,14 +33,14 @@ Module nFP_Simulation
            allocate(pt%ycalc(npts))
            pt%ycalc=pt%bgr
        End Select
-       write(*,"(2(a,i5),a)") " => Ycalc for pattern ",n," allocated with ",npts," points"
+       if(CFML_Debug) write(*,"(2(a,i5),a)") " Ycalc for pattern ",n," allocated with ",npts," points"
       end do
 
       Do i=1,N_phases
         ! Compute structure factors
         call sf_clear_init_symop()
         !First, convert all molecules to individual atoms before calculation of structure factors
-        !=> Posponed
+        !=> Postponed
         N_mol=Ph(i)%Nmol
         if(Ph(i)%Nmol > 0) then
            N_atms=Ph(i)%atm_list%natoms+sum(Ph(i)%mol(1:N_mol)%natoms)
@@ -98,14 +98,14 @@ Module nFP_Simulation
         end if
 
 
-        Write(*,"(a,i3)") " Initializing structure factors for phase #",i
+        if(CFML_DEBUG) Write(*,"(a,i3)") " Initializing structure factors for phase #",i
         ! Neutrons
         call init_structure_factors(RL(i),AtL,Ph(i)%spg,mode="NUC",Lun=lun)
         if (err_cfml%ierr /= 0) return
-        Write(*,"(a,i3)") " Calculating structure factors for phase #",i
+        if(CFML_DEBUG) Write(*,"(a,i3)") " Calculating structure factors for phase #",i
         call structure_factors(RL(i),AtL,Ph(i)%spg,mode="NUC")
         if (err_cfml%ierr /= 0) return
-        Write(*,"(a,i3)") " Writing structure factors for phase #",i
+        if(CFML_DEBUG) Write(*,"(a,i3)") " Writing structure factors for phase #",i
         call Write_Structure_Factors(RL(i),lun,mode="NUC",iph=i)
 
 
@@ -177,7 +177,11 @@ Module nFP_Simulation
                  pt%y(i)=Random_Poisson(pt%ycalc(i))
                  pt%sigma(i)=sqrt(pt%ycalc(i))
                end do
-               call Write_Pattern_XYSig(Filename,pt)
+               if(len_trim(Pat(j)%filename) /= 0) then
+                  call Write_Pattern_XYSig(Pat(j)%filename,pt)
+               else
+                  call Write_Pattern_XYSig(Filename,pt)
+               end if
             else
                call Write_Pattern_XYSig(Filename,pt,calc=.true.)
             end if

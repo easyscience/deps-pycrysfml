@@ -1,4 +1,4 @@
-add_subdirectory(Groups)
+#add_subdirectory(Groups)
 add_subdirectory(nFP)
 if (DEFINED HDF5)
     add_subdirectory(Get_Data)

@@ -1,5 +1,5 @@
 
-SubModule(CFML_Powder) Pow_IRF
+SubModule(CFML_Diffraction) Pow_IRF
   !>
   !> Derived from FullProf Module: Instrumental_resolution
   !>

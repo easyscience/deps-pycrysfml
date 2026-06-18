@@ -4,6 +4,107 @@ implicit none
 
 contains
 
+    module function patterns_simulation(strings) Result(patterns)
+        !> Computes a powder diffraction pattern from information provided
+        !> by a cfl file passed as a list of strings.
+
+        ! Arguments
+        type(list), intent(inout) :: strings !> cfl content
+        type(xy_pattern_type), dimension(:), allocatable :: patterns !> list of calculated patterns
+
+        ! Local parameters
+        integer, parameter :: NB_MAX = 100 ! Maximum number of blocks
+        integer :: i
+
+        ! Local variables
+        type(File_Type) :: cfl
+
+        ! This allocation is for preventing the following error in case something goes wrong
+        ! during the pattern simulation:
+        ! forrtl: severe (41): insufficient virtual memory
+        allocate(patterns(1))
+        call clear_error()
+        ! Convert list of strings into a file type
+        cfl = list_to_file(strings)
+        if (err_cfml%ierr /= 0) return
+        call read_cfl(cfl)
+        if (err_cfml%ierr /= 0) return
+        call generate_reflections_for_patterns()
+        if (err_cfml%ierr /= 0) return
+        call compute_patterns()
+        if (err_cfml%ierr /= 0) return
+
+        deallocate(patterns)
+        allocate(patterns(size(Pat)))
+        do i = 1 , size(Pat)
+            patterns(i)%npts = Pat(i)%pdat%npts
+            allocate(patterns(i)%x(Pat(i)%pdat%npts))
+            allocate(patterns(i)%y(Pat(i)%pdat%npts))
+            patterns(i)%x = Pat(i)%pdat%x
+            patterns(i)%y = Pat(i)%pdat%ycalc
+        end do
+
+    end function patterns_simulation
+
+    function cifs_from_cfl(cfl) result(cifs)
+        !> Extract CIF blocks from a cfl file passed as a list of strings.
+
+        ! Arguments
+        type(file_type), intent(in) :: cfl  !> cfl content
+
+        ! Local parameters
+        integer, parameter :: MAX_NCIFS = 20
+
+        ! Local variables
+        integer :: i,j,n,ierr
+        character(len=100) :: key
+        character(len=256) :: line
+        character(len=512), dimension(MAX_NCIFS) :: cifs_
+        character(len=512), dimension(:), allocatable :: cifs
+
+        ! Count the number of CIF blocks in the cfl file
+        n = 0
+        do i = 1 , cfl%nlines
+            line = adjustl(trim(cfl%line(i)%str))
+            if (len_trim(line) == 0) cycle
+            j = index(line,' ')
+            if (j > 0) then
+                key = L_Case(line(1:j-1))
+            else
+                key = L_Case(line)
+            end if
+            if (key == 'cif' .or. key == 'mcif') then
+                read(unit=line,fmt=*,iostat=ierr) cifs_(n+1)
+                if (ierr == 0) n = n + 1
+                if (n == MAX_NCIFS) exit
+            end if
+        end do
+        if (n > 0) then
+             allocate(cifs(n))
+             cifs(1:n) = cifs_(1:n)
+        end if
+
+    end function cifs_from_cfl
+
+    subroutine set_fullprof_occupancies(a,spg)
+
+        ! Arguments
+        type(atlist_type), intent(inout) :: a    !> list of atoms
+        class(spg_type),   intent(in)    :: spg  !> space group
+
+        ! Local variables
+        integer :: i,mpos
+
+        do i = 1 , a%natoms
+            mpos = get_multip_pos(a%atom(i)%x,spg)
+            a%atom(i)%occ = a%atom(i)%occ * mpos / (1.0*spg%multip)
+        end do
+
+    end subroutine set_fullprof_occupancies
+
+    ! ------------------------------------------------
+    ! Procedures below should be removed in the future.
+
     subroutine atoms_from_dict(di_ph,a)
         !> Get unit cell from a dictionary.
 
@@ -170,7 +271,7 @@ contains
                     if (ierror == 0) ierror = li_tth%getitem(item,i)
                     if (ierror == 0) ierror = cast(ppc%tth(i+1),item)
                 end do
-                if (ierror == 0) then 
+                if (ierror == 0) then
                     ppc%is_tth = .true.
                     ppc%tthmax = maxval(ppc%tth(1:ntth))
                 end if
@@ -245,22 +346,6 @@ contains
         if (err_cfml%ierr /= 0) return
 
     end subroutine cw_read_json
-
-    subroutine set_fullprof_occupancies(a,spg)
-
-        ! Arguments
-        type(atlist_type), intent(inout) :: a    !> list of atoms
-        class(spg_type),   intent(in)    :: spg  !> space group
-
-        ! Local variables
-        integer :: i,mpos
-
-        do i = 1 , a%natoms
-            mpos = get_multip_pos(a%atom(i)%x,spg)
-            a%atom(i)%occ = a%atom(i)%occ * mpos / (1.0*spg%multip)
-        end do
-
-    end subroutine set_fullprof_occupancies
 
     subroutine spg_from_dict(di_ph,spg)
         !> Get space group from a dictionary.

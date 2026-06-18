@@ -372,10 +372,10 @@ SubModule (CFML_gSpaceGroups) gS_Get_LauePG
       character(len=:), allocatable :: laue
 
       N=0
-      laue=adjustl(Str_laue)
+      laue=adjustl(l_case(trim(Str_laue)))
 
       do i=1,16
-         if (laue(1:5) == LAUE_CLASS(i)) then
+         if (laue == l_case(trim(LAUE_CLASS(i)))) then
             N=i
             exit
          end if
@@ -400,7 +400,7 @@ SubModule (CFML_gSpaceGroups) gS_Get_LauePG
       Str_Laue="  "
       if (N < 1 .or. N > 16) return
 
-      str_laue=LAUE_CLASS(N)
+      str_laue=trim(LAUE_CLASS(N))
    End Function Get_Laue_Str
 
    !!----

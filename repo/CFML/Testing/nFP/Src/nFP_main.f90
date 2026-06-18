@@ -2,7 +2,7 @@
 Program nFP_main
    Use CFML_Strings,      only: U_Case
    Use CFML_Utilities
-   Use CFML_Powder
+   Use CFML_Diffraction
    Use CFML_DiffPatt
    use nFP_Globals
    use nFP_read_files

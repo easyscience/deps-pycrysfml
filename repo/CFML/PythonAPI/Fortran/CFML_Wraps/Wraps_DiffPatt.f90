@@ -11,6 +11,9 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         integer, intent(out) :: ierror
 
         ! Local variables
+        integer :: i
+        type(dict) :: di_info
+        type(list) :: li_info
         type(ndarray) :: nd_wave,nd_x,nd_y,nd_sigma,nd_ycalc,nd_bgr,nd_istat,nd_nd
 
         ierror = 0
@@ -35,6 +38,21 @@ submodule (CFML_Wraps) Wraps_DiffPatt
                 for_var%scatvar = ''
                 ierror = py_var%setitem('scatvar',for_var%scatvar)
             end if
+        end if
+        if (allocated(for_var%info)) then
+            if (ierror == 0) ierror = list_create(li_info)
+            if (ierror == 0) then
+                do i = 1 , size(for_var%info)
+                    if (ierror == 0) then
+                        ierror = li_info%append(for_var%info(i))
+                        if (ierror /= 0) then
+                            for_var%info(i) = ''
+                            ierror = li_info%append(for_var%info(i))
+                        end if
+                    end if
+                end do
+            end if
+            if (ierror == 0) ierror = py_var%setitem('info',li_info)
         end if
         if (ierror == 0) ierror = py_var%setitem('xmin',for_var%xmin)
         if (ierror == 0) ierror = py_var%setitem('xmax',for_var%xmax)
@@ -157,6 +175,7 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         character(len=:), allocatable :: fortran_type
         integer, dimension(:), pointer :: p_int_1d
         real, dimension(:), pointer :: p_real_1d
+        type(list) :: my_list
 
         ierror = 0
         ierror2 = 0
@@ -180,6 +199,15 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','title',py_var,for_var%title,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','kindrad',py_var,for_var%kindrad,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','scatvar',py_var,for_var%scatvar,ierror)
+        if (ierror == 0) ierror = list_create(my_list)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','info',py_var,my_list,ierror2)
+        if (ierror2 == 0) then
+            if (ierror == 0) call list_to_alloc_array_primitive(my_list,for_var%info,ierror)
+        else
+            call err_clear
+            call clear_error()
+        end if
+        if (ierror == 0) call my_list%destroy
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','xmin',py_var,for_var%xmin,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','xmax',py_var,for_var%xmax,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','ymin',py_var,for_var%ymin,ierror)
@@ -392,6 +420,7 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         character(len=:), allocatable :: fortran_type
         integer, dimension(:), pointer :: p_int_1d
         real, dimension(:), pointer :: p_real_1d
+        type(list) :: my_list
 
         ierror = 0
         ierror2 = 0
@@ -418,6 +447,15 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','title',py_var,for_var%title,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','kindrad',py_var,for_var%kindrad,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','scatvar',py_var,for_var%scatvar,ierror)
+        if (ierror == 0) ierror = list_create(my_list)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','info',py_var,my_list,ierror2)
+        if (ierror2 == 0) then
+            if (ierror == 0) call list_to_alloc_array_primitive(my_list,for_var%info,ierror)
+        else
+            call err_clear
+            call clear_error()
+        end if
+        if (ierror == 0) call my_list%destroy
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','xmin',py_var,for_var%xmin,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','xmax',py_var,for_var%xmax,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','ymin',py_var,for_var%ymin,ierror)
@@ -651,6 +689,7 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         character(len=:), allocatable :: fortran_type
         integer, dimension(:), pointer :: p_int_1d
         real, dimension(:), pointer :: p_real_1d
+        type(list) :: my_list
 
         ierror = 0
         ierror2 = 0
@@ -673,6 +712,15 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','title',py_var,for_var%title,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','kindrad',py_var,for_var%kindrad,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','scatvar',py_var,for_var%scatvar,ierror)
+        if (ierror == 0) ierror = list_create(my_list)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','info',py_var,my_list,ierror2)
+        if (ierror2 == 0) then
+            if (ierror == 0) call list_to_alloc_array_primitive(my_list,for_var%info,ierror)
+        else
+            call err_clear
+            call clear_error()
+        end if
+        if (ierror == 0) call my_list%destroy
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','xmin',py_var,for_var%xmin,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','xmax',py_var,for_var%xmax,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','ymin',py_var,for_var%ymin,ierror)
@@ -878,6 +926,7 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         character(len=:), allocatable :: fortran_type
         integer, dimension(:), pointer :: p_int_1d
         real, dimension(:), pointer :: p_real_1d
+        type(list) :: my_list
 
         ierror = 0
         ierror2 = 0
@@ -902,6 +951,15 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','title',py_var,for_var%title,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','kindrad',py_var,for_var%kindrad,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','scatvar',py_var,for_var%scatvar,ierror)
+        if (ierror == 0) ierror = list_create(my_list)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','info',py_var,my_list,ierror2)
+        if (ierror2 == 0) then
+            if (ierror == 0) call list_to_alloc_array_primitive(my_list,for_var%info,ierror)
+        else
+            call err_clear
+            call clear_error()
+        end if
+        if (ierror == 0) call my_list%destroy
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','xmin',py_var,for_var%xmin,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','xmax',py_var,for_var%xmax,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','ymin',py_var,for_var%ymin,ierror)
@@ -1132,6 +1190,7 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         character(len=:), allocatable :: fortran_type
         integer, dimension(:), pointer :: p_int_1d
         real, dimension(:), pointer :: p_real_1d
+        type(list) :: my_list
 
         ierror = 0
         ierror2 = 0
@@ -1193,6 +1252,15 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','title',py_var,for_var%title,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','kindrad',py_var,for_var%kindrad,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','scatvar',py_var,for_var%scatvar,ierror)
+        if (ierror == 0) ierror = list_create(my_list)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','info',py_var,my_list,ierror2)
+        if (ierror2 == 0) then
+            if (ierror == 0) call list_to_alloc_array_primitive(my_list,for_var%info,ierror)
+        else
+            call err_clear
+            call clear_error()
+        end if
+        if (ierror == 0) call my_list%destroy
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','xmin',py_var,for_var%xmin,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','xmax',py_var,for_var%xmax,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','ymin',py_var,for_var%ymin,ierror)
@@ -1349,6 +1417,7 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         character(len=:), allocatable :: fortran_type
         integer, dimension(:), pointer :: p_int_1d
         real, dimension(:), pointer :: p_real_1d
+        type(list) :: my_list
 
         ierror = 0
         ierror2 = 0
@@ -1409,6 +1478,15 @@ submodule (CFML_Wraps) Wraps_DiffPatt
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','title',py_var,for_var%title,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','kindrad',py_var,for_var%kindrad,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','scatvar',py_var,for_var%scatvar,ierror)
+        if (ierror == 0) ierror = list_create(my_list)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','info',py_var,my_list,ierror2)
+        if (ierror2 == 0) then
+            if (ierror == 0) call list_to_alloc_array_primitive(my_list,for_var%info,ierror)
+        else
+            call err_clear
+            call clear_error()
+        end if
+        if (ierror == 0) call my_list%destroy
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','xmin',py_var,for_var%xmin,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','xmax',py_var,for_var%xmax,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_diffpat_type','ymin',py_var,for_var%ymin,ierror)

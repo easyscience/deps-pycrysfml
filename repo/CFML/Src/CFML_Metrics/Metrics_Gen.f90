@@ -566,7 +566,7 @@ Submodule (CFML_Metrics) Metrics_Gen
     !!----    of distances and angles. The specialised subroutine calculating
     !!----    sigmas of distances "distance_and_sigma" is in Atom_mod.
     !!----
-    !!----    The output matricx "Deriv_Orthcell" are the derivatives of, with
+    !!----    The output matrix "Deriv_Orthcell" are the derivatives of, with
     !!----    respect to a(1),b(2),c(3),alpha(4),beta(5) and gamma(6) of the
     !!----    matrix   "Cell%Cr_Orth_cel".
     !!----

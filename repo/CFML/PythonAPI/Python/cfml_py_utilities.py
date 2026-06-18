@@ -1,38 +1,6 @@
 from . import crysfml08lib
 import numpy as np
 
-def cw_powder_pattern_from_dict(json : dict):
-    """
-    Computes a powder pattern from information provided by a
-    dictionary. This subroutine was introduced mainly for
-    Python applications. Python can easily transform a json file
-    into a dictionary.
-
-    Parameters
-    ----------
-    json
-        Python type    : dict
-        Fortran type   : dict
-        Fortran intent : inout
-        Description    : json file content
-
-    Returns
-    -------
-    xc
-        Python type    : np.ndarray
-        Fortran type   : real
-        Fortran intent : out
-        Description    : two theta angle
-    yc
-        Python type    : np.ndarray
-        Fortran type   : real
-        Fortran intent : out
-        Description    : calculated intensity
-    """
-
-    xc,yc = crysfml08lib.f_cw_powder_pattern_from_dict(json)
-    return xc,yc
-
 def read_crystal_structure(filename : str,**kwargs):
     """
     Build the object crystal from data given in a cfl, cif or mcif file
@@ -298,6 +266,88 @@ def structure_factors_from_cif(cif_file : str,**kwargs):
         hkl = crysfml08lib.f_structure_factors_from_cif(cif_file)[0]
     return hkl
 
+def update_global_phase(global_phase : float,crystal : dict,c : dict):
+    """
+    Update global phase of an incommensurate structure
+
+    Parameters
+    ----------
+    global_phase
+        Python type    : float
+        Fortran type   : real
+        Fortran intent : in
+        Description    : global_phase
+    crystal
+        Python type    : dict
+        Fortran type   : crystal_type
+        Fortran intent : in
+        Description    : crystal object
+    c
+        Python type    : dict
+        Fortran type   : graphical_crystal_type
+        Fortran intent : inout
+        Description    : atoms, magnetic moments and bonds inside limits
+    """
+
+    crysfml08lib.f_update_global_phase(global_phase,crystal,c)
+
+def patterns_simulation(strings : list):
+    """
+    Computes a series of patterns from information provided
+    by a cfl file passed as a list of strings.
+
+    Parameters
+    ----------
+    strings
+        Python type    : list
+        Fortran type   : list
+        Fortran intent : inout
+        Description    : cfl content
+
+    Returns
+    -------
+    patterns
+        Python type    : list
+        Fortran type   : xy_pattern_type
+        Fortran intent : inout
+        Description    : list of calculated patterns
+    """
+
+    patterns = crysfml08lib.f_patterns_simulation(strings)[0]
+    return patterns
+
+def cw_powder_pattern_from_dict(json : dict):
+    """
+    Computes a powder pattern from information provided by a
+    dictionary. This subroutine was introduced mainly for
+    Python applications. Python can easily transform a json file
+    into a dictionary.
+
+    Parameters
+    ----------
+    json
+        Python type    : dict
+        Fortran type   : dict
+        Fortran intent : inout
+        Description    : json file content
+
+    Returns
+    -------
+    xc
+        Python type    : np.ndarray
+        Fortran type   : real
+        Fortran intent : out
+        Description    : two theta angle
+    yc
+        Python type    : np.ndarray
+        Fortran type   : real
+        Fortran intent : out
+        Description    : calculated intensity
+    """
+
+    xc,yc = crysfml08lib.f_cw_powder_pattern_from_dict(json)
+    return xc,yc
+
 def tof_powder_pattern_from_dict(json : dict):
     """
     Computes a powder pattern from information provided by a
@@ -329,31 +379,6 @@ def tof_powder_pattern_from_dict(json : dict):
 
     xc,yc = crysfml08lib.f_tof_powder_pattern_from_dict(json)
     return xc,yc
-
-def update_global_phase(global_phase : float,crystal : dict,c : dict):
-    """
-    Update global phase of an incommensurate structure
-
-    Parameters
-    ----------
-    global_phase
-        Python type    : float
-        Fortran type   : real
-        Fortran intent : in
-        Description    : global_phase
-    crystal
-        Python type    : dict
-        Fortran type   : crystal_type
-        Fortran intent : in
-        Description    : crystal object
-    c
-        Python type    : dict
-        Fortran type   : graphical_crystal_type
-        Fortran intent : inout
-        Description    : atoms, magnetic moments and bonds inside limits
-    """
-
-    crysfml08lib.f_update_global_phase(global_phase,crystal,c)
 
 def calculate_laue_image():
     """
