@@ -25,7 +25,7 @@ except:
 
 # In EXCLUDED we put the modules we do not want to wrap
 EXCLUDED = ['database','eos','fft','global','keycodes','keyword',\
-    'kvec_polarimetry','kvec_structure_factors','maps','maths',\
+    'kvec_polarimetry','kvec_structure_factors','maps',\
     'messages','optimization','optimization_lsq','python','random',\
     'vtk','wraps_utils']
 VERBOSE = True

@@ -880,9 +880,11 @@ SubModule (CFML_gSpaceGroups) gS_Get_Orb_Stabilizer_Constr
             if (L1 == 0) L1=1
             if (L2 == 0) L2=1
             if (L  == 0) L=1
-
             !> Construct a new symbol that estabish automatically the constraints
-            nsymb = [symbol(L+1:L1-1),symbol(L1+1:L2-1),symbol(L2+1:)]
+            !nsymb = [symbol(L+1:L1-1),symbol(L1+1:L2-1),symbol(L2+1:)] <-- This syntax is not accepted by gfortran at run time
+            nsymb(1)=symbol(L+1:L1-1)
+            nsymb(2)=symbol(L1+1:L2-1)
+            nsymb(3)=symbol(L2+1:)
             do i=1,3
                do j=1,10  !Delete unwanted symbols (keep only x,y,z,2 and -
                   if (nsymb(i)(j:j) == " ") cycle

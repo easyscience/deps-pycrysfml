@@ -216,6 +216,11 @@ Submodule (CFML_DiffPatt) DiffP_WritePatterns
              write(unit=i_dat,fmt="(a,f12.2,i8)") "! NORM. MONITOR & N-POINTS ", pat%monitor, npoi
        end select
 
+       if (allocated(pat%info)) then
+          do i = 1 , size(pat%info)
+             write(unit=i_dat,fmt="(a,1x,a)") "!",adjustl(trim(pat%info(i)))
+          end do
+       end if
        write(unit=i_dat,fmt="(a)") "! Scatt. Var., Profile Intensity, Standard Deviation "
        if (present(excl)) write(unit=i_dat,fmt="(a)") "! Excluded points (absent in the file):"//trim(excluded)
        write(unit=i_dat,fmt="(a,a15,a)") "!",pat%ScatVar,"        Y          Sigma "

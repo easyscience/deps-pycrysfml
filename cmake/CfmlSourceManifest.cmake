@@ -87,7 +87,7 @@ set(CRYSFML_CORE_MODULE_KEYS
     cfml_export_vtk
     cfml_enbvs
     cfml_kvec_polarimetry
-    cfml_powder
+    cfml_diffraction
     cfml_laue
     forpy
     cfml_utilities
@@ -586,8 +586,8 @@ crysfml_manifest_append_main_and_components(cfml_kvec_polarimetry CFML_kvec_Pola
     Polar_Write
 )
 
-# Module 45: CFML_Powder
-crysfml_manifest_append_main_and_components(cfml_powder CFML_Powder CFML_Powder
+# Module 45: CFML_Diffraction
+crysfml_manifest_append_main_and_components(cfml_diffraction CFML_Diffraction CFML_Diffraction
     Pow_IRF
     Pow_Lorentz_Absorption
     Pow_MicroStructure
@@ -614,7 +614,9 @@ crysfml_manifest_append_main(forpy Forpy)
 
 # Module 48: CFML_Utilities
 crysfml_manifest_append_main_and_components(cfml_utilities CFML_Utilities CFML_Utilities
+    Utilities_CFL
     Utilities_Patterns
+    Utilities_Reflections
 )
 
 # Module 49: CFML_Wraps_Utils

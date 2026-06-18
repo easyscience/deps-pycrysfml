@@ -682,11 +682,11 @@
        sga=sig*Sqrt(1.0_cp-cga*cga)
 
        !-- OME(NB)   (Rotation angle of the sample)
-       oma=sig*cnu*sga
+       oma=cnu*sga
        omb=1.0_cp-cnu*cga
        tom1=omb*z1(1)+oma*z1(2)
        tom2=oma*z1(1)-omb*z1(2)
-       ome=Atan2d(sig*tom1,tom2)
+       ome=Atan2d(tom1,tom2)
 
        !- Final angle values
        anbcal(1)=sig*Acosd(cga) !Gamma of reflection

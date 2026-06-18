@@ -66,8 +66,10 @@ Module CFML_IOForm
                                      Change_Setting_SpaceG, Set_SpaceGroup, Get_Multip_Pos,&
                                      Get_Orbit, Allocate_Kvector, Write_SpaceGroup_Info, &
                                      Get_Mat_From_Symb_Int, Get_Symb_From_Mat, Get_Dimension_SymmOp, &
-                                     Get_Symb_from_Rational_Mat, Allocate_SpaceGroup, P1_Constructor
+                                     Get_Symb_from_Rational_Mat, Allocate_SpaceGroup, P1_Constructor,&
+                                     Get_Laue_Num
 
+   Use CFML_Symmetry_Tables,   only: LAUE_CLASS
 
    Use CFML_kvec_Symmetry,     only: MagSymm_k_Type, Readn_Set_Magnetic_Kv_Structure, Magnetic_Domain_type
 
@@ -97,8 +99,12 @@ Module CFML_IOForm
              Write_Cif_Template, Write_SHX_Template, Write_MCIF_Template, Write_CFL_File, &
              Write_InfoBlock_ExcludedRegions, Write_InfoBlock_Backgd, Write_CIF_SymTrans
 
+   public :: Read_XTal_CFL ! added by Nebil in May 2026, needed for the Python API.
+
    public :: Get_CFL_Block_Info,Get_CFL_NBlock,Read_CFL_Pattern,Read_CFL_Pat_Conditions,Read_CFL_Pat_Type,&
              Read_CFL_Phase,Write_CFL_Pattern,Write_CFL_Phase
+
+   public :: Set_Laue_Names
 
    !--------------------!
    !---- PARAMETERS ----!
@@ -204,8 +210,11 @@ Module CFML_IOForm
       character(len=20) :: aniso_size_model=" "        !> Anisotropic size model
       character(len=20) :: aniso_strain_model=" "      !> Anisotropic strain model
       character(len=8)  :: Laue_class=" "              !> Specific Laue class needed for some anisotropic models
+      real(kind=cp) :: Gauss_aniso_size_frac = 0.0     !> Fraction of the Gaussian size component
+      real(kind=cp) :: Lorentz_aniso_strain_frac = 0.0 !> Fraction of the Lorentzian strain component
       integer       :: Nani_size=0                     !> Number of free anisotropic size parameters
       integer       :: Nani_strain=0                   !> Number of free anisotropic strain parameters
+      integer, dimension(:,:), allocatable :: nv       !> Integers for hkl-conditions (5,Nani_size)
       real(kind=cp), dimension(4)    :: axis_size=0.0      !> Axis for needle or platelet anisotropic size
       real(kind=cp), dimension(4)    :: axis_strain=0.0    !> Axis for uniaxial anisotropic strain. The fourth component contains the square of the modulus
       real(kind=cp), dimension(15)   :: aniso_size=0.0     !> Anisotropic size parameters
@@ -215,12 +224,15 @@ Module CFML_IOForm
       integer,       dimension(15)   :: Laniso_size = 0    !> Parameter numbers of anisotropic size parameters
       integer,       dimension(15)   :: Laniso_strain = 0  !> Parameter numbers of anisotropic strain parameters
       !Preferred orientation
-      integer                        :: n_pref  = 0     !> Number of preferred orientation axes for multiaxial March-Dollase model
+      integer                        :: n_pref  = 0     !> Number of preferred orientation axes for multiaxial March-Dollase models
+      character(len=20)              :: Pref_Model=" "  !> Preferred orientation model (for the moment Multiaxial_MD and Multiaxial_HP_MD)
       real(kind=cp), dimension(4,5)  :: axes_pref= 0.0  !> Axes for preferred orientation, the fourth component contains the square of the modulus
       real(kind=cp), dimension(2,5)  :: pref = 0.0      !> Preferred orientation parameters (value and fraction)
+      integer                        :: nor_steps=15    !> Number of steps for integration in Multiaxial HighPressure-March Dollase model
       real(kind=cp), dimension(2,5)  :: mpref= 1.0      !> Multipliers
       integer,       dimension(2,5)  :: Lpref= 0        !> Parameter numbers
       ! Absortion correction for TOF
+      character(len=20)              :: Abs_Model=" "   !> Absorption Model
       real(kind=cp), dimension(2)    :: abs_corr = 0.0  !> Absorption correction parameters
       real(kind=cp), dimension(2)    :: mabs_corr= 1.0  !> multipliers
       integer,       dimension(2)    :: Labs_corr= 0    !> Parameter numbers
@@ -234,6 +246,7 @@ Module CFML_IOForm
    !!---- Update: May - 2025
    Type, public :: Phase_Type
       integer                                        :: iph            !> Number of the phase
+      integer                                        :: iLaue          !> Index of LAUE_CLASS
       logical                                        :: mag            !> If .true., magnetic contribution will be calculated
       logical                                        :: mag_only       !> If .true., pure magnetic phase (no nuclear contribution))
       character(len=:),                  allocatable :: name           !> Phase name
@@ -275,6 +288,16 @@ Module CFML_IOForm
    integer, public :: NP_ExReg =0     !> Number of Excluded Regions
 
    type(GenVec_Type), public, dimension(:), allocatable :: Vec_Instr    !> Vector of Instructions
+
+    Type, public :: Laue_Ind_names
+       integer                                     :: n_par       !> Number of free parameters
+       character(len=:),               allocatable :: LaueClass   !> Symbol of the Laue Class
+       character(len=5), dimension(:), allocatable :: names       !> Names
+    End Type Laue_Ind_names
+
+    !The arrays of names below are set by calling the subroutine Set_Laue_Names(mode,Laue_Names)
+    Type(Laue_Ind_names), dimension(16), public :: Quartic_Names    !Names from nam_quartic_strain
+    Type(Laue_Ind_names), dimension(16), public :: SpherHarm_Names  !Names from nam_spherical_harmonics
 
    !---- Overloaded Zone ----!
    !Interface Readn_Set_Xtal_Structure
@@ -1174,6 +1197,228 @@ Module CFML_IOForm
        end if
 
     End Subroutine Read_Xtal_Structure
+
+    Subroutine Set_Laue_Names(Mode,Laue_Names)
+       Character(len=*),                  intent(in)  :: Mode
+       type(Laue_Ind_names),dimension(:), intent(out) :: Laue_Names
+       character(len=:), allocatable :: Laue
+       integer :: i
+
+       !Type, public ::Laue_Ind_names
+       !  integer                                     :: n_par       !> Number of free parameters
+       !  character(len=:),               allocatable :: LaueClass   !> Symbol of the Laue Class
+       !  character(len=5), dimension(:), allocatable :: names       !> Names
+       !End Type Laue_Ind_names
+
+       Select Case(l_case(trim(mode)))
+
+          case("quartic_names")
+
+            do i=1,16
+               laue=LAUE_CLASS(i)
+               Select Case(laue)
+                  case("-1")  ! -1     15 free param
+
+                       Laue_Names(i)%n_par=15
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(15))
+                       Laue_Names(i)%names=[ "S_400","S_040","S_004","S_220","S_202", &
+                                             "S_022","S_211","S_121","S_112","S_310", &
+                                             "S_301","S_130","S_103","S_013","S_031"]
+                  case("2/m")  ! 2/m  //b    S_400,S_040,S_004,S_220,S_202,S_022,S_121,S_301,S_103   (9 parameters)
+                       ! Order:
+                       !   S_400         S_040         S_004         S_220         S_202
+                       !   S_022         S_121         S_301         S_103
+                       Laue_Names(i)%n_par=9
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(9))
+                       Laue_Names(i)%names=[ "S_400","S_040","S_004","S_220","S_202", &
+                                             "S_022","S_121","S_301","S_103"]
+
+                  case("2/m c")   ! 2/m  //c    S_400,S_040,S_004,S_220,S_202,S_022,S_112,S_310,S_130   (9 parameters)
+                       !Order:
+                       !   S_400         S_040         S_004         S_220         S_202
+                       !   S_022         S_112         S_310         S_130
+                       Laue_Names(i)%n_par=9
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(9))
+                       Laue_Names(i)%names=[ "S_400","S_040","S_004","S_220","S_202", &
+                                             "S_022","S_112","S_310","S_130"]
+                  case("mmm")   ! mmm   S_400,S_040,S_004,S_220,S_202,S_022   (6 parameters)
+                       !Order:
+                       !   S_400        S_040        S_004        S_220        S_202        S_022
+                       Laue_Names(i)%n_par=6
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(6))
+                       Laue_Names(i)%names=["S_400","S_040","S_004","S_220","S_202","S_022"]
+
+                  case("4/m")   ! 4/m    S_400=S_040,S_004,S_220,S_202=S_022   (4 parameters)
+                       !Order:
+                       !   S_400         S_004         S_220         S_202
+                       Laue_Names(i)%n_par=4
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(4))
+                       Laue_Names(i)%names=[ "S_400","S_004","S_220","S_202"]
+
+                  case("4/mmm")   ! 4/mmm    S_400=S_040,S_004,S_220,S_202=S_022   (4 parameters)
+                       !Order:
+                       !   S_400         S_004         S_220         S_202
+                       Laue_Names(i)%n_par=4
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(4))
+                       Laue_Names(i)%names=[ "S_400","S_004","S_220","S_202"]
+
+                 case("-3 R")   ! -3 R     (1) S_400=S_040=S_310/2=S_130/2=S_220/3 ; (2) S_004
+                       !              (3) S_202=S_022=S_112 ;  (4) S_301/2=-S_031/2=S_211/3=-S_121/3
+                       !Order:  S_400         S_004         S_112         S_211
+                       Laue_Names(i)%n_par=4
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(4))
+                       Laue_Names(i)%names=[ "S_400","S_004","S_112","S_211"]
+
+                 case("-3m R")  ! -3m R
+                       !Order:  S_400         S_004         S_112         S_211
+                       Laue_Names(i)%n_par=4
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(4))
+                       Laue_Names(i)%names=[ "S_400","S_004","S_112","S_211"]
+
+                 case("-3 H", "-3")  ! -3 H
+                       !Order:    S_400         S_004         S_112
+                       Laue_Names(i)%n_par=3
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(3))
+                       Laue_Names(i)%names=[ "S_400","S_004","S_112"]
+
+                 case("-3m1", "-3m1 H")  ! -3m1
+                       !Order:    S_400         S_004         S_112
+                       Laue_Names(i)%n_par=3
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(3))
+                       Laue_Names(i)%names=[ "S_400","S_004","S_112"]
+
+                 case("-31m","-31m H")  ! -31m
+               !       Order:    S_400         S_004         S_112
+                       Laue_Names(i)%n_par=3
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(3))
+                       Laue_Names(i)%names=[ "S_400","S_004","S_112"]
+
+                 case("6/m")   ! 6/m
+                       !Order:    S_400         S_004         S_112
+                       Laue_Names(i)%n_par=3
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(3))
+                       Laue_Names(i)%names=[ "S_400","S_004","S_112"]
+
+                 case("6/mmm")   ! 6/mmm
+                       !Order:    S_400         S_004         S_112
+                       Laue_Names(i)%n_par=3
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(3))
+                       Laue_Names(i)%names=[ "S_400","S_004","S_112"]
+
+                  case("m3","m-3")   ! m3
+                       !Order:    S_400         S_220
+                       Laue_Names(i)%n_par=2
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(2))
+                       Laue_Names(i)%names=[ "S_400","S_220"]
+
+                  case("m3m","m-3m")   ! m3m
+                       !Order:    S_400         S_220
+                       Laue_Names(i)%n_par=2
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(2))
+                       Laue_Names(i)%names=[ "S_400","S_220"]
+
+               End Select
+
+            End do
+
+          case("spherharm_names")
+
+            do i=1,16
+               laue=LAUE_CLASS(i)
+               Select Case(laue)
+                  case("-1")  ! -1      6 free param
+                       ! Compute Y00,Y20,Y21+,Y21-,Y22+,Y22-  in that order
+                       Laue_Names(i)%n_par=6
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(6))
+                       Laue_Names(i)%names=["Y00  ","Y20  ","Y21+ ","Y21- ","Y22+ ","Y22- "]
+                  case("2/m")  ! 2/m      9 free parameters
+                       ! Compute Y00,Y20,Y22+,Y22-,Y40,Y42+,Y42-,Y44+,Y44- in that order
+                       Laue_Names(i)%n_par=9
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(9))
+                       Laue_Names(i)%names=["Y00  ","Y20  ","Y22+ ","Y22- ","Y40  ","Y42+ ","Y42- ","Y44+ ","Y44- "]
+                  case("2/m c")   ! 1 1 2/m
+                       ! Compute Y00,Y20,Y22+,Y22-,Y40,Y42+,Y42-,Y44+,Y44- in that order
+                       Laue_Names(i)%n_par=9
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(9))
+                       Laue_Names(i)%names=["Y00  ","Y20  ","Y22+ ","Y22- ","Y40  ","Y42+ ","Y42- ","Y44+ ","Y44- "]
+                  case("mmm")   ! m m m
+                       ! Compute Y00,Y20,Y22+,Y40,Y42+,Y44+ in that order
+                       Laue_Names(i)%n_par=6
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(6))
+                       Laue_Names(i)%names=["Y00  ","Y20  ","Y22+ ","Y40  ","Y42+ ","Y44+ "]
+                  case("4/m")   ! 4/m   Tetragonal - Spacegroups 75-88 Ylm's up to 6th order:
+                       ! Compute   Y00,Y20,Y40,Y44+,Y44-,Y60,Y64+,Y64-
+                       Laue_Names(i)%n_par=8
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(8))
+                       Laue_Names(i)%names=["Y00  ","Y20  ","Y40  ","Y44+ ","Y44- ","Y60  ","Y64+ ","Y64- "]
+                  case("4/mmm")   ! 4/m m m  Tetragonal - Spacegroups 89-142
+                             !          Ylm's up to 6th order:
+                             !          Y00,Y20,Y40,Y44+,Y60,Y64+
+                       Laue_Names(i)%n_par=6
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(6))
+                       Laue_Names(i)%names=["Y00  ","Y20  ","Y40  ","Y44+ ","Y60  ","Y64+ "]
+                  case("-3 R")   ! -3 R    Ylm's up to 4th order:  Y00,Y20,Y40,Y43+,Y43-
+                       ! Compute Y00,Y20,Y40,Y43+,Y43- in that order
+                       Laue_Names(i)%n_par=5
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(5))
+                       Laue_Names(i)%names=["Y00  ","Y20  ","Y40  ","Y43+ ","Y43- "]
+                  case( "-3m1","-31m","-3m1 H","-31m H")   ! -3 m R (Hexagonal setting, unique axis c, up to 6-th order)  ! -3 m 1 ! -3 1 m
+                       ! Ylm's up to 6th order:  Y00,Y20,Y40,Y43-,Y60,Y63-,Y66+
+                       !  Compute Y00,Y20,Y40,Y43-,Y60,Y63-,Y66+ in that order
+                       Laue_Names(i)%n_par=7
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(7))
+                       Laue_Names(i)%names=["Y00  ","Y20  ","Y40  ","Y43- ","Y60  ","Y63- ","Y66+ "]
+                  case("6/m")   ! 6/m  spacegroups 168-176  Ylm's up to 6th order: Y00,Y20,Y40,Y60,Y66+,Y66-
+                       !  Compute Y00,Y20,Y40,Y60,Y66+,Y66- in that order
+                       Laue_Names(i)%n_par=6
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(6))
+                       Laue_Names(i)%names=["Y00  ","Y20  ","Y40  ","Y60  ","Y66+ ","Y66- "]
+                  case("6/mmm")   ! 6/m m m spacegroups 177-194 Ylm's up to 6th order: Y00,Y20,Y40,Y60,Y66+
+                       !  Compute Y00,Y20,Y40,Y60,Y66+ in that order
+                       Laue_Names(i)%n_par=5
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(5))
+                       Laue_Names(i)%names=["Y00  ","Y20  ","Y40  ","Y60  ","Y66+ "]
+                  case("m3","m-3")   ! m 3  spacegroups 195-206
+                               ! Cubic harmonics Klm's up to 8th order: K00,K41,K61,K62,K81
+                       Laue_Names(i)%n_par=5
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(5))
+                       Laue_Names(i)%names=["K00  ","K41  ","K61  ","K62  ","K81  "]
+                  case("m3m","m-3m")   ! m 3 m  spacegroups 207-230
+                                ! Cubic harmonics Klm's up to 8th order: K00,K41,K61,K81
+                       Laue_Names(i)%n_par=4
+                       Laue_Names(i)%LaueClass=laue
+                       allocate(Laue_Names(i)%names(4))
+                       Laue_Names(i)%names=["K00 ","K41 ","K61 ","K81 "]
+               End Select
+            End do
+       End Select
+    End Subroutine Set_Laue_Names
 
 End Module CFML_IOForm
 

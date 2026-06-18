@@ -322,7 +322,7 @@ Submodule (CFML_Structure_Factors) SF_Calculations
       real(kind=cp),dimension(3),    intent(in) :: Hn
       real(kind=cp),                 intent(in) :: Sn !(sinTheta/Lambda)**2
       type(AtList_type),             intent(in) :: Atm
-      class(SpG_type),                intent(in) :: Grp
+      class(SpG_type),               intent(in) :: Grp
       type(Scattering_Species_Type), intent(in) :: Scf
       complex, optional,             intent(out):: fn,fx,fe
 

@@ -1163,7 +1163,7 @@ submodule (CFML_Wraps) Wraps_IOForm
         integer, intent(out) :: ierror
 
         ! Local variables
-        type(ndarray) :: nd_axis_size,nd_axis_strain,nd_aniso_size,nd_aniso_strain,nd_maniso_size,nd_maniso_strain,nd_laniso_size,nd_laniso_strain,nd_axes_pref,nd_pref,nd_mpref,nd_lpref,nd_abs_corr,nd_mabs_corr,nd_labs_corr
+        type(ndarray) :: nd_nv,nd_axis_size,nd_axis_strain,nd_aniso_size,nd_aniso_strain,nd_maniso_size,nd_maniso_strain,nd_laniso_size,nd_laniso_strain,nd_axes_pref,nd_pref,nd_mpref,nd_lpref,nd_abs_corr,nd_mabs_corr,nd_labs_corr
 
         ierror = 0
         if (ierror == 0) ierror = py_var%setitem('fortran_type','powder_attributes_type')
@@ -1204,8 +1204,14 @@ submodule (CFML_Wraps) Wraps_IOForm
                 ierror = py_var%setitem('laue_class',for_var%laue_class)
             end if
         end if
+        if (ierror == 0) ierror = py_var%setitem('gauss_aniso_size_frac',for_var%gauss_aniso_size_frac)
+        if (ierror == 0) ierror = py_var%setitem('lorentz_aniso_strain_frac',for_var%lorentz_aniso_strain_frac)
         if (ierror == 0) ierror = py_var%setitem('nani_size',for_var%nani_size)
         if (ierror == 0) ierror = py_var%setitem('nani_strain',for_var%nani_strain)
+        if (allocated(for_var%nv)) then
+            if (ierror == 0) ierror = ndarray_create(nd_nv,for_var%nv)
+            if (ierror == 0) ierror = py_var%setitem('nv',nd_nv)
+        end if
         if (ierror == 0) ierror = ndarray_create(nd_axis_size,for_var%axis_size)
         if (ierror == 0) ierror = py_var%setitem('axis_size',nd_axis_size)
         if (ierror == 0) ierror = ndarray_create(nd_axis_strain,for_var%axis_strain)
@@ -1223,14 +1229,29 @@ submodule (CFML_Wraps) Wraps_IOForm
         if (ierror == 0) ierror = ndarray_create(nd_laniso_strain,for_var%laniso_strain)
         if (ierror == 0) ierror = py_var%setitem('laniso_strain',nd_laniso_strain)
         if (ierror == 0) ierror = py_var%setitem('n_pref',for_var%n_pref)
+        if (ierror == 0) then
+            ierror = py_var%setitem('pref_model',for_var%pref_model)
+            if (ierror /= 0) then
+                for_var%pref_model = ''
+                ierror = py_var%setitem('pref_model',for_var%pref_model)
+            end if
+        end if
         if (ierror == 0) ierror = ndarray_create(nd_axes_pref,for_var%axes_pref)
         if (ierror == 0) ierror = py_var%setitem('axes_pref',nd_axes_pref)
         if (ierror == 0) ierror = ndarray_create(nd_pref,for_var%pref)
         if (ierror == 0) ierror = py_var%setitem('pref',nd_pref)
+        if (ierror == 0) ierror = py_var%setitem('nor_steps',for_var%nor_steps)
         if (ierror == 0) ierror = ndarray_create(nd_mpref,for_var%mpref)
         if (ierror == 0) ierror = py_var%setitem('mpref',nd_mpref)
         if (ierror == 0) ierror = ndarray_create(nd_lpref,for_var%lpref)
         if (ierror == 0) ierror = py_var%setitem('lpref',nd_lpref)
+        if (ierror == 0) then
+            ierror = py_var%setitem('abs_model',for_var%abs_model)
+            if (ierror /= 0) then
+                for_var%abs_model = ''
+                ierror = py_var%setitem('abs_model',for_var%abs_model)
+            end if
+        end if
         if (ierror == 0) ierror = ndarray_create(nd_abs_corr,for_var%abs_corr)
         if (ierror == 0) ierror = py_var%setitem('abs_corr',nd_abs_corr)
         if (ierror == 0) ierror = ndarray_create(nd_mabs_corr,for_var%mabs_corr)
@@ -1298,8 +1319,16 @@ submodule (CFML_Wraps) Wraps_IOForm
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','aniso_size_model',py_var,for_var%aniso_size_model,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','aniso_strain_model',py_var,for_var%aniso_strain_model,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','laue_class',py_var,for_var%laue_class,ierror)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','gauss_aniso_size_frac',py_var,for_var%gauss_aniso_size_frac,ierror)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','lorentz_aniso_strain_frac',py_var,for_var%lorentz_aniso_strain_frac,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','nani_size',py_var,for_var%nani_size,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','nani_strain',py_var,for_var%nani_strain,ierror)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','nv',py_var,p_int_2d,ierror2,order)
+        if (ierror2 == 0) call pointer_to_alloc_array('Unwrap_powder_attributes_type','nv',p_int_2d,for_var%nv,ierror,order)
+        if (ierror2 /= 0) then
+            call err_clear
+            call clear_error()
+        end if
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','axis_size',py_var,p_real_1d,ierror)
         if (ierror == 0) call pointer_to_array('Unwrap_powder_attributes_type','axis_size',p_real_1d,for_var%axis_size,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','axis_strain',py_var,p_real_1d,ierror)
@@ -1317,14 +1346,17 @@ submodule (CFML_Wraps) Wraps_IOForm
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','laniso_strain',py_var,p_int_1d,ierror)
         if (ierror == 0) call pointer_to_array('Unwrap_powder_attributes_type','laniso_strain',p_int_1d,for_var%laniso_strain,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','n_pref',py_var,for_var%n_pref,ierror)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','pref_model',py_var,for_var%pref_model,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','axes_pref',py_var,p_real_2d,ierror,order)
         if (ierror == 0) call pointer_to_array('Unwrap_powder_attributes_type','axes_pref',p_real_2d,for_var%axes_pref,ierror,order)
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','pref',py_var,p_real_2d,ierror,order)
         if (ierror == 0) call pointer_to_array('Unwrap_powder_attributes_type','pref',p_real_2d,for_var%pref,ierror,order)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','nor_steps',py_var,for_var%nor_steps,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','mpref',py_var,p_real_2d,ierror,order)
         if (ierror == 0) call pointer_to_array('Unwrap_powder_attributes_type','mpref',p_real_2d,for_var%mpref,ierror,order)
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','lpref',py_var,p_int_2d,ierror,order)
         if (ierror == 0) call pointer_to_array('Unwrap_powder_attributes_type','lpref',p_int_2d,for_var%lpref,ierror,order)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','abs_model',py_var,for_var%abs_model,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','abs_corr',py_var,p_real_1d,ierror)
         if (ierror == 0) call pointer_to_array('Unwrap_powder_attributes_type','abs_corr',p_real_1d,for_var%abs_corr,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_powder_attributes_type','mabs_corr',py_var,p_real_1d,ierror)
@@ -1487,6 +1519,7 @@ submodule (CFML_Wraps) Wraps_IOForm
         ierror = 0
         if (ierror == 0) ierror = py_var%setitem('fortran_type','phase_type')
         if (ierror == 0) ierror = py_var%setitem('iph',for_var%iph)
+        if (ierror == 0) ierror = py_var%setitem('ilaue',for_var%ilaue)
         if (ierror == 0) ierror = py_var%setitem('mag',for_var%mag)
         if (ierror == 0) ierror = py_var%setitem('mag_only',for_var%mag_only)
         if (ierror == 0) then
@@ -1638,6 +1671,7 @@ submodule (CFML_Wraps) Wraps_IOForm
             end if
         end if
         if (ierror == 0) call unwrap_dict_item('Unwrap_phase_type','iph',py_var,for_var%iph,ierror)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_phase_type','ilaue',py_var,for_var%ilaue,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_phase_type','mag',py_var,for_var%mag,ierror)
         if (ierror == 0) call unwrap_dict_item('Unwrap_phase_type','mag_only',py_var,for_var%mag_only,ierror)
         if (ierror == 0) call unwrap_dict_item_string_alloc('Unwrap_phase_type','name',py_var,for_var%name,ierror)
@@ -1863,5 +1897,231 @@ submodule (CFML_Wraps) Wraps_IOForm
         end if
 
     End Subroutine list_to_type_array2d_phase_type_no_alloc
+
+    Module Subroutine Wrap_laue_ind_names(for_var,py_var,ierror)
+
+        ! Arguments
+        type(laue_ind_names), intent(inout) :: for_var
+        type(dict), intent(inout) :: py_var
+        integer, intent(out) :: ierror
+
+        ! Local variables
+        integer :: i
+        type(dict) :: di_names
+        type(list) :: li_names
+
+        ierror = 0
+        if (ierror == 0) ierror = py_var%setitem('fortran_type','laue_ind_names')
+        if (ierror == 0) ierror = py_var%setitem('n_par',for_var%n_par)
+        if (ierror == 0) then
+            ierror = py_var%setitem('laueclass',for_var%laueclass)
+            if (ierror /= 0) then
+                for_var%laueclass = ''
+                ierror = py_var%setitem('laueclass',for_var%laueclass)
+            end if
+        end if
+        if (allocated(for_var%names)) then
+            if (ierror == 0) ierror = list_create(li_names)
+            if (ierror == 0) then
+                do i = 1 , size(for_var%names)
+                    if (ierror == 0) then
+                        ierror = li_names%append(for_var%names(i))
+                        if (ierror /= 0) then
+                            for_var%names(i) = ''
+                            ierror = li_names%append(for_var%names(i))
+                        end if
+                    end if
+                end do
+            end if
+            if (ierror == 0) ierror = py_var%setitem('names',li_names)
+        end if
+        if (ierror /= 0) then
+            if (err_cfml%ierr == 0) then
+                err_cfml%flag = .true.
+                err_cfml%ierr = -1
+                err_cfml%msg  = 'Wrap_laue_ind_names: Wrapping failed'
+            end if
+        end if
+
+    End Subroutine Wrap_laue_ind_names
+
+    Module Subroutine Unwrap_type_laue_ind_names(py_var,for_var,ierror)
+
+        ! Arguments
+        type(dict), intent(inout) :: py_var
+        type(laue_ind_names), intent(out) :: for_var
+        integer, intent(out) :: ierror
+
+        ! Local variables
+        integer :: ierror2
+        character(len=:), allocatable :: fortran_type
+        type(list) :: my_list
+
+        ierror = 0
+        ierror2 = 0
+        ierror = py_var%getitem(fortran_type,'fortran_type')
+        if (ierror /= 0) then
+            err_cfml%flag = .true.
+            err_cfml%ierr = ierror
+            err_cfml%msg  = 'Unwrap_laue_ind_names: Cannot determine fortran type'
+        else
+            if (fortran_type /= 'laue_ind_names') then
+                ierror = -1
+                err_cfml%flag = .true.
+                err_cfml%ierr = ierror
+                err_cfml%msg  = 'Unwrap_laue_ind_names: Wrong fortran type:'//adjustl(trim(fortran_type))
+                return
+            end if
+        end if
+        if (ierror == 0) call unwrap_dict_item('Unwrap_laue_ind_names','n_par',py_var,for_var%n_par,ierror)
+        if (ierror == 0) call unwrap_dict_item_string_alloc('Unwrap_laue_ind_names','laueclass',py_var,for_var%laueclass,ierror)
+        if (ierror == 0) ierror = list_create(my_list)
+        if (ierror == 0) call unwrap_dict_item('Unwrap_laue_ind_names','names',py_var,my_list,ierror2)
+        if (ierror2 == 0) then
+            if (ierror == 0) call list_to_alloc_array_primitive(my_list,for_var%names,ierror)
+        else
+            call err_clear
+            call clear_error()
+        end if
+        if (ierror == 0) call my_list%destroy
+        if (ierror /= 0) then
+            if (err_cfml%ierr == 0) then
+                err_cfml%flag = .true.
+                err_cfml%ierr = -1
+                err_cfml%msg  = 'Unwrap_laue_ind_names: Unwrapping failed'
+            end if
+        end if
+
+    End Subroutine Unwrap_type_laue_ind_names
+
+    Module Subroutine list_to_type_array1d_laue_ind_names(procedure_name,var_name,my_list,arr,ierror)
+
+        ! Arguments
+        character(len=*), intent(in) :: procedure_name
+        character(len=*), intent(in) :: var_name
+        type(list), intent(inout) :: my_list
+        type(laue_ind_names), dimension(:), allocatable, intent(out) :: arr
+        integer, intent(inout) :: ierror
+
+        ! Local variables
+        integer :: i,n
+        type(object) :: item
+        type(dict) :: my_dict
+
+        ierror = my_list%len(n)
+        if (ierror == 0 .and. n > 0) then
+            allocate(arr(n))
+            do i = 0 , n-1
+                if (ierror == 0) ierror = my_list%getitem(item,i)
+                if (ierror == 0) ierror = cast(my_dict,item)
+                if (ierror == 0) call unwrap_type(my_dict,arr(i+1),ierror)
+                if (ierror == 0) ierror = err_cfml%ierr
+            end do
+        end if
+
+    End Subroutine list_to_type_array1d_laue_ind_names
+
+    Module Subroutine list_to_type_array1d_laue_ind_names_no_alloc(procedure_name,var_name,my_list,arr,ierror)
+
+        ! Arguments
+        character(len=*), intent(in) :: procedure_name
+        character(len=*), intent(in) :: var_name
+        type(list), intent(inout) :: my_list
+        type(laue_ind_names), dimension(*), intent(inout) :: arr
+        integer, intent(inout) :: ierror
+
+        ! Local variables
+        integer :: i,n
+        type(object) :: item
+        type(dict) :: my_dict
+
+        ierror = my_list%len(n)
+        if (ierror == 0 .and. n > 0) then
+            do i = 0 , n-1
+                if (ierror == 0) ierror = my_list%getitem(item,i)
+                if (ierror == 0) ierror = cast(my_dict,item)
+                if (ierror == 0) call unwrap_type(my_dict,arr(i+1),ierror)
+                if (ierror == 0) ierror = err_cfml%ierr
+            end do
+        end if
+
+    End Subroutine list_to_type_array1d_laue_ind_names_no_alloc
+
+    Module Subroutine list_to_type_array2d_laue_ind_names(procedure_name,var_name,my_list,arr,ierror)
+
+        ! Arguments
+        character(len=*), intent(in) :: procedure_name
+        character(len=*), intent(in) :: var_name
+        type(list), intent(inout) :: my_list
+        type(laue_ind_names), dimension(:,:), allocatable, intent(out) :: arr
+        integer, intent(inout) :: ierror
+
+        ! Local variables
+        integer :: i,j,n,m
+        type(object) :: item
+        type(dict) :: my_dict
+        type(list) :: li
+
+        ierror = my_list%len(n)
+        if (ierror == 0 .and. n > 0) then
+            ierror = my_list%getitem(item,0)
+            if (ierror == 0) ierror = cast(li,item)
+            if (ierror == 0) ierror = li%len(m)
+            if (ierror == 0 .and. m > 0) then
+                allocate(arr(n,m))
+                if (ierror == 0) then
+                    do i = 0 , n-1
+                        if (ierror == 0) ierror = my_list%getitem(item,i)
+                        if (ierror == 0) ierror = cast(li,item)
+                        do j = 0 , m-1
+                            if (ierror == 0) ierror = li%getitem(item,j)
+                            if (ierror == 0) ierror = cast(my_dict,item)
+                            if (ierror == 0) call unwrap_type(my_dict,arr(i+1,j+1),ierror)
+                            if (ierror == 0) ierror = err_cfml%ierr
+                        end do
+                    end do
+                end if
+            end if
+        end if
+
+    End Subroutine list_to_type_array2d_laue_ind_names
+
+    Module Subroutine list_to_type_array2d_laue_ind_names_no_alloc(procedure_name,var_name,my_list,arr,ierror)
+
+        ! Arguments
+        character(len=*), intent(in) :: procedure_name
+        character(len=*), intent(in) :: var_name
+        type(list), intent(inout) :: my_list
+        type(laue_ind_names), dimension(:,:), intent(inout) :: arr
+        integer, intent(inout) :: ierror
+
+        ! Local variables
+        integer :: i,j,n,m
+        type(object) :: item
+        type(dict) :: my_dict
+        type(list) :: li
+
+        ierror = my_list%len(n)
+        if (ierror == 0 .and. n > 0) then
+            ierror = my_list%getitem(item,0)
+            if (ierror == 0) ierror = cast(li,item)
+            if (ierror == 0) ierror = li%len(m)
+            if (ierror == 0 .and. m > 0) then
+                if (ierror == 0) then
+                    do i = 0 , n-1
+                        if (ierror == 0) ierror = my_list%getitem(item,i)
+                        if (ierror == 0) ierror = cast(li,item)
+                        do j = 0 , m-1
+                            if (ierror == 0) ierror = li%getitem(item,j)
+                            if (ierror == 0) ierror = cast(my_dict,item)
+                            if (ierror == 0) call unwrap_type(my_dict,arr(i+1,j+1),ierror)
+                            if (ierror == 0) ierror = err_cfml%ierr
+                        end do
+                    end do
+                end if
+            end if
+        end if
+
+    End Subroutine list_to_type_array2d_laue_ind_names_no_alloc
 
 end submodule

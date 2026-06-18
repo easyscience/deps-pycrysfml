@@ -7,6 +7,7 @@ module crysfml08lib
     use cfml_bonds_tables
     use cfml_bvs_tables
     use cfml_diffpatt
+    use cfml_diffraction
     use cfml_enbvs
     use cfml_export_vtk
     use cfml_extincorr
@@ -22,7 +23,6 @@ module crysfml08lib
     use cfml_messages
     use cfml_metrics
     use cfml_molecules
-    use cfml_powder
     use cfml_profiles
     use cfml_propagation_vectors
     use cfml_py_utilities
@@ -66,13 +66,13 @@ module crysfml08lib
         ierror = Forpy_Initialize()
 
         ! Build method table
-        call table_crysfml08lib%init(43)
-        call table_crysfml08lib%add_method('f_automatic_peak_background_search','wrapper of function cfml_bckpeaks.automatic_peak_background_search', &
-            METH_VARARGS,c_funloc(f_automatic_peak_background_search))
-        call table_crysfml08lib%add_method('f_get_pkb_conditions','wrapper of function cfml_bckpeaks.get_pkb_conditions', &
-            METH_VARARGS,c_funloc(f_get_pkb_conditions))
-        call table_crysfml08lib%add_method('f_set_pkb_conditions','wrapper of function cfml_bckpeaks.set_pkb_conditions', &
-            METH_VARARGS,c_funloc(f_set_pkb_conditions))
+        call table_crysfml08lib%init(45)
+        call table_crysfml08lib%add_method('f_get_maxnumref','wrapper of function cfml_reflections.get_maxnumref', &
+            METH_VARARGS,c_funloc(f_get_maxnumref))
+        call table_crysfml08lib%add_method('f_generate_reflections','wrapper of function cfml_reflections.generate_reflections', &
+            METH_VARARGS,c_funloc(f_generate_reflections))
+        call table_crysfml08lib%add_method('f_init_reflist','wrapper of function cfml_reflections.init_reflist', &
+            METH_VARARGS,c_funloc(f_init_reflist))
         call table_crysfml08lib%add_method('f_get_abs_xs','wrapper of function cfml_scattering_tables.get_abs_xs', &
             METH_VARARGS,c_funloc(f_get_abs_xs))
         call table_crysfml08lib%add_method('f_get_anomalous_scfac','wrapper of function cfml_scattering_tables.get_anomalous_scfac', &
@@ -107,10 +107,14 @@ module crysfml08lib
             METH_VARARGS,c_funloc(f_get_xray_form))
         call table_crysfml08lib%add_method('f_get_xray_wavelengths','wrapper of function cfml_scattering_tables.get_xray_wavelengths', &
             METH_VARARGS,c_funloc(f_get_xray_wavelengths))
+        call table_crysfml08lib%add_method('f_read_xtal_structure','wrapper of function cfml_ioform.read_xtal_structure', &
+            METH_VARARGS,c_funloc(f_read_xtal_structure))
+        call table_crysfml08lib%add_method('f_get_shubnikov_info','wrapper of function cfml_symmetry_tables.get_shubnikov_info', &
+            METH_VARARGS,c_funloc(f_get_shubnikov_info))
+        call table_crysfml08lib%add_method('f_get_spgr_info','wrapper of function cfml_symmetry_tables.get_spgr_info', &
+            METH_VARARGS,c_funloc(f_get_spgr_info))
         call table_crysfml08lib%add_method('f_set_cell','wrapper of function cfml_metrics.set_cell', &
             METH_VARARGS,c_funloc(f_set_cell))
-        call table_crysfml08lib%add_method('f_cw_powder_pattern_from_dict','wrapper of function cfml_py_utilities.cw_powder_pattern_from_dict', &
-            METH_VARARGS,c_funloc(f_cw_powder_pattern_from_dict))
         call table_crysfml08lib%add_method('f_read_crystal_structure','wrapper of function cfml_py_utilities.read_crystal_structure', &
             METH_VARARGS,c_funloc(f_read_crystal_structure))
         call table_crysfml08lib%add_method('f_magnetic_structure_factors_from_mcif','wrapper of function cfml_py_utilities.magnetic_structure_factors_from_mcif', &
@@ -123,10 +127,14 @@ module crysfml08lib
             METH_VARARGS,c_funloc(f_set_mask_atoms))
         call table_crysfml08lib%add_method('f_structure_factors_from_cif','wrapper of function cfml_py_utilities.structure_factors_from_cif', &
             METH_VARARGS,c_funloc(f_structure_factors_from_cif))
-        call table_crysfml08lib%add_method('f_tof_powder_pattern_from_dict','wrapper of function cfml_py_utilities.tof_powder_pattern_from_dict', &
-            METH_VARARGS,c_funloc(f_tof_powder_pattern_from_dict))
         call table_crysfml08lib%add_method('f_update_global_phase','wrapper of function cfml_py_utilities.update_global_phase', &
             METH_VARARGS,c_funloc(f_update_global_phase))
+        call table_crysfml08lib%add_method('f_patterns_simulation','wrapper of function cfml_py_utilities.patterns_simulation', &
+            METH_VARARGS,c_funloc(f_patterns_simulation))
+        call table_crysfml08lib%add_method('f_cw_powder_pattern_from_dict','wrapper of function cfml_py_utilities.cw_powder_pattern_from_dict', &
+            METH_VARARGS,c_funloc(f_cw_powder_pattern_from_dict))
+        call table_crysfml08lib%add_method('f_tof_powder_pattern_from_dict','wrapper of function cfml_py_utilities.tof_powder_pattern_from_dict', &
+            METH_VARARGS,c_funloc(f_tof_powder_pattern_from_dict))
         call table_crysfml08lib%add_method('f_calculate_laue_image','wrapper of function cfml_py_utilities.calculate_laue_image', &
             METH_VARARGS,c_funloc(f_calculate_laue_image))
         call table_crysfml08lib%add_method('f_set_instrument_esmeralda','wrapper of function cfml_py_utilities.set_instrument_esmeralda', &
@@ -135,31 +143,27 @@ module crysfml08lib
             METH_VARARGS,c_funloc(f_set_spg_esmeralda))
         call table_crysfml08lib%add_method('f_set_ub_esmeralda','wrapper of function cfml_py_utilities.set_ub_esmeralda', &
             METH_VARARGS,c_funloc(f_set_ub_esmeralda))
-        call table_crysfml08lib%add_method('f_get_shubnikov_info','wrapper of function cfml_symmetry_tables.get_shubnikov_info', &
-            METH_VARARGS,c_funloc(f_get_shubnikov_info))
-        call table_crysfml08lib%add_method('f_get_spgr_info','wrapper of function cfml_symmetry_tables.get_spgr_info', &
-            METH_VARARGS,c_funloc(f_get_spgr_info))
-        call table_crysfml08lib%add_method('f_load_pattern','wrapper of function cfml_diffpatt.load_pattern', &
-            METH_VARARGS,c_funloc(f_load_pattern))
-        call table_crysfml08lib%add_method('f_read_xtal_structure','wrapper of function cfml_ioform.read_xtal_structure', &
-            METH_VARARGS,c_funloc(f_read_xtal_structure))
-        call table_crysfml08lib%add_method('f_get_maxnumref','wrapper of function cfml_reflections.get_maxnumref', &
-            METH_VARARGS,c_funloc(f_get_maxnumref))
-        call table_crysfml08lib%add_method('f_generate_reflections','wrapper of function cfml_reflections.generate_reflections', &
-            METH_VARARGS,c_funloc(f_generate_reflections))
-        call table_crysfml08lib%add_method('f_init_reflist','wrapper of function cfml_reflections.init_reflist', &
-            METH_VARARGS,c_funloc(f_init_reflist))
         call table_crysfml08lib%add_method('f_set_spacegroup_from_dbase','wrapper of function cfml_gspacegroups.set_spacegroup_from_dbase', &
             METH_VARARGS,c_funloc(f_set_spacegroup_from_dbase))
         call table_crysfml08lib%add_method('f_set_spacegroup_from_generators','wrapper of function cfml_gspacegroups.set_spacegroup_from_generators', &
             METH_VARARGS,c_funloc(f_set_spacegroup_from_generators))
+        call table_crysfml08lib%add_method('f_automatic_peak_background_search','wrapper of function cfml_bckpeaks.automatic_peak_background_search', &
+            METH_VARARGS,c_funloc(f_automatic_peak_background_search))
+        call table_crysfml08lib%add_method('f_get_pkb_conditions','wrapper of function cfml_bckpeaks.get_pkb_conditions', &
+            METH_VARARGS,c_funloc(f_get_pkb_conditions))
+        call table_crysfml08lib%add_method('f_set_pkb_conditions','wrapper of function cfml_bckpeaks.set_pkb_conditions', &
+            METH_VARARGS,c_funloc(f_set_pkb_conditions))
+        call table_crysfml08lib%add_method('f_load_pattern','wrapper of function cfml_diffpatt.load_pattern', &
+            METH_VARARGS,c_funloc(f_load_pattern))
+        call table_crysfml08lib%add_method('f_set_eps_math','wrapper of function cfml_maths.set_eps_math', &
+            METH_VARARGS,c_funloc(f_set_eps_math))
 
         m = mod_crysfml08lib%init('crysfml08lib','A Python API for CrysFML08',table_crysfml08lib)
 
     end function Init
 
-    function f_automatic_peak_background_search(self_ptr,args_ptr) result(resul) bind(c)
-        ! Wrapper for procedure automatic_peak_background_search of module CFML_BckPeaks
+    function f_get_maxnumref(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure get_maxnumref of module CFML_Reflections
 
         ! Arguments
         type(c_ptr), value :: self_ptr
@@ -167,212 +171,29 @@ module crysfml08lib
         type(c_ptr)        :: resul
 
         ! Variables in args_ptr
-        type(dict) :: di_pat
-        real(kind=cp) :: x1
-        real(kind=cp) :: x2
-        character(len=:), allocatable :: mode
-
-        ! Variables in returned tuple
-        type(dict) :: di_pkb
-
-        ! Unwrapped variables
-        type(diffpat_e_type) :: pat
-        type(pkb_type) :: pkb
-
-        ! Local parameters
-        integer, parameter :: NMANDATORY = 4
-
-        ! Local variables
-        integer :: nargs
-        integer :: ierror
-        type(object) :: item
-        type(tuple) :: args,ret
-        type(nonetype) :: nret
-
-        ierror = 0
-        call err_clear ! Reset Python error
-        call clear_error() ! Reset CrysFML08 error
-
-        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
-        call unsafe_cast_from_c_ptr(args,args_ptr)
-        ierror = args%len(nargs)
-        if (ierror == 0) then
-            if (nargs < NMANDATORY) then
-                ierror = 1
-                err_cfml%ierr = 1
-                err_cfml%msg = 'Wrong number of arguments'
-            end if
-        end if
-
-        ! Unwrapping
-        if (ierror == 0) ierror = args%getitem(item,0)
-        if (ierror == 0) call get_var_from_item('f_automatic_peak_background_search','pat',item,di_pat,ierror)
-        if (ierror == 0) call unwrap_class_diffpat_e_type_no_alloc(di_pat,pat,ierror)
-        if (ierror == 0) ierror = args%getitem(item,1)
-        if (ierror == 0) call get_var_from_item('f_automatic_peak_background_search','x1',item,x1,ierror)
-        if (ierror == 0) ierror = args%getitem(item,2)
-        if (ierror == 0) call get_var_from_item('f_automatic_peak_background_search','x2',item,x2,ierror)
-        if (ierror == 0) ierror = args%getitem(item,3)
-        if (ierror == 0) call get_var_from_item('f_automatic_peak_background_search','mode',item,mode,ierror)
-
-        ! Check errors
-        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
-            ierror = EXCEPTION_ERROR
-            if (err_cfml%ierr /= 0) then
-                call raise_exception(RuntimeError,'f_automatic_peak_background_search: '//trim(err_cfml%msg))
-            else
-                call raise_exception(RuntimeError,'f_automatic_peak_background_search: '//'error parsing arguments')
-            end if
-        end if
-
-        ! Call to CrysFML08 procedure
-        if (ierror == 0) then
-            pkb = automatic_peak_background_search(pat,x1,x2,mode)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_automatic_peak_background_search: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Wrapping
-        if (ierror == 0) then
-            ierror = dict_create(di_pkb)
-            if (ierror == 0) call wrap_type(pkb,di_pkb,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_automatic_peak_background_search: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Return
-        if (ierror == 0) then
-            ierror = tuple_create(ret,1)
-            ierror = ret%setitem(0,di_pkb)
-            resul = ret%get_c_ptr()
-        else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
-        end if
-
-    end function f_automatic_peak_background_search
-
-    function f_get_pkb_conditions(self_ptr,args_ptr) result(resul) bind(c)
-        ! Wrapper for procedure get_pkb_conditions of module CFML_BckPeaks
-
-        ! Arguments
-        type(c_ptr), value :: self_ptr
-        type(c_ptr), value :: args_ptr
-        type(c_ptr)        :: resul
-
-        ! Variables in args_ptr
-
-        ! Variables in returned tuple
-        type(dict) :: di_pkbc
-
-        ! Unwrapped variables
-        type(peak_search_cond_type) :: pkbc
-
-        ! Local parameters
-        integer, parameter :: NMANDATORY = 0
-
-        ! Local variables
-        integer :: nargs
-        integer :: ierror
-        type(object) :: item
-        type(tuple) :: args,ret
-        type(nonetype) :: nret
-
-        ierror = 0
-        call err_clear ! Reset Python error
-        call clear_error() ! Reset CrysFML08 error
-
-        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
-        call unsafe_cast_from_c_ptr(args,args_ptr)
-        ierror = args%len(nargs)
-        if (ierror == 0) then
-            if (nargs < NMANDATORY) then
-                ierror = 1
-                err_cfml%ierr = 1
-                err_cfml%msg = 'Wrong number of arguments'
-            end if
-        end if
-
-        ! Unwrapping
-
-        ! Check errors
-        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
-            ierror = EXCEPTION_ERROR
-            if (err_cfml%ierr /= 0) then
-                call raise_exception(RuntimeError,'f_get_pkb_conditions: '//trim(err_cfml%msg))
-            else
-                call raise_exception(RuntimeError,'f_get_pkb_conditions: '//'error parsing arguments')
-            end if
-        end if
-
-        ! Call to CrysFML08 procedure
-        if (ierror == 0) then
-            pkbc = get_pkb_conditions()
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_get_pkb_conditions: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Wrapping
-        if (ierror == 0) then
-            ierror = dict_create(di_pkbc)
-            if (ierror == 0) call wrap_type(pkbc,di_pkbc,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_get_pkb_conditions: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Return
-        if (ierror == 0) then
-            ierror = tuple_create(ret,1)
-            ierror = ret%setitem(0,di_pkbc)
-            resul = ret%get_c_ptr()
-        else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
-        end if
-
-    end function f_get_pkb_conditions
-
-    function f_set_pkb_conditions(self_ptr,args_ptr) result(resul) bind(c)
-        ! Wrapper for procedure set_pkb_conditions of module CFML_BckPeaks
-
-        ! Arguments
-        type(c_ptr), value :: self_ptr
-        type(c_ptr), value :: args_ptr
-        type(c_ptr)        :: resul
-
-        ! Variables in args_ptr
-        real(kind=cp), target :: pk_th
-        real(kind=cp), pointer :: ptr_pk_th => null()
-        real(kind=cp), target :: sh_th
-        real(kind=cp), pointer :: ptr_sh_th => null()
-        real(kind=cp), target :: bg_th
-        real(kind=cp), pointer :: ptr_bg_th => null()
-        integer, target :: peak_kind
-        integer, pointer :: ptr_peak_kind => null()
-        integer, target :: iter
-        integer, pointer :: ptr_iter => null()
+        real(kind=cp) :: sintlmax
+        real(kind=cp) :: volcell
+        real(kind=cp), target :: sintlmin
+        real(kind=cp), pointer :: ptr_sintlmin => null()
+        real(kind=cp), target :: mult
+        real(kind=cp), pointer :: ptr_mult => null()
+        integer, target :: multip
+        integer, pointer :: ptr_multip => null()
         type(dict) :: di_kwargs
 
         ! Variables in returned tuple
+        integer :: numref
 
         ! Unwrapped variables
 
         ! Local parameters
-        integer, parameter :: NMANDATORY = 0
+        integer, parameter :: NMANDATORY = 2
 
         ! Local variables
         integer :: nargs
         integer :: ierror,ierror2
         type(object) :: item
-        type(tuple) :: args
+        type(tuple) :: args,ret
         type(nonetype) :: nret
 
         ierror = 0
@@ -392,55 +213,41 @@ module crysfml08lib
 
         ! Unwrapping
         if (ierror == 0 .and. nargs == NMANDATORY) then
-            ptr_pk_th => null()
-            ptr_sh_th => null()
-            ptr_bg_th => null()
-            ptr_peak_kind => null()
-            ptr_iter => null()
+            ptr_sintlmin => null()
+            ptr_mult => null()
+            ptr_multip => null()
         end if
-        if (ierror == 0 .and. nargs > 0) then
+        if (ierror == 0) ierror = args%getitem(item,0)
+        if (ierror == 0) call get_var_from_item('f_get_maxnumref','sintlmax',item,sintlmax,ierror)
+        if (ierror == 0) ierror = args%getitem(item,1)
+        if (ierror == 0) call get_var_from_item('f_get_maxnumref','volcell',item,volcell,ierror)
+        if (ierror == 0 .and. nargs > 2) then
             ! Optional arguments
-            ierror2 = args%getitem(item,0)
-            if (ierror2 == 0) call get_var_from_item('f_set_pkb_conditions','kwargs',item,di_kwargs,ierror)
+            ierror2 = args%getitem(item,2)
+            if (ierror2 == 0) call get_var_from_item('f_get_maxnumref','kwargs',item,di_kwargs,ierror)
             if (ierror == 0) then
-                ierror2 = di_kwargs%getitem(item,'pk_th')
+                ierror2 = di_kwargs%getitem(item,'sintlmin')
                 if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_set_pkb_conditions','pk_th',item,pk_th,ierror)
-                    if (ierror == 0) ptr_pk_th => pk_th
+                    if (ierror == 0) call get_var_from_item('f_get_maxnumref','sintlmin',item,sintlmin,ierror)
+                    if (ierror == 0) ptr_sintlmin => sintlmin
                 else
-                    ptr_pk_th => null()
+                    ptr_sintlmin => null()
                     call err_clear
                 end if
-                ierror2 = di_kwargs%getitem(item,'sh_th')
+                ierror2 = di_kwargs%getitem(item,'mult')
                 if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_set_pkb_conditions','sh_th',item,sh_th,ierror)
-                    if (ierror == 0) ptr_sh_th => sh_th
+                    if (ierror == 0) call get_var_from_item('f_get_maxnumref','mult',item,mult,ierror)
+                    if (ierror == 0) ptr_mult => mult
                 else
-                    ptr_sh_th => null()
+                    ptr_mult => null()
                     call err_clear
                 end if
-                ierror2 = di_kwargs%getitem(item,'bg_th')
+                ierror2 = di_kwargs%getitem(item,'multip')
                 if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_set_pkb_conditions','bg_th',item,bg_th,ierror)
-                    if (ierror == 0) ptr_bg_th => bg_th
+                    if (ierror == 0) call get_var_from_item('f_get_maxnumref','multip',item,multip,ierror)
+                    if (ierror == 0) ptr_multip => multip
                 else
-                    ptr_bg_th => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'peak_kind')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_set_pkb_conditions','peak_kind',item,peak_kind,ierror)
-                    if (ierror == 0) ptr_peak_kind => peak_kind
-                else
-                    ptr_peak_kind => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'iter')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_set_pkb_conditions','iter',item,iter,ierror)
-                    if (ierror == 0) ptr_iter => iter
-                else
-                    ptr_iter => null()
+                    ptr_multip => null()
                     call err_clear
                 end if
             end if
@@ -451,28 +258,364 @@ module crysfml08lib
         if (ierror /= 0 .or. err_cfml%ierr /= 0) then
             ierror = EXCEPTION_ERROR
             if (err_cfml%ierr /= 0) then
-                call raise_exception(RuntimeError,'f_set_pkb_conditions: '//trim(err_cfml%msg))
+                call raise_exception(RuntimeError,'f_get_maxnumref: '//trim(err_cfml%msg))
             else
-                call raise_exception(RuntimeError,'f_set_pkb_conditions: '//'error parsing arguments')
+                call raise_exception(RuntimeError,'f_get_maxnumref: '//'error parsing arguments')
             end if
         end if
 
         ! Call to CrysFML08 procedure
         if (ierror == 0) then
-            call set_pkb_conditions(ptr_pk_th,ptr_sh_th,ptr_bg_th,ptr_peak_kind,ptr_iter)
+            numref = get_maxnumref(sintlmax,volcell,ptr_sintlmin,ptr_mult,ptr_multip)
             if (err_cfml%ierr /= 0) then
                 ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_set_pkb_conditions: '//trim(err_cfml%msg))
+                call raise_exception(RuntimeError,'f_get_maxnumref: '//trim(err_cfml%msg))
             end if
         end if
 
         ! Wrapping
 
         ! Return
-        ierror = nonetype_create(nret)
-        resul = nret%get_c_ptr()
+        if (ierror == 0) then
+            ierror = tuple_create(ret,1)
+            ierror = ret%setitem(0,numref)
+            resul = ret%get_c_ptr()
+        else
+            resul = C_NULL_PTR
+        end if
 
-    end function f_set_pkb_conditions
+    end function f_get_maxnumref
+
+    function f_generate_reflections(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure generate_reflections of module CFML_Reflections
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+        type(dict) :: di_cell
+        real(kind=cp) :: slmin
+        real(kind=cp) :: slmax
+        type(dict) :: di_spg
+        logical, target :: magext
+        logical, pointer :: ptr_magext => null()
+        type(dict) :: di_kinfo
+        type(kvect_info_type), pointer :: ptr_kinfo => null()
+        logical, target :: order
+        logical, pointer :: ptr_order => null()
+        logical, target :: unique
+        logical, pointer :: ptr_unique => null()
+        type(ndarray) :: nd_seqindx
+        integer, dimension(:), pointer :: ptr_seqindx => null()
+        type(ndarray) :: nd_hlim
+        integer, dimension(:,:), pointer :: ptr_hlim => null()
+        logical, target :: mag_only
+        logical, pointer :: ptr_mag_only => null()
+        logical, target :: friedel
+        logical, pointer :: ptr_friedel => null()
+        character(len=:), allocatable, target :: ref_typ
+        character(len=:), pointer :: ptr_ref_typ => null()
+        type(dict) :: di_kwargs
+
+        ! Variables in returned tuple
+        type(dict) :: di_reflex
+
+        ! Unwrapped variables
+        class(cell_g_type), allocatable :: cell
+        class(spg_type), allocatable :: spg
+        type(kvect_info_type), target :: kinfo
+        integer, dimension(3), target :: seqindx
+        integer, dimension(:), pointer :: p_seqindx
+        integer, dimension(3,2), target :: hlim
+        integer, dimension(:,:), pointer :: p_hlim
+        type(reflist_type) :: reflex
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 4
+
+        ! Local variables
+        integer :: nargs
+        integer :: ierror,ierror2
+        character(len=1) :: array_order
+        type(object) :: item
+        type(tuple) :: args,ret
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+        if (ierror == 0 .and. nargs == NMANDATORY) then
+            ptr_magext => null()
+            ptr_kinfo => null()
+            ptr_order => null()
+            ptr_unique => null()
+            ptr_seqindx => null()
+            ptr_hlim => null()
+            ptr_mag_only => null()
+            ptr_friedel => null()
+            ptr_ref_typ => null()
+        end if
+        if (ierror == 0) ierror = args%getitem(item,0)
+        if (ierror == 0) call get_var_from_item('f_generate_reflections','cell',item,di_cell,ierror)
+        if (ierror == 0) call unwrap_class_cell_g_type(di_cell,cell,ierror)
+        if (ierror == 0) ierror = args%getitem(item,1)
+        if (ierror == 0) call get_var_from_item('f_generate_reflections','slmin',item,slmin,ierror)
+        if (ierror == 0) ierror = args%getitem(item,2)
+        if (ierror == 0) call get_var_from_item('f_generate_reflections','slmax',item,slmax,ierror)
+        if (ierror == 0) ierror = args%getitem(item,3)
+        if (ierror == 0) call get_var_from_item('f_generate_reflections','spg',item,di_spg,ierror)
+        if (ierror == 0) call unwrap_class_spg_type(di_spg,spg,ierror)
+        if (ierror == 0 .and. nargs > 4) then
+            ! Optional arguments
+            ierror2 = args%getitem(item,4)
+            if (ierror2 == 0) call get_var_from_item('f_generate_reflections','kwargs',item,di_kwargs,ierror)
+            if (ierror == 0) then
+                ierror2 = di_kwargs%getitem(item,'magext')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_generate_reflections','magext',item,magext,ierror)
+                    if (ierror == 0) ptr_magext => magext
+                else
+                    ptr_magext => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'kinfo')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_generate_reflections','kinfo',item,di_kinfo,ierror)
+                    if (ierror == 0) call unwrap_type(di_kinfo,kinfo,ierror)
+                    if (ierror == 0) ptr_kinfo => kinfo
+                else
+                    ptr_kinfo => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'order')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_generate_reflections','order',item,order,ierror)
+                    if (ierror == 0) ptr_order => order
+                else
+                    ptr_order => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'unique')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_generate_reflections','unique',item,unique,ierror)
+                    if (ierror == 0) ptr_unique => unique
+                else
+                    ptr_unique => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'seqindx')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_generate_reflections','seqindx',item,nd_seqindx,ierror)
+                    if (ierror == 0) call ndarray_to_pointer('generate_reflections','seqindx',nd_seqindx,p_seqindx,ierror)
+                    if (ierror == 0) call pointer_to_array('generate_reflections','seqindx',p_seqindx,seqindx,ierror)
+                    if (ierror == 0) ptr_seqindx => seqindx
+                else
+                    ptr_seqindx => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'hlim')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_generate_reflections','hlim',item,nd_hlim,ierror)
+                    if (ierror == 0) call ndarray_to_pointer('generate_reflections','hlim',nd_hlim,p_hlim,ierror,array_order)
+                    if (ierror == 0) call pointer_to_array('generate_reflections','hlim',p_hlim,hlim,ierror,array_order)
+                    if (ierror == 0) ptr_hlim => hlim
+                else
+                    ptr_hlim => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'mag_only')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_generate_reflections','mag_only',item,mag_only,ierror)
+                    if (ierror == 0) ptr_mag_only => mag_only
+                else
+                    ptr_mag_only => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'friedel')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_generate_reflections','friedel',item,friedel,ierror)
+                    if (ierror == 0) ptr_friedel => friedel
+                else
+                    ptr_friedel => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'ref_typ')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_generate_reflections','ref_typ',item,ref_typ,ierror)
+                    if (ierror == 0) ptr_ref_typ => ref_typ
+                else
+                    ptr_ref_typ => null()
+                    call err_clear
+                end if
+            end if
+            if (ierror2 == 0) call err_clear
+        end if
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_generate_reflections: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_generate_reflections: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            reflex = generate_reflections(cell,slmin,slmax,spg,ptr_magext,ptr_kinfo,ptr_order,ptr_unique,ptr_seqindx,ptr_hlim,ptr_mag_only,ptr_friedel,ptr_ref_typ)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_generate_reflections: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+        if (ierror == 0) then
+            ierror = dict_create(di_reflex)
+            if (ierror == 0) call wrap_type(reflex,di_reflex,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_generate_reflections: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Return
+        if (ierror == 0) then
+            ierror = tuple_create(ret,1)
+            ierror = ret%setitem(0,di_reflex)
+            resul = ret%get_c_ptr()
+        else
+            resul = C_NULL_PTR
+        end if
+
+    end function f_generate_reflections
+
+    function f_init_reflist(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure init_reflist of module CFML_Reflections
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+        integer, target :: n
+        character(len=:), allocatable :: ctype
+        integer, target :: d
+        integer, pointer :: ptr_d => null()
+        type(dict) :: di_kwargs
+
+        ! Variables in returned tuple
+        type(dict) :: di_reflex
+
+        ! Unwrapped variables
+        class(reflist_type), allocatable :: reflex
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 2
+
+        ! Local variables
+        integer :: nargs
+        integer :: ierror,ierror2
+        type(object) :: item
+        type(tuple) :: args,ret
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+        if (ierror == 0 .and. nargs == NMANDATORY) then
+            ptr_d => null()
+        end if
+        if (ierror == 0) ierror = args%getitem(item,0)
+        if (ierror == 0) call get_var_from_item('f_init_reflist','n',item,n,ierror)
+        if (ierror == 0) ierror = args%getitem(item,1)
+        if (ierror == 0) call get_var_from_item('f_init_reflist','ctype',item,ctype,ierror)
+        if (ierror == 0 .and. nargs > 2) then
+            ! Optional arguments
+            ierror2 = args%getitem(item,2)
+            if (ierror2 == 0) call get_var_from_item('f_init_reflist','kwargs',item,di_kwargs,ierror)
+            if (ierror == 0) then
+                ierror2 = di_kwargs%getitem(item,'d')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_init_reflist','d',item,d,ierror)
+                    if (ierror == 0) ptr_d => d
+                else
+                    ptr_d => null()
+                    call err_clear
+                end if
+            end if
+            if (ierror2 == 0) call err_clear
+        end if
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_init_reflist: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_init_reflist: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            reflex = init_reflist(n,ctype,ptr_d)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_init_reflist: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+        if (ierror == 0) then
+            ierror = dict_create(di_reflex)
+            if (ierror == 0) call wrap_type(reflex,di_reflex,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_init_reflist: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Return
+        if (ierror == 0) then
+            ierror = tuple_create(ret,1)
+            ierror = ret%setitem(0,di_reflex)
+            resul = ret%get_c_ptr()
+        else
+            resul = C_NULL_PTR
+        end if
+
+    end function f_init_reflist
 
     function f_get_abs_xs(self_ptr,args_ptr) result(resul) bind(c)
         ! Wrapper for procedure get_abs_xs of module CFML_Scattering_Tables
@@ -546,8 +689,7 @@ module crysfml08lib
             ierror = ret%setitem(0,u)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_abs_xs
@@ -633,8 +775,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_info)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_anomalous_scfac
@@ -711,8 +852,7 @@ module crysfml08lib
             ierror = ret%setitem(0,mass)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_atomic_mass
@@ -789,8 +929,7 @@ module crysfml08lib
             ierror = ret%setitem(0,vol)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_atomic_vol
@@ -876,8 +1015,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_info)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_chem_info
@@ -954,8 +1092,7 @@ module crysfml08lib
             ierror = ret%setitem(0,symb)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_chem_symb
@@ -1032,8 +1169,7 @@ module crysfml08lib
             ierror = ret%setitem(0,rad)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_covalent_radius
@@ -1110,8 +1246,7 @@ module crysfml08lib
             ierror = ret%setitem(0,b)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_fermi_length
@@ -1188,8 +1323,7 @@ module crysfml08lib
             ierror = ret%setitem(0,u)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_inc_xs
@@ -1269,8 +1403,7 @@ module crysfml08lib
             ierror = ret%setitem(0,rad)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_ionic_radius
@@ -1356,8 +1489,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_info)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_magnetic_form
@@ -1443,8 +1575,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_info)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_magnetic_j2
@@ -1530,8 +1661,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_info)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_magnetic_j4
@@ -1617,8 +1747,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_info)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_magnetic_j6
@@ -1695,8 +1824,7 @@ module crysfml08lib
             ierror = ret%setitem(0,z)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_z_symb
@@ -1782,8 +1910,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_info)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_xray_form
@@ -1869,11 +1996,424 @@ module crysfml08lib
             ierror = ret%setitem(0,di_info)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_get_xray_wavelengths
+
+    function f_read_xtal_structure(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure read_xtal_structure of module CFML_IOForm
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+        character(len=:), allocatable :: filenam
+        character(len=:), allocatable, target :: atm_typ
+        character(len=:), pointer :: ptr_atm_typ => null()
+        type(dict) :: di_mgp
+        type(magsymm_k_type), pointer :: ptr_mgp => null()
+        type(dict) :: di_matm
+        type(matom_list_type), pointer :: ptr_matm => null()
+        type(dict) :: di_mag_dom
+        type(magnetic_domain_type), pointer :: ptr_mag_dom => null()
+        integer, target :: iphase
+        integer, pointer :: ptr_iphase => null()
+        type(dict) :: di_ftype
+        type(file_type), pointer :: ptr_ftype => null()
+        type(dict) :: di_filelist
+        type(file_list_type), pointer :: ptr_filelist => null()
+        character(len=:), allocatable, target :: database_path
+        character(len=:), pointer :: ptr_database_path => null()
+        type(dict) :: di_kwargs
+
+        ! Variables in returned tuple
+        type(dict) :: di_cell
+        type(dict) :: di_spg
+        type(dict) :: di_atm
+
+        ! Unwrapped variables
+        class(cell_g_type), allocatable :: cell
+        class(spg_type), allocatable :: spg
+        type(atlist_type) :: atm
+        type(magsymm_k_type), target :: mgp
+        type(matom_list_type), target :: matm
+        type(magnetic_domain_type), target :: mag_dom
+        type(file_type), target :: ftype
+        type(file_list_type), target :: filelist
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 1
+
+        ! Local variables
+        integer :: nargs
+        integer :: ierror,ierror2
+        type(object) :: item
+        type(tuple) :: args,ret
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+        if (ierror == 0 .and. nargs == NMANDATORY) then
+            ptr_atm_typ => null()
+            ptr_mgp => null()
+            ptr_matm => null()
+            ptr_mag_dom => null()
+            ptr_iphase => null()
+            ptr_ftype => null()
+            ptr_filelist => null()
+            ptr_database_path => null()
+        end if
+        if (ierror == 0) ierror = args%getitem(item,0)
+        if (ierror == 0) call get_var_from_item('f_read_xtal_structure','filenam',item,filenam,ierror)
+        if (ierror == 0 .and. nargs > 1) then
+            ! Optional arguments
+            ierror2 = args%getitem(item,1)
+            if (ierror2 == 0) call get_var_from_item('f_read_xtal_structure','kwargs',item,di_kwargs,ierror)
+            if (ierror == 0) then
+                ierror2 = di_kwargs%getitem(item,'atm_typ')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_read_xtal_structure','atm_typ',item,atm_typ,ierror)
+                    if (ierror == 0) ptr_atm_typ => atm_typ
+                else
+                    ptr_atm_typ => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'mgp')
+                if (ierror2 == 0) then
+                    ptr_mgp => mgp
+                else
+                    ptr_mgp => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'matm')
+                if (ierror2 == 0) then
+                    ptr_matm => matm
+                else
+                    ptr_matm => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'mag_dom')
+                if (ierror2 == 0) then
+                    ptr_mag_dom => mag_dom
+                else
+                    ptr_mag_dom => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'iphase')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_read_xtal_structure','iphase',item,iphase,ierror)
+                    if (ierror == 0) ptr_iphase => iphase
+                else
+                    ptr_iphase => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'ftype')
+                if (ierror2 == 0) then
+                    ptr_ftype => ftype
+                else
+                    ptr_ftype => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'filelist')
+                if (ierror2 == 0) then
+                    ptr_filelist => filelist
+                else
+                    ptr_filelist => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'database_path')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_read_xtal_structure','database_path',item,database_path,ierror)
+                    if (ierror == 0) ptr_database_path => database_path
+                else
+                    ptr_database_path => null()
+                    call err_clear
+                end if
+            end if
+            if (ierror2 == 0) call err_clear
+        end if
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_read_xtal_structure: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            call read_xtal_structure(filenam,cell,spg,atm,ptr_atm_typ,ptr_mgp,ptr_matm,ptr_mag_dom,ptr_iphase,ptr_ftype,ptr_filelist,ptr_database_path)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+        if (ierror == 0) then
+            ierror = dict_create(di_cell)
+            if (ierror == 0) call wrap_type(cell,di_cell,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
+            end if
+        end if
+        if (ierror == 0) then
+            ierror = dict_create(di_spg)
+            if (ierror == 0) call wrap_type(spg,di_spg,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
+            end if
+        end if
+        if (ierror == 0) then
+            ierror = dict_create(di_atm)
+            if (ierror == 0) call wrap_type(atm,di_atm,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
+            end if
+        end if
+        if (associated(ptr_mgp)) then
+            if (ierror == 0) call wrap_type(mgp,di_mgp,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
+            end if
+        end if
+        if (associated(ptr_matm)) then
+            if (ierror == 0) call wrap_type(matm,di_matm,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
+            end if
+        end if
+        if (associated(ptr_mag_dom)) then
+            if (ierror == 0) call wrap_type(mag_dom,di_mag_dom,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
+            end if
+        end if
+        if (associated(ptr_ftype)) then
+            if (ierror == 0) call wrap_type(ftype,di_ftype,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
+            end if
+        end if
+        if (associated(ptr_filelist)) then
+            if (ierror == 0) call wrap_type(filelist,di_filelist,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Return
+        if (ierror == 0) then
+            ierror = tuple_create(ret,3)
+            ierror = ret%setitem(0,di_cell)
+            ierror = ret%setitem(1,di_spg)
+            ierror = ret%setitem(2,di_atm)
+            resul = ret%get_c_ptr()
+        else
+            resul = C_NULL_PTR
+        end if
+
+    end function f_read_xtal_structure
+
+    function f_get_shubnikov_info(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure get_shubnikov_info of module CFML_Symmetry_Tables
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+        integer, target :: r
+
+        ! Variables in returned tuple
+        type(dict) :: di_info
+
+        ! Unwrapped variables
+        type(shub_spgr_info_type) :: info
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 1
+
+        ! Local variables
+        integer :: nargs
+        integer :: ierror
+        type(object) :: item
+        type(tuple) :: args,ret
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+        if (ierror == 0) ierror = args%getitem(item,0)
+        if (ierror == 0) call get_var_from_item('f_get_shubnikov_info','r',item,r,ierror)
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_get_shubnikov_info: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_get_shubnikov_info: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            info = get_shubnikov_info(r)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_get_shubnikov_info: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+        if (ierror == 0) then
+            ierror = dict_create(di_info)
+            if (ierror == 0) call wrap_type(info,di_info,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_get_shubnikov_info: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Return
+        if (ierror == 0) then
+            ierror = tuple_create(ret,1)
+            ierror = ret%setitem(0,di_info)
+            resul = ret%get_c_ptr()
+        else
+            resul = C_NULL_PTR
+        end if
+
+    end function f_get_shubnikov_info
+
+    function f_get_spgr_info(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure get_spgr_info of module CFML_Symmetry_Tables
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+        integer, target :: r
+
+        ! Variables in returned tuple
+        type(dict) :: di_info
+
+        ! Unwrapped variables
+        type(spgr_info_type) :: info
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 1
+
+        ! Local variables
+        integer :: nargs
+        integer :: ierror
+        type(object) :: item
+        type(tuple) :: args,ret
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+        if (ierror == 0) ierror = args%getitem(item,0)
+        if (ierror == 0) call get_var_from_item('f_get_spgr_info','r',item,r,ierror)
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_get_spgr_info: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_get_spgr_info: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            info = get_spgr_info(r)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_get_spgr_info: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+        if (ierror == 0) then
+            ierror = dict_create(di_info)
+            if (ierror == 0) call wrap_type(info,di_info,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_get_spgr_info: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Return
+        if (ierror == 0) then
+            ierror = tuple_create(ret,1)
+            ierror = ret%setitem(0,di_info)
+            resul = ret%get_c_ptr()
+        else
+            resul = C_NULL_PTR
+        end if
+
+    end function f_get_spgr_info
 
     function f_set_cell(self_ptr,args_ptr) result(resul) bind(c)
         ! Wrapper for procedure set_cell of module CFML_Metrics
@@ -2019,107 +2559,10 @@ module crysfml08lib
             ierror = ret%setitem(0,di_cell)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_set_cell
-
-    function f_cw_powder_pattern_from_dict(self_ptr,args_ptr) result(resul) bind(c)
-        ! Wrapper for procedure cw_powder_pattern_from_dict of module CFML_Py_Utilities
-
-        ! Arguments
-        type(c_ptr), value :: self_ptr
-        type(c_ptr), value :: args_ptr
-        type(c_ptr)        :: resul
-
-        ! Variables in args_ptr
-        type(dict) :: json
-
-        ! Variables in returned tuple
-        type(ndarray) :: nd_xc
-        type(ndarray) :: nd_yc
-
-        ! Unwrapped variables
-        real(kind=cp), dimension(:), allocatable :: xc
-        real(kind=cp), dimension(:), allocatable :: yc
-
-        ! Local parameters
-        integer, parameter :: NMANDATORY = 1
-
-        ! Local variables
-        integer :: nargs
-        integer :: ierror
-        type(object) :: item
-        type(tuple) :: args,ret
-        type(nonetype) :: nret
-
-        ierror = 0
-        call err_clear ! Reset Python error
-        call clear_error() ! Reset CrysFML08 error
-
-        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
-        call unsafe_cast_from_c_ptr(args,args_ptr)
-        ierror = args%len(nargs)
-        if (ierror == 0) then
-            if (nargs < NMANDATORY) then
-                ierror = 1
-                err_cfml%ierr = 1
-                err_cfml%msg = 'Wrong number of arguments'
-            end if
-        end if
-
-        ! Unwrapping
-        if (ierror == 0) ierror = args%getitem(item,0)
-        if (ierror == 0) call get_var_from_item('f_cw_powder_pattern_from_dict','json',item,json,ierror)
-
-        ! Check errors
-        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
-            ierror = EXCEPTION_ERROR
-            if (err_cfml%ierr /= 0) then
-                call raise_exception(RuntimeError,'f_cw_powder_pattern_from_dict: '//trim(err_cfml%msg))
-            else
-                call raise_exception(RuntimeError,'f_cw_powder_pattern_from_dict: '//'error parsing arguments')
-            end if
-        end if
-
-        ! Call to CrysFML08 procedure
-        if (ierror == 0) then
-            call cw_powder_pattern_from_dict(json,xc,yc)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_cw_powder_pattern_from_dict: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Wrapping
-        if (ierror == 0) then
-            ierror = ndarray_create(nd_xc,xc)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_cw_powder_pattern_from_dict: '//trim(err_cfml%msg))
-            end if
-        end if
-        if (ierror == 0) then
-            ierror = ndarray_create(nd_yc,yc)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_cw_powder_pattern_from_dict: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Return
-        if (ierror == 0) then
-            ierror = tuple_create(ret,2)
-            ierror = ret%setitem(0,nd_xc)
-            ierror = ret%setitem(1,nd_yc)
-            resul = ret%get_c_ptr()
-        else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
-        end if
-
-    end function f_cw_powder_pattern_from_dict
 
     function f_read_crystal_structure(self_ptr,args_ptr) result(resul) bind(c)
         ! Wrapper for procedure read_crystal_structure of module CFML_Py_Utilities
@@ -2224,8 +2667,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_crystal)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_read_crystal_structure
@@ -2404,8 +2846,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_hkl)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_magnetic_structure_factors_from_mcif
@@ -2516,8 +2957,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_c)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_set_boundary
@@ -2654,8 +3094,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_coor)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_set_crystal_coordination
@@ -2752,8 +3191,7 @@ module crysfml08lib
             ierror = ret%setitem(0,nd_mask_array)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_set_mask_atoms
@@ -2916,11 +3354,288 @@ module crysfml08lib
             ierror = ret%setitem(0,di_hkl)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_structure_factors_from_cif
+
+    function f_update_global_phase(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure update_global_phase of module CFML_Py_Utilities
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+        real :: global_phase
+        type(dict) :: di_crystal
+        type(dict) :: di_c
+
+        ! Variables in returned tuple
+
+        ! Unwrapped variables
+        type(crystal_type) :: crystal
+        type(graphical_crystal_type) :: c
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 3
+
+        ! Local variables
+        integer :: nargs
+        integer :: ierror
+        type(object) :: item
+        type(tuple) :: args
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+        if (ierror == 0) ierror = args%getitem(item,0)
+        if (ierror == 0) call get_var_from_item('f_update_global_phase','global_phase',item,global_phase,ierror)
+        if (ierror == 0) ierror = args%getitem(item,1)
+        if (ierror == 0) call get_var_from_item('f_update_global_phase','crystal',item,di_crystal,ierror)
+        if (ierror == 0) call unwrap_type(di_crystal,crystal,ierror)
+        if (ierror == 0) ierror = args%getitem(item,2)
+        if (ierror == 0) call get_var_from_item('f_update_global_phase','c',item,di_c,ierror)
+        if (ierror == 0) call unwrap_type(di_c,c,ierror)
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_update_global_phase: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_update_global_phase: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            call update_global_phase(global_phase,crystal,c)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_update_global_phase: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+        if (ierror == 0) then
+            if (ierror == 0) call wrap_type(c,di_c,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_update_global_phase: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Return
+        ierror = nonetype_create(nret)
+        resul = nret%get_c_ptr()
+
+    end function f_update_global_phase
+
+    function f_patterns_simulation(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure patterns_simulation of module CFML_Py_Utilities
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+        type(list) :: strings
+
+        ! Variables in returned tuple
+        type(list) :: li_patterns
+
+        ! Unwrapped variables
+        type(xy_pattern_type), dimension(:), allocatable :: patterns
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 1
+
+        ! Local variables
+        integer :: ii
+        type(dict) :: di_patterns
+        integer :: nargs
+        integer :: ierror
+        type(object) :: item
+        type(tuple) :: args,ret
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+        if (ierror == 0) ierror = args%getitem(item,0)
+        if (ierror == 0) call get_var_from_item('f_patterns_simulation','strings',item,strings,ierror)
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_patterns_simulation: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_patterns_simulation: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            patterns = patterns_simulation(strings)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_patterns_simulation: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+        if (ierror == 0) then
+            if (ierror == 0) ierror = list_create(li_patterns)
+            if (ierror == 0) then
+                do ii = 1 , size(patterns)
+                    ierror = dict_create(di_patterns)
+                    if (ierror == 0) call wrap_type(patterns(ii),di_patterns,ierror)
+                    if (ierror == 0) ierror = li_patterns%append(di_patterns)
+                    if (ierror == 0) call di_patterns%destroy
+                end do
+            end if
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_patterns_simulation: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Return
+        if (ierror == 0) then
+            ierror = tuple_create(ret,1)
+            ierror = ret%setitem(0,li_patterns)
+            resul = ret%get_c_ptr()
+        else
+            resul = C_NULL_PTR
+        end if
+
+    end function f_patterns_simulation
+
+    function f_cw_powder_pattern_from_dict(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure cw_powder_pattern_from_dict of module CFML_Py_Utilities
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+        type(dict) :: json
+
+        ! Variables in returned tuple
+        type(ndarray) :: nd_xc
+        type(ndarray) :: nd_yc
+
+        ! Unwrapped variables
+        real(kind=cp), dimension(:), allocatable :: xc
+        real(kind=cp), dimension(:), allocatable :: yc
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 1
+
+        ! Local variables
+        integer :: nargs
+        integer :: ierror
+        type(object) :: item
+        type(tuple) :: args,ret
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+        if (ierror == 0) ierror = args%getitem(item,0)
+        if (ierror == 0) call get_var_from_item('f_cw_powder_pattern_from_dict','json',item,json,ierror)
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_cw_powder_pattern_from_dict: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_cw_powder_pattern_from_dict: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            call cw_powder_pattern_from_dict(json,xc,yc)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_cw_powder_pattern_from_dict: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+        if (ierror == 0) then
+            ierror = ndarray_create(nd_xc,xc)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_cw_powder_pattern_from_dict: '//trim(err_cfml%msg))
+            end if
+        end if
+        if (ierror == 0) then
+            ierror = ndarray_create(nd_yc,yc)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_cw_powder_pattern_from_dict: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Return
+        if (ierror == 0) then
+            ierror = tuple_create(ret,2)
+            ierror = ret%setitem(0,nd_xc)
+            ierror = ret%setitem(1,nd_yc)
+            resul = ret%get_c_ptr()
+        else
+            resul = C_NULL_PTR
+        end if
+
+    end function f_cw_powder_pattern_from_dict
 
     function f_tof_powder_pattern_from_dict(self_ptr,args_ptr) result(resul) bind(c)
         ! Wrapper for procedure tof_powder_pattern_from_dict of module CFML_Py_Utilities
@@ -3012,99 +3727,10 @@ module crysfml08lib
             ierror = ret%setitem(1,nd_yc)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_tof_powder_pattern_from_dict
-
-    function f_update_global_phase(self_ptr,args_ptr) result(resul) bind(c)
-        ! Wrapper for procedure update_global_phase of module CFML_Py_Utilities
-
-        ! Arguments
-        type(c_ptr), value :: self_ptr
-        type(c_ptr), value :: args_ptr
-        type(c_ptr)        :: resul
-
-        ! Variables in args_ptr
-        real :: global_phase
-        type(dict) :: di_crystal
-        type(dict) :: di_c
-
-        ! Variables in returned tuple
-
-        ! Unwrapped variables
-        type(crystal_type) :: crystal
-        type(graphical_crystal_type) :: c
-
-        ! Local parameters
-        integer, parameter :: NMANDATORY = 3
-
-        ! Local variables
-        integer :: nargs
-        integer :: ierror
-        type(object) :: item
-        type(tuple) :: args
-        type(nonetype) :: nret
-
-        ierror = 0
-        call err_clear ! Reset Python error
-        call clear_error() ! Reset CrysFML08 error
-
-        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
-        call unsafe_cast_from_c_ptr(args,args_ptr)
-        ierror = args%len(nargs)
-        if (ierror == 0) then
-            if (nargs < NMANDATORY) then
-                ierror = 1
-                err_cfml%ierr = 1
-                err_cfml%msg = 'Wrong number of arguments'
-            end if
-        end if
-
-        ! Unwrapping
-        if (ierror == 0) ierror = args%getitem(item,0)
-        if (ierror == 0) call get_var_from_item('f_update_global_phase','global_phase',item,global_phase,ierror)
-        if (ierror == 0) ierror = args%getitem(item,1)
-        if (ierror == 0) call get_var_from_item('f_update_global_phase','crystal',item,di_crystal,ierror)
-        if (ierror == 0) call unwrap_type(di_crystal,crystal,ierror)
-        if (ierror == 0) ierror = args%getitem(item,2)
-        if (ierror == 0) call get_var_from_item('f_update_global_phase','c',item,di_c,ierror)
-        if (ierror == 0) call unwrap_type(di_c,c,ierror)
-
-        ! Check errors
-        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
-            ierror = EXCEPTION_ERROR
-            if (err_cfml%ierr /= 0) then
-                call raise_exception(RuntimeError,'f_update_global_phase: '//trim(err_cfml%msg))
-            else
-                call raise_exception(RuntimeError,'f_update_global_phase: '//'error parsing arguments')
-            end if
-        end if
-
-        ! Call to CrysFML08 procedure
-        if (ierror == 0) then
-            call update_global_phase(global_phase,crystal,c)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_update_global_phase: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Wrapping
-        if (ierror == 0) then
-            if (ierror == 0) call wrap_type(c,di_c,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_update_global_phase: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Return
-        ierror = nonetype_create(nret)
-        resul = nret%get_c_ptr()
-
-    end function f_update_global_phase
 
     function f_calculate_laue_image(self_ptr,args_ptr) result(resul) bind(c)
         ! Wrapper for procedure calculate_laue_image of module CFML_Py_Utilities
@@ -3184,8 +3810,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_laue_img)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_calculate_laue_image
@@ -3474,1000 +4099,6 @@ module crysfml08lib
 
     end function f_set_ub_esmeralda
 
-    function f_get_shubnikov_info(self_ptr,args_ptr) result(resul) bind(c)
-        ! Wrapper for procedure get_shubnikov_info of module CFML_Symmetry_Tables
-
-        ! Arguments
-        type(c_ptr), value :: self_ptr
-        type(c_ptr), value :: args_ptr
-        type(c_ptr)        :: resul
-
-        ! Variables in args_ptr
-        integer, target :: r
-
-        ! Variables in returned tuple
-        type(dict) :: di_info
-
-        ! Unwrapped variables
-        type(shub_spgr_info_type) :: info
-
-        ! Local parameters
-        integer, parameter :: NMANDATORY = 1
-
-        ! Local variables
-        integer :: nargs
-        integer :: ierror
-        type(object) :: item
-        type(tuple) :: args,ret
-        type(nonetype) :: nret
-
-        ierror = 0
-        call err_clear ! Reset Python error
-        call clear_error() ! Reset CrysFML08 error
-
-        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
-        call unsafe_cast_from_c_ptr(args,args_ptr)
-        ierror = args%len(nargs)
-        if (ierror == 0) then
-            if (nargs < NMANDATORY) then
-                ierror = 1
-                err_cfml%ierr = 1
-                err_cfml%msg = 'Wrong number of arguments'
-            end if
-        end if
-
-        ! Unwrapping
-        if (ierror == 0) ierror = args%getitem(item,0)
-        if (ierror == 0) call get_var_from_item('f_get_shubnikov_info','r',item,r,ierror)
-
-        ! Check errors
-        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
-            ierror = EXCEPTION_ERROR
-            if (err_cfml%ierr /= 0) then
-                call raise_exception(RuntimeError,'f_get_shubnikov_info: '//trim(err_cfml%msg))
-            else
-                call raise_exception(RuntimeError,'f_get_shubnikov_info: '//'error parsing arguments')
-            end if
-        end if
-
-        ! Call to CrysFML08 procedure
-        if (ierror == 0) then
-            info = get_shubnikov_info(r)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_get_shubnikov_info: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Wrapping
-        if (ierror == 0) then
-            ierror = dict_create(di_info)
-            if (ierror == 0) call wrap_type(info,di_info,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_get_shubnikov_info: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Return
-        if (ierror == 0) then
-            ierror = tuple_create(ret,1)
-            ierror = ret%setitem(0,di_info)
-            resul = ret%get_c_ptr()
-        else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
-        end if
-
-    end function f_get_shubnikov_info
-
-    function f_get_spgr_info(self_ptr,args_ptr) result(resul) bind(c)
-        ! Wrapper for procedure get_spgr_info of module CFML_Symmetry_Tables
-
-        ! Arguments
-        type(c_ptr), value :: self_ptr
-        type(c_ptr), value :: args_ptr
-        type(c_ptr)        :: resul
-
-        ! Variables in args_ptr
-        integer, target :: r
-
-        ! Variables in returned tuple
-        type(dict) :: di_info
-
-        ! Unwrapped variables
-        type(spgr_info_type) :: info
-
-        ! Local parameters
-        integer, parameter :: NMANDATORY = 1
-
-        ! Local variables
-        integer :: nargs
-        integer :: ierror
-        type(object) :: item
-        type(tuple) :: args,ret
-        type(nonetype) :: nret
-
-        ierror = 0
-        call err_clear ! Reset Python error
-        call clear_error() ! Reset CrysFML08 error
-
-        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
-        call unsafe_cast_from_c_ptr(args,args_ptr)
-        ierror = args%len(nargs)
-        if (ierror == 0) then
-            if (nargs < NMANDATORY) then
-                ierror = 1
-                err_cfml%ierr = 1
-                err_cfml%msg = 'Wrong number of arguments'
-            end if
-        end if
-
-        ! Unwrapping
-        if (ierror == 0) ierror = args%getitem(item,0)
-        if (ierror == 0) call get_var_from_item('f_get_spgr_info','r',item,r,ierror)
-
-        ! Check errors
-        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
-            ierror = EXCEPTION_ERROR
-            if (err_cfml%ierr /= 0) then
-                call raise_exception(RuntimeError,'f_get_spgr_info: '//trim(err_cfml%msg))
-            else
-                call raise_exception(RuntimeError,'f_get_spgr_info: '//'error parsing arguments')
-            end if
-        end if
-
-        ! Call to CrysFML08 procedure
-        if (ierror == 0) then
-            info = get_spgr_info(r)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_get_spgr_info: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Wrapping
-        if (ierror == 0) then
-            ierror = dict_create(di_info)
-            if (ierror == 0) call wrap_type(info,di_info,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_get_spgr_info: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Return
-        if (ierror == 0) then
-            ierror = tuple_create(ret,1)
-            ierror = ret%setitem(0,di_info)
-            resul = ret%get_c_ptr()
-        else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
-        end if
-
-    end function f_get_spgr_info
-
-    function f_load_pattern(self_ptr,args_ptr) result(resul) bind(c)
-        ! Wrapper for procedure load_pattern of module CFML_DiffPatt
-
-        ! Arguments
-        type(c_ptr), value :: self_ptr
-        type(c_ptr), value :: args_ptr
-        type(c_ptr)        :: resul
-
-        ! Variables in args_ptr
-        character(len=:), allocatable :: filename
-        character(len=:), allocatable, target :: mode
-        character(len=:), pointer :: ptr_mode => null()
-        logical, target :: sig
-        logical, pointer :: ptr_sig => null()
-        character(len=:), allocatable, target :: header
-        character(len=:), pointer :: ptr_header => null()
-        type(dict) :: di_kwargs
-
-        ! Variables in returned tuple
-        type(dict) :: di_pat
-
-        ! Unwrapped variables
-        type(diffpat_e_type) :: pat
-
-        ! Local parameters
-        integer, parameter :: NMANDATORY = 1
-
-        ! Local variables
-        integer :: nargs
-        integer :: ierror,ierror2
-        type(object) :: item
-        type(tuple) :: args,ret
-        type(nonetype) :: nret
-
-        ierror = 0
-        call err_clear ! Reset Python error
-        call clear_error() ! Reset CrysFML08 error
-
-        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
-        call unsafe_cast_from_c_ptr(args,args_ptr)
-        ierror = args%len(nargs)
-        if (ierror == 0) then
-            if (nargs < NMANDATORY) then
-                ierror = 1
-                err_cfml%ierr = 1
-                err_cfml%msg = 'Wrong number of arguments'
-            end if
-        end if
-
-        ! Unwrapping
-        if (ierror == 0 .and. nargs == NMANDATORY) then
-            ptr_mode => null()
-            ptr_sig => null()
-            ptr_header => null()
-        end if
-        if (ierror == 0) ierror = args%getitem(item,0)
-        if (ierror == 0) call get_var_from_item('f_load_pattern','filename',item,filename,ierror)
-        if (ierror == 0 .and. nargs > 1) then
-            ! Optional arguments
-            ierror2 = args%getitem(item,1)
-            if (ierror2 == 0) call get_var_from_item('f_load_pattern','kwargs',item,di_kwargs,ierror)
-            if (ierror == 0) then
-                ierror2 = di_kwargs%getitem(item,'mode')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_load_pattern','mode',item,mode,ierror)
-                    if (ierror == 0) ptr_mode => mode
-                else
-                    ptr_mode => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'sig')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_load_pattern','sig',item,sig,ierror)
-                    if (ierror == 0) ptr_sig => sig
-                else
-                    ptr_sig => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'header')
-                if (ierror2 == 0) then
-                    ptr_header => header
-                else
-                    ptr_header => null()
-                    call err_clear
-                end if
-            end if
-            if (ierror2 == 0) call err_clear
-        end if
-
-        ! Check errors
-        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
-            ierror = EXCEPTION_ERROR
-            if (err_cfml%ierr /= 0) then
-                call raise_exception(RuntimeError,'f_load_pattern: '//trim(err_cfml%msg))
-            else
-                call raise_exception(RuntimeError,'f_load_pattern: '//'error parsing arguments')
-            end if
-        end if
-
-        ! Call to CrysFML08 procedure
-        if (ierror == 0) then
-            pat = load_pattern(filename,ptr_mode,ptr_sig,ptr_header)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_load_pattern: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Wrapping
-        if (ierror == 0) then
-            ierror = dict_create(di_pat)
-            if (ierror == 0) call wrap_type(pat,di_pat,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_load_pattern: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Return
-        if (ierror == 0) then
-            ierror = tuple_create(ret,1)
-            ierror = ret%setitem(0,di_pat)
-            resul = ret%get_c_ptr()
-        else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
-        end if
-
-    end function f_load_pattern
-
-    function f_read_xtal_structure(self_ptr,args_ptr) result(resul) bind(c)
-        ! Wrapper for procedure read_xtal_structure of module CFML_IOForm
-
-        ! Arguments
-        type(c_ptr), value :: self_ptr
-        type(c_ptr), value :: args_ptr
-        type(c_ptr)        :: resul
-
-        ! Variables in args_ptr
-        character(len=:), allocatable :: filenam
-        character(len=:), allocatable, target :: atm_typ
-        character(len=:), pointer :: ptr_atm_typ => null()
-        type(dict) :: di_mgp
-        type(magsymm_k_type), pointer :: ptr_mgp => null()
-        type(dict) :: di_matm
-        type(matom_list_type), pointer :: ptr_matm => null()
-        type(dict) :: di_mag_dom
-        type(magnetic_domain_type), pointer :: ptr_mag_dom => null()
-        integer, target :: iphase
-        integer, pointer :: ptr_iphase => null()
-        type(dict) :: di_ftype
-        type(file_type), pointer :: ptr_ftype => null()
-        type(dict) :: di_filelist
-        type(file_list_type), pointer :: ptr_filelist => null()
-        character(len=:), allocatable, target :: database_path
-        character(len=:), pointer :: ptr_database_path => null()
-        type(dict) :: di_kwargs
-
-        ! Variables in returned tuple
-        type(dict) :: di_cell
-        type(dict) :: di_spg
-        type(dict) :: di_atm
-
-        ! Unwrapped variables
-        class(cell_g_type), allocatable :: cell
-        class(spg_type), allocatable :: spg
-        type(atlist_type) :: atm
-        type(magsymm_k_type), target :: mgp
-        type(matom_list_type), target :: matm
-        type(magnetic_domain_type), target :: mag_dom
-        type(file_type), target :: ftype
-        type(file_list_type), target :: filelist
-
-        ! Local parameters
-        integer, parameter :: NMANDATORY = 1
-
-        ! Local variables
-        integer :: nargs
-        integer :: ierror,ierror2
-        type(object) :: item
-        type(tuple) :: args,ret
-        type(nonetype) :: nret
-
-        ierror = 0
-        call err_clear ! Reset Python error
-        call clear_error() ! Reset CrysFML08 error
-
-        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
-        call unsafe_cast_from_c_ptr(args,args_ptr)
-        ierror = args%len(nargs)
-        if (ierror == 0) then
-            if (nargs < NMANDATORY) then
-                ierror = 1
-                err_cfml%ierr = 1
-                err_cfml%msg = 'Wrong number of arguments'
-            end if
-        end if
-
-        ! Unwrapping
-        if (ierror == 0 .and. nargs == NMANDATORY) then
-            ptr_atm_typ => null()
-            ptr_mgp => null()
-            ptr_matm => null()
-            ptr_mag_dom => null()
-            ptr_iphase => null()
-            ptr_ftype => null()
-            ptr_filelist => null()
-            ptr_database_path => null()
-        end if
-        if (ierror == 0) ierror = args%getitem(item,0)
-        if (ierror == 0) call get_var_from_item('f_read_xtal_structure','filenam',item,filenam,ierror)
-        if (ierror == 0 .and. nargs > 1) then
-            ! Optional arguments
-            ierror2 = args%getitem(item,1)
-            if (ierror2 == 0) call get_var_from_item('f_read_xtal_structure','kwargs',item,di_kwargs,ierror)
-            if (ierror == 0) then
-                ierror2 = di_kwargs%getitem(item,'atm_typ')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_read_xtal_structure','atm_typ',item,atm_typ,ierror)
-                    if (ierror == 0) ptr_atm_typ => atm_typ
-                else
-                    ptr_atm_typ => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'mgp')
-                if (ierror2 == 0) then
-                    ptr_mgp => mgp
-                else
-                    ptr_mgp => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'matm')
-                if (ierror2 == 0) then
-                    ptr_matm => matm
-                else
-                    ptr_matm => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'mag_dom')
-                if (ierror2 == 0) then
-                    ptr_mag_dom => mag_dom
-                else
-                    ptr_mag_dom => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'iphase')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_read_xtal_structure','iphase',item,iphase,ierror)
-                    if (ierror == 0) ptr_iphase => iphase
-                else
-                    ptr_iphase => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'ftype')
-                if (ierror2 == 0) then
-                    ptr_ftype => ftype
-                else
-                    ptr_ftype => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'filelist')
-                if (ierror2 == 0) then
-                    ptr_filelist => filelist
-                else
-                    ptr_filelist => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'database_path')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_read_xtal_structure','database_path',item,database_path,ierror)
-                    if (ierror == 0) ptr_database_path => database_path
-                else
-                    ptr_database_path => null()
-                    call err_clear
-                end if
-            end if
-            if (ierror2 == 0) call err_clear
-        end if
-
-        ! Check errors
-        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
-            ierror = EXCEPTION_ERROR
-            if (err_cfml%ierr /= 0) then
-                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
-            else
-                call raise_exception(RuntimeError,'f_read_xtal_structure: '//'error parsing arguments')
-            end if
-        end if
-
-        ! Call to CrysFML08 procedure
-        if (ierror == 0) then
-            call read_xtal_structure(filenam,cell,spg,atm,ptr_atm_typ,ptr_mgp,ptr_matm,ptr_mag_dom,ptr_iphase,ptr_ftype,ptr_filelist,ptr_database_path)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Wrapping
-        if (ierror == 0) then
-            ierror = dict_create(di_cell)
-            if (ierror == 0) call wrap_type(cell,di_cell,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
-            end if
-        end if
-        if (ierror == 0) then
-            ierror = dict_create(di_spg)
-            if (ierror == 0) call wrap_type(spg,di_spg,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
-            end if
-        end if
-        if (ierror == 0) then
-            ierror = dict_create(di_atm)
-            if (ierror == 0) call wrap_type(atm,di_atm,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
-            end if
-        end if
-        if (associated(ptr_mgp)) then
-            if (ierror == 0) call wrap_type(mgp,di_mgp,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
-            end if
-        end if
-        if (associated(ptr_matm)) then
-            if (ierror == 0) call wrap_type(matm,di_matm,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
-            end if
-        end if
-        if (associated(ptr_mag_dom)) then
-            if (ierror == 0) call wrap_type(mag_dom,di_mag_dom,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
-            end if
-        end if
-        if (associated(ptr_ftype)) then
-            if (ierror == 0) call wrap_type(ftype,di_ftype,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
-            end if
-        end if
-        if (associated(ptr_filelist)) then
-            if (ierror == 0) call wrap_type(filelist,di_filelist,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_read_xtal_structure: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Return
-        if (ierror == 0) then
-            ierror = tuple_create(ret,3)
-            ierror = ret%setitem(0,di_cell)
-            ierror = ret%setitem(1,di_spg)
-            ierror = ret%setitem(2,di_atm)
-            resul = ret%get_c_ptr()
-        else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
-        end if
-
-    end function f_read_xtal_structure
-
-    function f_get_maxnumref(self_ptr,args_ptr) result(resul) bind(c)
-        ! Wrapper for procedure get_maxnumref of module CFML_Reflections
-
-        ! Arguments
-        type(c_ptr), value :: self_ptr
-        type(c_ptr), value :: args_ptr
-        type(c_ptr)        :: resul
-
-        ! Variables in args_ptr
-        real(kind=cp) :: sintlmax
-        real(kind=cp) :: volcell
-        real(kind=cp), target :: sintlmin
-        real(kind=cp), pointer :: ptr_sintlmin => null()
-        integer, target :: mult
-        integer, pointer :: ptr_mult => null()
-        type(dict) :: di_kwargs
-
-        ! Variables in returned tuple
-        integer :: numref
-
-        ! Unwrapped variables
-
-        ! Local parameters
-        integer, parameter :: NMANDATORY = 2
-
-        ! Local variables
-        integer :: nargs
-        integer :: ierror,ierror2
-        type(object) :: item
-        type(tuple) :: args,ret
-        type(nonetype) :: nret
-
-        ierror = 0
-        call err_clear ! Reset Python error
-        call clear_error() ! Reset CrysFML08 error
-
-        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
-        call unsafe_cast_from_c_ptr(args,args_ptr)
-        ierror = args%len(nargs)
-        if (ierror == 0) then
-            if (nargs < NMANDATORY) then
-                ierror = 1
-                err_cfml%ierr = 1
-                err_cfml%msg = 'Wrong number of arguments'
-            end if
-        end if
-
-        ! Unwrapping
-        if (ierror == 0 .and. nargs == NMANDATORY) then
-            ptr_sintlmin => null()
-            ptr_mult => null()
-        end if
-        if (ierror == 0) ierror = args%getitem(item,0)
-        if (ierror == 0) call get_var_from_item('f_get_maxnumref','sintlmax',item,sintlmax,ierror)
-        if (ierror == 0) ierror = args%getitem(item,1)
-        if (ierror == 0) call get_var_from_item('f_get_maxnumref','volcell',item,volcell,ierror)
-        if (ierror == 0 .and. nargs > 2) then
-            ! Optional arguments
-            ierror2 = args%getitem(item,2)
-            if (ierror2 == 0) call get_var_from_item('f_get_maxnumref','kwargs',item,di_kwargs,ierror)
-            if (ierror == 0) then
-                ierror2 = di_kwargs%getitem(item,'sintlmin')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_get_maxnumref','sintlmin',item,sintlmin,ierror)
-                    if (ierror == 0) ptr_sintlmin => sintlmin
-                else
-                    ptr_sintlmin => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'mult')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_get_maxnumref','mult',item,mult,ierror)
-                    if (ierror == 0) ptr_mult => mult
-                else
-                    ptr_mult => null()
-                    call err_clear
-                end if
-            end if
-            if (ierror2 == 0) call err_clear
-        end if
-
-        ! Check errors
-        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
-            ierror = EXCEPTION_ERROR
-            if (err_cfml%ierr /= 0) then
-                call raise_exception(RuntimeError,'f_get_maxnumref: '//trim(err_cfml%msg))
-            else
-                call raise_exception(RuntimeError,'f_get_maxnumref: '//'error parsing arguments')
-            end if
-        end if
-
-        ! Call to CrysFML08 procedure
-        if (ierror == 0) then
-            numref = get_maxnumref(sintlmax,volcell,ptr_sintlmin,multip=ptr_mult)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_get_maxnumref: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Wrapping
-
-        ! Return
-        if (ierror == 0) then
-            ierror = tuple_create(ret,1)
-            ierror = ret%setitem(0,numref)
-            resul = ret%get_c_ptr()
-        else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
-        end if
-
-    end function f_get_maxnumref
-
-    function f_generate_reflections(self_ptr,args_ptr) result(resul) bind(c)
-        ! Wrapper for procedure generate_reflections of module CFML_Reflections
-
-        ! Arguments
-        type(c_ptr), value :: self_ptr
-        type(c_ptr), value :: args_ptr
-        type(c_ptr)        :: resul
-
-        ! Variables in args_ptr
-        type(dict) :: di_cell
-        real(kind=cp) :: slmin
-        real(kind=cp) :: slmax
-        type(dict) :: di_spg
-        logical, target :: magext
-        logical, pointer :: ptr_magext => null()
-        type(dict) :: di_kinfo
-        type(kvect_info_type), pointer :: ptr_kinfo => null()
-        logical, target :: order
-        logical, pointer :: ptr_order => null()
-        logical, target :: unique
-        logical, pointer :: ptr_unique => null()
-        type(ndarray) :: nd_seqindx
-        integer, dimension(:), pointer :: ptr_seqindx => null()
-        type(ndarray) :: nd_hlim
-        integer, dimension(:,:), pointer :: ptr_hlim => null()
-        logical, target :: mag_only
-        logical, pointer :: ptr_mag_only => null()
-        logical, target :: friedel
-        logical, pointer :: ptr_friedel => null()
-        character(len=:), allocatable, target :: ref_typ
-        character(len=:), pointer :: ptr_ref_typ => null()
-        type(dict) :: di_kwargs
-
-        ! Variables in returned tuple
-        type(dict) :: di_reflex
-
-        ! Unwrapped variables
-        class(cell_g_type), allocatable :: cell
-        class(spg_type), allocatable :: spg
-        type(kvect_info_type), target :: kinfo
-        integer, dimension(3), target :: seqindx
-        integer, dimension(:), pointer :: p_seqindx
-        integer, dimension(3,2), target :: hlim
-        integer, dimension(:,:), pointer :: p_hlim
-        type(reflist_type) :: reflex
-
-        ! Local parameters
-        integer, parameter :: NMANDATORY = 4
-
-        ! Local variables
-        integer :: nargs
-        integer :: ierror,ierror2
-        character(len=1) :: array_order
-        type(object) :: item
-        type(tuple) :: args,ret
-        type(nonetype) :: nret
-
-        ierror = 0
-        call err_clear ! Reset Python error
-        call clear_error() ! Reset CrysFML08 error
-
-        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
-        call unsafe_cast_from_c_ptr(args,args_ptr)
-        ierror = args%len(nargs)
-        if (ierror == 0) then
-            if (nargs < NMANDATORY) then
-                ierror = 1
-                err_cfml%ierr = 1
-                err_cfml%msg = 'Wrong number of arguments'
-            end if
-        end if
-
-        ! Unwrapping
-        if (ierror == 0 .and. nargs == NMANDATORY) then
-            ptr_magext => null()
-            ptr_kinfo => null()
-            ptr_order => null()
-            ptr_unique => null()
-            ptr_seqindx => null()
-            ptr_hlim => null()
-            ptr_mag_only => null()
-            ptr_friedel => null()
-            ptr_ref_typ => null()
-        end if
-        if (ierror == 0) ierror = args%getitem(item,0)
-        if (ierror == 0) call get_var_from_item('f_generate_reflections','cell',item,di_cell,ierror)
-        if (ierror == 0) call unwrap_class_cell_g_type(di_cell,cell,ierror)
-        if (ierror == 0) ierror = args%getitem(item,1)
-        if (ierror == 0) call get_var_from_item('f_generate_reflections','slmin',item,slmin,ierror)
-        if (ierror == 0) ierror = args%getitem(item,2)
-        if (ierror == 0) call get_var_from_item('f_generate_reflections','slmax',item,slmax,ierror)
-        if (ierror == 0) ierror = args%getitem(item,3)
-        if (ierror == 0) call get_var_from_item('f_generate_reflections','spg',item,di_spg,ierror)
-        if (ierror == 0) call unwrap_class_spg_type(di_spg,spg,ierror)
-        if (ierror == 0 .and. nargs > 4) then
-            ! Optional arguments
-            ierror2 = args%getitem(item,4)
-            if (ierror2 == 0) call get_var_from_item('f_generate_reflections','kwargs',item,di_kwargs,ierror)
-            if (ierror == 0) then
-                ierror2 = di_kwargs%getitem(item,'magext')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_generate_reflections','magext',item,magext,ierror)
-                    if (ierror == 0) ptr_magext => magext
-                else
-                    ptr_magext => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'kinfo')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_generate_reflections','kinfo',item,di_kinfo,ierror)
-                    if (ierror == 0) call unwrap_type(di_kinfo,kinfo,ierror)
-                    if (ierror == 0) ptr_kinfo => kinfo
-                else
-                    ptr_kinfo => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'order')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_generate_reflections','order',item,order,ierror)
-                    if (ierror == 0) ptr_order => order
-                else
-                    ptr_order => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'unique')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_generate_reflections','unique',item,unique,ierror)
-                    if (ierror == 0) ptr_unique => unique
-                else
-                    ptr_unique => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'seqindx')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_generate_reflections','seqindx',item,nd_seqindx,ierror)
-                    if (ierror == 0) call ndarray_to_pointer('generate_reflections','seqindx',nd_seqindx,p_seqindx,ierror)
-                    if (ierror == 0) call pointer_to_array('generate_reflections','seqindx',p_seqindx,seqindx,ierror)
-                    if (ierror == 0) ptr_seqindx => seqindx
-                else
-                    ptr_seqindx => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'hlim')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_generate_reflections','hlim',item,nd_hlim,ierror)
-                    if (ierror == 0) call ndarray_to_pointer('generate_reflections','hlim',nd_hlim,p_hlim,ierror,array_order)
-                    if (ierror == 0) call pointer_to_array('generate_reflections','hlim',p_hlim,hlim,ierror,array_order)
-                    if (ierror == 0) ptr_hlim => hlim
-                else
-                    ptr_hlim => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'mag_only')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_generate_reflections','mag_only',item,mag_only,ierror)
-                    if (ierror == 0) ptr_mag_only => mag_only
-                else
-                    ptr_mag_only => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'friedel')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_generate_reflections','friedel',item,friedel,ierror)
-                    if (ierror == 0) ptr_friedel => friedel
-                else
-                    ptr_friedel => null()
-                    call err_clear
-                end if
-                ierror2 = di_kwargs%getitem(item,'ref_typ')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_generate_reflections','ref_typ',item,ref_typ,ierror)
-                    if (ierror == 0) ptr_ref_typ => ref_typ
-                else
-                    ptr_ref_typ => null()
-                    call err_clear
-                end if
-            end if
-            if (ierror2 == 0) call err_clear
-        end if
-
-        ! Check errors
-        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
-            ierror = EXCEPTION_ERROR
-            if (err_cfml%ierr /= 0) then
-                call raise_exception(RuntimeError,'f_generate_reflections: '//trim(err_cfml%msg))
-            else
-                call raise_exception(RuntimeError,'f_generate_reflections: '//'error parsing arguments')
-            end if
-        end if
-
-        ! Call to CrysFML08 procedure
-        if (ierror == 0) then
-            reflex = generate_reflections(cell,slmin,slmax,spg,ptr_magext,ptr_kinfo,ptr_order,ptr_unique,ptr_seqindx,ptr_hlim,ptr_mag_only,ptr_friedel,ptr_ref_typ)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_generate_reflections: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Wrapping
-        if (ierror == 0) then
-            ierror = dict_create(di_reflex)
-            if (ierror == 0) call wrap_type(reflex,di_reflex,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_generate_reflections: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Return
-        if (ierror == 0) then
-            ierror = tuple_create(ret,1)
-            ierror = ret%setitem(0,di_reflex)
-            resul = ret%get_c_ptr()
-        else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
-        end if
-
-    end function f_generate_reflections
-
-    function f_init_reflist(self_ptr,args_ptr) result(resul) bind(c)
-        ! Wrapper for procedure init_reflist of module CFML_Reflections
-
-        ! Arguments
-        type(c_ptr), value :: self_ptr
-        type(c_ptr), value :: args_ptr
-        type(c_ptr)        :: resul
-
-        ! Variables in args_ptr
-        integer, target :: n
-        character(len=:), allocatable :: ctype
-        integer, target :: d
-        integer, pointer :: ptr_d => null()
-        type(dict) :: di_kwargs
-
-        ! Variables in returned tuple
-        type(dict) :: di_reflex
-
-        ! Unwrapped variables
-        class(reflist_type), allocatable :: reflex
-
-        ! Local parameters
-        integer, parameter :: NMANDATORY = 2
-
-        ! Local variables
-        integer :: nargs
-        integer :: ierror,ierror2
-        type(object) :: item
-        type(tuple) :: args,ret
-        type(nonetype) :: nret
-
-        ierror = 0
-        call err_clear ! Reset Python error
-        call clear_error() ! Reset CrysFML08 error
-
-        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
-        call unsafe_cast_from_c_ptr(args,args_ptr)
-        ierror = args%len(nargs)
-        if (ierror == 0) then
-            if (nargs < NMANDATORY) then
-                ierror = 1
-                err_cfml%ierr = 1
-                err_cfml%msg = 'Wrong number of arguments'
-            end if
-        end if
-
-        ! Unwrapping
-        if (ierror == 0 .and. nargs == NMANDATORY) then
-            ptr_d => null()
-        end if
-        if (ierror == 0) ierror = args%getitem(item,0)
-        if (ierror == 0) call get_var_from_item('f_init_reflist','n',item,n,ierror)
-        if (ierror == 0) ierror = args%getitem(item,1)
-        if (ierror == 0) call get_var_from_item('f_init_reflist','ctype',item,ctype,ierror)
-        if (ierror == 0 .and. nargs > 2) then
-            ! Optional arguments
-            ierror2 = args%getitem(item,2)
-            if (ierror2 == 0) call get_var_from_item('f_init_reflist','kwargs',item,di_kwargs,ierror)
-            if (ierror == 0) then
-                ierror2 = di_kwargs%getitem(item,'d')
-                if (ierror2 == 0) then
-                    if (ierror == 0) call get_var_from_item('f_init_reflist','d',item,d,ierror)
-                    if (ierror == 0) ptr_d => d
-                else
-                    ptr_d => null()
-                    call err_clear
-                end if
-            end if
-            if (ierror2 == 0) call err_clear
-        end if
-
-        ! Check errors
-        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
-            ierror = EXCEPTION_ERROR
-            if (err_cfml%ierr /= 0) then
-                call raise_exception(RuntimeError,'f_init_reflist: '//trim(err_cfml%msg))
-            else
-                call raise_exception(RuntimeError,'f_init_reflist: '//'error parsing arguments')
-            end if
-        end if
-
-        ! Call to CrysFML08 procedure
-        if (ierror == 0) then
-            reflex = init_reflist(n,ctype,ptr_d)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_init_reflist: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Wrapping
-        if (ierror == 0) then
-            ierror = dict_create(di_reflex)
-            if (ierror == 0) call wrap_type(reflex,di_reflex,ierror)
-            if (err_cfml%ierr /= 0) then
-                ierror = EXCEPTION_ERROR
-                call raise_exception(RuntimeError,'f_init_reflist: '//trim(err_cfml%msg))
-            end if
-        end if
-
-        ! Return
-        if (ierror == 0) then
-            ierror = tuple_create(ret,1)
-            ierror = ret%setitem(0,di_reflex)
-            resul = ret%get_c_ptr()
-        else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
-        end if
-
-    end function f_init_reflist
-
     function f_set_spacegroup_from_dbase(self_ptr,args_ptr) result(resul) bind(c)
         ! Wrapper for procedure set_spacegroup_from_dbase of module CFML_gSpaceGroups
 
@@ -4629,8 +4260,7 @@ module crysfml08lib
             ierror = ret%setitem(0,di_spaceg)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_set_spacegroup_from_dbase
@@ -4749,10 +4379,542 @@ module crysfml08lib
             ierror = ret%setitem(0,di_spaceg)
             resul = ret%get_c_ptr()
         else
-            ierror = nonetype_create(nret)
-            resul = nret%get_c_ptr()
+            resul = C_NULL_PTR
         end if
 
     end function f_set_spacegroup_from_generators
+
+    function f_automatic_peak_background_search(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure automatic_peak_background_search of module CFML_BckPeaks
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+        type(dict) :: di_pat
+        real(kind=cp) :: x1
+        real(kind=cp) :: x2
+        character(len=:), allocatable :: mode
+
+        ! Variables in returned tuple
+        type(dict) :: di_pkb
+
+        ! Unwrapped variables
+        type(diffpat_e_type) :: pat
+        type(pkb_type) :: pkb
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 4
+
+        ! Local variables
+        integer :: nargs
+        integer :: ierror
+        type(object) :: item
+        type(tuple) :: args,ret
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+        if (ierror == 0) ierror = args%getitem(item,0)
+        if (ierror == 0) call get_var_from_item('f_automatic_peak_background_search','pat',item,di_pat,ierror)
+        if (ierror == 0) call unwrap_class_diffpat_e_type_no_alloc(di_pat,pat,ierror)
+        if (ierror == 0) ierror = args%getitem(item,1)
+        if (ierror == 0) call get_var_from_item('f_automatic_peak_background_search','x1',item,x1,ierror)
+        if (ierror == 0) ierror = args%getitem(item,2)
+        if (ierror == 0) call get_var_from_item('f_automatic_peak_background_search','x2',item,x2,ierror)
+        if (ierror == 0) ierror = args%getitem(item,3)
+        if (ierror == 0) call get_var_from_item('f_automatic_peak_background_search','mode',item,mode,ierror)
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_automatic_peak_background_search: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_automatic_peak_background_search: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            pkb = automatic_peak_background_search(pat,x1,x2,mode)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_automatic_peak_background_search: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+        if (ierror == 0) then
+            ierror = dict_create(di_pkb)
+            if (ierror == 0) call wrap_type(pkb,di_pkb,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_automatic_peak_background_search: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Return
+        if (ierror == 0) then
+            ierror = tuple_create(ret,1)
+            ierror = ret%setitem(0,di_pkb)
+            resul = ret%get_c_ptr()
+        else
+            resul = C_NULL_PTR
+        end if
+
+    end function f_automatic_peak_background_search
+
+    function f_get_pkb_conditions(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure get_pkb_conditions of module CFML_BckPeaks
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+
+        ! Variables in returned tuple
+        type(dict) :: di_pkbc
+
+        ! Unwrapped variables
+        type(peak_search_cond_type) :: pkbc
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 0
+
+        ! Local variables
+        integer :: nargs
+        integer :: ierror
+        type(object) :: item
+        type(tuple) :: args,ret
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_get_pkb_conditions: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_get_pkb_conditions: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            pkbc = get_pkb_conditions()
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_get_pkb_conditions: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+        if (ierror == 0) then
+            ierror = dict_create(di_pkbc)
+            if (ierror == 0) call wrap_type(pkbc,di_pkbc,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_get_pkb_conditions: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Return
+        if (ierror == 0) then
+            ierror = tuple_create(ret,1)
+            ierror = ret%setitem(0,di_pkbc)
+            resul = ret%get_c_ptr()
+        else
+            resul = C_NULL_PTR
+        end if
+
+    end function f_get_pkb_conditions
+
+    function f_set_pkb_conditions(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure set_pkb_conditions of module CFML_BckPeaks
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+        real(kind=cp), target :: pk_th
+        real(kind=cp), pointer :: ptr_pk_th => null()
+        real(kind=cp), target :: sh_th
+        real(kind=cp), pointer :: ptr_sh_th => null()
+        real(kind=cp), target :: bg_th
+        real(kind=cp), pointer :: ptr_bg_th => null()
+        integer, target :: peak_kind
+        integer, pointer :: ptr_peak_kind => null()
+        integer, target :: iter
+        integer, pointer :: ptr_iter => null()
+        type(dict) :: di_kwargs
+
+        ! Variables in returned tuple
+
+        ! Unwrapped variables
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 0
+
+        ! Local variables
+        integer :: nargs
+        integer :: ierror,ierror2
+        type(object) :: item
+        type(tuple) :: args
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+        if (ierror == 0 .and. nargs == NMANDATORY) then
+            ptr_pk_th => null()
+            ptr_sh_th => null()
+            ptr_bg_th => null()
+            ptr_peak_kind => null()
+            ptr_iter => null()
+        end if
+        if (ierror == 0 .and. nargs > 0) then
+            ! Optional arguments
+            ierror2 = args%getitem(item,0)
+            if (ierror2 == 0) call get_var_from_item('f_set_pkb_conditions','kwargs',item,di_kwargs,ierror)
+            if (ierror == 0) then
+                ierror2 = di_kwargs%getitem(item,'pk_th')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_set_pkb_conditions','pk_th',item,pk_th,ierror)
+                    if (ierror == 0) ptr_pk_th => pk_th
+                else
+                    ptr_pk_th => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'sh_th')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_set_pkb_conditions','sh_th',item,sh_th,ierror)
+                    if (ierror == 0) ptr_sh_th => sh_th
+                else
+                    ptr_sh_th => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'bg_th')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_set_pkb_conditions','bg_th',item,bg_th,ierror)
+                    if (ierror == 0) ptr_bg_th => bg_th
+                else
+                    ptr_bg_th => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'peak_kind')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_set_pkb_conditions','peak_kind',item,peak_kind,ierror)
+                    if (ierror == 0) ptr_peak_kind => peak_kind
+                else
+                    ptr_peak_kind => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'iter')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_set_pkb_conditions','iter',item,iter,ierror)
+                    if (ierror == 0) ptr_iter => iter
+                else
+                    ptr_iter => null()
+                    call err_clear
+                end if
+            end if
+            if (ierror2 == 0) call err_clear
+        end if
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_set_pkb_conditions: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_set_pkb_conditions: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            call set_pkb_conditions(ptr_pk_th,ptr_sh_th,ptr_bg_th,ptr_peak_kind,ptr_iter)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_set_pkb_conditions: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+
+        ! Return
+        ierror = nonetype_create(nret)
+        resul = nret%get_c_ptr()
+
+    end function f_set_pkb_conditions
+
+    function f_load_pattern(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure load_pattern of module CFML_DiffPatt
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+        character(len=:), allocatable :: filename
+        character(len=:), allocatable, target :: mode
+        character(len=:), pointer :: ptr_mode => null()
+        logical, target :: sig
+        logical, pointer :: ptr_sig => null()
+        character(len=:), allocatable, target :: header
+        character(len=:), pointer :: ptr_header => null()
+        type(dict) :: di_kwargs
+
+        ! Variables in returned tuple
+        type(dict) :: di_pat
+
+        ! Unwrapped variables
+        type(diffpat_e_type) :: pat
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 1
+
+        ! Local variables
+        integer :: nargs
+        integer :: ierror,ierror2
+        type(object) :: item
+        type(tuple) :: args,ret
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+        if (ierror == 0 .and. nargs == NMANDATORY) then
+            ptr_mode => null()
+            ptr_sig => null()
+            ptr_header => null()
+        end if
+        if (ierror == 0) ierror = args%getitem(item,0)
+        if (ierror == 0) call get_var_from_item('f_load_pattern','filename',item,filename,ierror)
+        if (ierror == 0 .and. nargs > 1) then
+            ! Optional arguments
+            ierror2 = args%getitem(item,1)
+            if (ierror2 == 0) call get_var_from_item('f_load_pattern','kwargs',item,di_kwargs,ierror)
+            if (ierror == 0) then
+                ierror2 = di_kwargs%getitem(item,'mode')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_load_pattern','mode',item,mode,ierror)
+                    if (ierror == 0) ptr_mode => mode
+                else
+                    ptr_mode => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'sig')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_load_pattern','sig',item,sig,ierror)
+                    if (ierror == 0) ptr_sig => sig
+                else
+                    ptr_sig => null()
+                    call err_clear
+                end if
+                ierror2 = di_kwargs%getitem(item,'header')
+                if (ierror2 == 0) then
+                    ptr_header => header
+                else
+                    ptr_header => null()
+                    call err_clear
+                end if
+            end if
+            if (ierror2 == 0) call err_clear
+        end if
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_load_pattern: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_load_pattern: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            pat = load_pattern(filename,ptr_mode,ptr_sig,ptr_header)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_load_pattern: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+        if (ierror == 0) then
+            ierror = dict_create(di_pat)
+            if (ierror == 0) call wrap_type(pat,di_pat,ierror)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_load_pattern: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Return
+        if (ierror == 0) then
+            ierror = tuple_create(ret,1)
+            ierror = ret%setitem(0,di_pat)
+            resul = ret%get_c_ptr()
+        else
+            resul = C_NULL_PTR
+        end if
+
+    end function f_load_pattern
+
+    function f_set_eps_math(self_ptr,args_ptr) result(resul) bind(c)
+        ! Wrapper for procedure set_eps_math of module CFML_Maths
+
+        ! Arguments
+        type(c_ptr), value :: self_ptr
+        type(c_ptr), value :: args_ptr
+        type(c_ptr)        :: resul
+
+        ! Variables in args_ptr
+        real(kind=cp), target :: neweps
+        real(kind=cp), pointer :: ptr_neweps => null()
+        type(dict) :: di_kwargs
+
+        ! Variables in returned tuple
+
+        ! Unwrapped variables
+
+        ! Local parameters
+        integer, parameter :: NMANDATORY = 0
+
+        ! Local variables
+        integer :: nargs
+        integer :: ierror,ierror2
+        type(object) :: item
+        type(tuple) :: args
+        type(nonetype) :: nret
+
+        ierror = 0
+        call err_clear ! Reset Python error
+        call clear_error() ! Reset CrysFML08 error
+
+        ! Use unsafe_cast_from_c_ptr to castfrom c_ptr to tuple/dict
+        call unsafe_cast_from_c_ptr(args,args_ptr)
+        ierror = args%len(nargs)
+        if (ierror == 0) then
+            if (nargs < NMANDATORY) then
+                ierror = 1
+                err_cfml%ierr = 1
+                err_cfml%msg = 'Wrong number of arguments'
+            end if
+        end if
+
+        ! Unwrapping
+        if (ierror == 0 .and. nargs == NMANDATORY) then
+            ptr_neweps => null()
+        end if
+        if (ierror == 0 .and. nargs > 0) then
+            ! Optional arguments
+            ierror2 = args%getitem(item,0)
+            if (ierror2 == 0) call get_var_from_item('f_set_eps_math','kwargs',item,di_kwargs,ierror)
+            if (ierror == 0) then
+                ierror2 = di_kwargs%getitem(item,'neweps')
+                if (ierror2 == 0) then
+                    if (ierror == 0) call get_var_from_item('f_set_eps_math','neweps',item,neweps,ierror)
+                    if (ierror == 0) ptr_neweps => neweps
+                else
+                    ptr_neweps => null()
+                    call err_clear
+                end if
+            end if
+            if (ierror2 == 0) call err_clear
+        end if
+
+        ! Check errors
+        if (ierror /= 0 .or. err_cfml%ierr /= 0) then
+            ierror = EXCEPTION_ERROR
+            if (err_cfml%ierr /= 0) then
+                call raise_exception(RuntimeError,'f_set_eps_math: '//trim(err_cfml%msg))
+            else
+                call raise_exception(RuntimeError,'f_set_eps_math: '//'error parsing arguments')
+            end if
+        end if
+
+        ! Call to CrysFML08 procedure
+        if (ierror == 0) then
+            call set_eps_math(ptr_neweps)
+            if (err_cfml%ierr /= 0) then
+                ierror = EXCEPTION_ERROR
+                call raise_exception(RuntimeError,'f_set_eps_math: '//trim(err_cfml%msg))
+            end if
+        end if
+
+        ! Wrapping
+
+        ! Return
+        ierror = nonetype_create(nret)
+        resul = nret%get_c_ptr()
+
+    end function f_set_eps_math
 
 end module crysfml08lib

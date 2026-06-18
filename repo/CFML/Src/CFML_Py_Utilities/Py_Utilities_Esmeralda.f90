@@ -201,9 +201,9 @@ contains
         call clear_error()
         call read_cfl_spg(cfl,spg_es)
         if (err_cfml%ierr /= 0) then 
-            is_spg_es_configured = .true.
-        else
             is_spg_es_configured = .false.
+        else
+            is_spg_es_configured = .true.
         end if
 
     end subroutine set_spg_esmeralda

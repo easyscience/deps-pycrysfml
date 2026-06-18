@@ -69,10 +69,13 @@ module CFML_Py_Utilities
     use cfml_atoms, only: allocate_atom_list,atlist_type,get_moment_and_displacement_ssg,matom_list_type
     use cfml_bonds_tables, only: bond_length_table,remove_bonds_table,set_bonds_table
     use cfml_diffpatt, only: diffpat_e_type,powpatt_cw_conditions_type,powpatt_tof_conditions_type
+    use cfml_diffraction, only: Pat,Ph
     use cfml_geom, only: calc_dist_angle
     use cfml_globaldeps, only: clear_error,cp,dp,err_cfml,to_deg,to_rad
-    use cfml_gspacegroups, only: get_inv_op,get_multip_pos,get_orbit,point_orbit,spg_type,set_spacegroup,superspacegroup_type,write_spacegroup_info
-    use cfml_ioform, only: blockinfo_type,get_cfl_block_info,read_cfl_spg,read_xtal_structure
+    use cfml_gspacegroups, only: get_inv_op,get_multip_pos,get_orbit,point_orbit,spg_type,set_spacegroup,&
+        superspacegroup_type,write_spacegroup_info
+    use cfml_ioform, only: get_cfl_block_info,read_cfl_pattern,read_cfl_spg,&
+        read_xtal_structure
     use cfml_kvec_symmetry, only: applyso,calc_magnetic_moment_kvec,get_kv_orbit,get_symsymb,init_magsymm_k_type,lattice_trans,&
         magsymm_k_type,point_orbit_kv,readn_set_magnetic_kv_structure,sym_oper_type
     use cfml_laue, only: allocate_laue_ref_list,calc_visible_reflections_list,generate_laue_reflections,&
@@ -86,8 +89,9 @@ module CFML_Py_Utilities
     use cfml_strings, only: file_list_type,file_type,l_case,reading_file,u_case
     use cfml_structure_factors, only: calc_mag_structure_factor,scattering_species_type,set_form_factors,strflist_type,structure_factors,init_structure_factors,sf_init_opmattr,sf_clear_init_symop,Strf_Type
     use cfml_sxtal_geom, only: cell_fr_ub
-    use cfml_utilities, only: cw_powder_pattern,tof_powder_pattern
-    use cfml_wraps_utils, only: ndarray_to_pointer,pointer_to_alloc_array
+    use cfml_utilities, only: compute_patterns,generate_reflections_for_patterns,profile_contrib_phase,read_cfl,&
+        cw_powder_pattern,tof_powder_pattern
+    use cfml_wraps_utils, only: get_var_from_item,ndarray_to_pointer,pointer_to_alloc_array
     use forpy_mod
 
     implicit none
@@ -95,10 +99,10 @@ module CFML_Py_Utilities
     private
 
     public :: calculate_laue_image,calculate_laue_zone,set_instrument_esmeralda,set_spg_esmeralda,set_ub_esmeralda
-
-    public :: compute_envelope,cw_powder_pattern_from_dict,magnetic_structure_factors_from_mcif,&
+    public :: patterns_simulation,cw_powder_pattern_from_dict,tof_powder_pattern_from_dict
+    public :: compute_envelope,list_to_file,magnetic_structure_factors_from_mcif,&
               read_crystal_structure,read_faults_structure,set_boundary,set_crystal_coordination,&
-              set_mask_atoms,structure_factors_from_cif,tof_powder_pattern_from_dict,&
+              set_mask_atoms,structure_factors_from_cif,&
               update_global_phase
 
     real(kind=dp), parameter :: INV_8LN2=0.18033688011112042591999058512524_dp
@@ -207,10 +211,17 @@ module CFML_Py_Utilities
         real, dimension(:,:),    allocatable :: bond_c     ! cartesian coordinates of the half bond (from i to j) (3,2*nbonds)
     end type graphical_crystal_type
 
+    type, public :: xy_pattern_type
+        !> x,y coordinates of a pattern
+        integer :: npts !> number of points in the pattern
+        real, dimension(:), allocatable :: x !> x coordinates (npts)
+        real, dimension(:), allocatable :: y !> y coordinates (npts)
+    end type xy_pattern_type
+
     interface
 
         module function compute_envelope(g,at_id,axis,step) result(env_list)
-            !> Compute the envelope for the specified atom along the specified direction
+            !> Compute the envelope for the specified atom along the specified direction.
             type(graphical_crystal_type), intent(in) :: g        !> atoms, magnetic moments and bonds inside limits
             integer,                      intent(in) :: at_id    !> index of the atom for which the envelope is calculated
             real, dimension(3),           intent(in) :: axis     !> direction along the envelope is calculated
@@ -218,15 +229,11 @@ module CFML_Py_Utilities
             type(envelope_list_type)                 :: env_list !> list of computed envelopes
         end function compute_envelope
 
-        module subroutine cw_powder_pattern_from_dict(json,xc,yc)
-            !> Computes a powder pattern from information provided by a
-            !> dictionary. This subroutine was introduced mainly for
-            !> Python applications. Python can easily transform a json file
-            !> into a dictionary.
-            type(dict),                               intent(inout) :: json !> json file content
-            real(kind=cp), dimension(:), allocatable, intent(out)   :: xc   !> two theta angle
-            real(kind=cp), dimension(:), allocatable, intent(out)   :: yc   !> calculated intensity
-        end subroutine cw_powder_pattern_from_dict
+        module function list_to_file(string_list) result(f)
+            !> Converts a list of strings into an object of type file_list_type
+            type(list), intent(inout) :: string_list
+            type(file_type)   :: f
+        end function list_to_file
 
         module function inside_limits(x,limits) result(inside)
             !> Check if an atom with coordinates x is inside limits
@@ -298,16 +305,6 @@ module CFML_Py_Utilities
             type(reflist_type)                     :: hkl       !> reflection list
         end function structure_factors_from_cif
 
-        module subroutine tof_powder_pattern_from_dict(json,xc,yc)
-            !> Computes a powder pattern from information provided by a
-            !> dictionary. This subroutine was introduced mainly for
-            !> Python applications. Python can easily transform a json file
-            !> into a dictionary.
-            type(dict),                               intent(inout) :: json !> json file content
-            real(kind=cp), dimension(:), allocatable, intent(out)   :: xc   !> two theta angle
-            real(kind=cp), dimension(:), allocatable, intent(out)   :: yc   !> calculated intensity
-        end subroutine tof_powder_pattern_from_dict
-
         module function U_from_cr_orth_cell(cr_orth_cel) result(U)
             real(kind=cp), dimension(3,3), intent(in) :: cr_orth_cel
             real(kind=cp), dimension(3,3)             :: U
@@ -340,6 +337,37 @@ module CFML_Py_Utilities
             type(crystal_type),              intent(in)    :: crystal       !> crystal object
             type(graphical_crystal_type),    intent(inout) :: c             !> atoms, magnetic moments and bonds inside limits
         end subroutine update_global_phase
+
+    end interface
+
+    interface ! Diffraction
+
+        module function patterns_simulation(strings) Result(patterns)
+            !> Computes a series of patterns from information provided
+            !> by a cfl file passed as a list of strings.
+            type(list), intent(inout) :: strings !> cfl content
+            type(xy_pattern_type), dimension(:), allocatable :: patterns !> list of calculated patterns
+        end function patterns_simulation
+
+        module subroutine cw_powder_pattern_from_dict(json,xc,yc)
+            !> Computes a powder pattern from information provided by a
+            !> dictionary. This subroutine was introduced mainly for
+            !> Python applications. Python can easily transform a json file
+            !> into a dictionary.
+            type(dict),                               intent(inout) :: json !> json file content
+            real(kind=cp), dimension(:), allocatable, intent(out)   :: xc   !> two theta angle
+            real(kind=cp), dimension(:), allocatable, intent(out)   :: yc   !> calculated intensity
+        end subroutine cw_powder_pattern_from_dict
+
+        module subroutine tof_powder_pattern_from_dict(json,xc,yc)
+            !> Computes a powder pattern from information provided by a
+            !> dictionary. This subroutine was introduced mainly for
+            !> Python applications. Python can easily transform a json file
+            !> into a dictionary.
+            type(dict),                               intent(inout) :: json !> json file content
+            real(kind=cp), dimension(:), allocatable, intent(out)   :: xc   !> two theta angle
+            real(kind=cp), dimension(:), allocatable, intent(out)   :: yc   !> calculated intensity
+        end subroutine tof_powder_pattern_from_dict
 
     end interface
 
@@ -399,4 +427,4 @@ module CFML_Py_Utilities
 
     end interface
 
-end module
+end module CFML_Py_Utilities

@@ -14,10 +14,10 @@ PATTERN_NeutronCW_3t2  1
      134.783      42.693     -21.728      27.751     -26.749      23.987
      -21.185      17.611     -11.557       5.150      -6.855       2.264
 
-   Peaks 2 split-pseudo-voigt
-   ! Pos   Int    FWHM-left  FWHM-right  eta-left   eta-right
-    13.0   3320.01       3.2      5.8          0.9       0.6
-    48.0   450.01       2.2      6.8          0.9       0.6
+   !Peaks 2 split-pseudo-voigt
+   !! Pos   Int    FWHM-left  FWHM-right  eta-left   eta-right
+   ! 13.0   3320.01       3.2      5.8          0.9       0.6
+   ! 48.0   450.01       2.2      6.8          0.9       0.6
 
   END_BACKGD
 
@@ -49,8 +49,8 @@ PATTERN_NeutronCW_Studvik  2
       18.652      -0.747      38.977      -8.913      -6.191      -8.154
    Peaks 2 pseudo-voigt
    ! Pos   Int       FWHM      eta
-    10.0   550.01       4.2      0.6
-    43.0   50.01       2.3      0.9
+    10.0    0.01      4.2      0.6
+    43.0    0.01       2.3      0.9
   END_BACKGD
 
 !   IRF_File  C:\FullProf_Suite\IRF_Files\RX-Lab\lab6n.irf
@@ -97,37 +97,40 @@ PHASE_Si3N4_alpha   1
   PH_Pattern 1
      Calc_Type Nuclear
               !  Value(Angstroms)   Gaussian Fraction
-     Iso_SIZE         950                  0.11
+     Iso_SIZE          9450                  0.11
               !  Value(Angstroms)   Lorentzian Fraction
-     Iso_STRAIN       0.2                  0.23
+     !Iso_STRAIN       2.0                  1.0
      !            Model      axis     Value      Gaussian Fraction
-     Aniso_SIZE  Platelet    0 0 1    0.123              0.11
+     !Aniso_SIZE  Platelet    0 0 1    0.123              0.11
      !
-     Aniso_STRAIN  Quartic_Form   Laue "-31m H"
-     !  S_400   S_004    S_220  S_202
-        0.0      0.001     0.0    0.0
+     !    Strain      Model     LaueClass   NumPar    LorentzianFraction
+     !Aniso_STRAIN  Quartic_Form   "-31m"    4            0.21
+     !                    S_400    S_004    S_220  S_202
+     !val_Aniso_STRAIN    4.0      2.000    -1.0    0.0      !Values      
 
-     !Pref_OR  2
-     !! Axis    Val  Fract
-     ! 0 0 1   0.78    0.8
-     ! 1 1 0   1.10    0.2
+      Pref_OR  multiaxial_MD  2
+      !!             Axis    Val   Fract
+      Pref_axis_val 0 0 1   1.00    0.8
+      Pref_axis_val 1 1 0   1.00    0.2
+     
   END_PH_Pattern
 
   PH_Pattern 2
      Calc_Type Nuclear
-     Iso_SIZE    950  0.11
-     Iso_STRAIN  0.2  0.23
-     !            Model      axis     Value
-     Aniso_SIZE  Platelet   0 0 1    0.123
+     !           Value  Gaussian-Fraction
+     !Iso_SIZE     50         0.11
+     !           Value  Lorentzian-Fraction
+     !Iso_STRAIN  0.2         0.23
+     !            Model      axis     Value    GaussiaFract
+     !Aniso_SIZE  Platelet   0 0 1    0.123       0.11
      !
-     Aniso_STRAIN  Quartic_Form   "-31m H"
-     !  S_400   S_004    S_220  S_202
-        0.0      0.001     0.0    0.0
+      Aniso_STRAIN  uniaxial_strain   1 1 0  0.005   0.1
 
-     !Pref_OR     1
-     !! Axis    Val  Fract
-     ! 0 0 1   0.98    0.7
-     ! 1 1 0   0.90    0.3
+      Pref_OR  multiaxial_hp_MD  2  21
+      !!             Axis    Val   Fract
+      Pref_axis_val 0 0 1   1.00    0.6
+      Pref_axis_val 1 1 0   1.00    0.4
+    
   END_PH_Pattern
 
 END_PHASE_Si3N4_alpha
@@ -164,8 +167,6 @@ PHASE_Si3N4_beta    2
 
     Contributes_to_patterns  1  2
     Scale_Factors  0.1968744E-02  0.2485666E-01
-    Iso_SIZE    450  0.05
-
     
     PH_Pattern 1
      Calc_Type Nuclear
@@ -173,19 +174,22 @@ PHASE_Si3N4_beta    2
     
     PH_Pattern 2
      Calc_Type Nuclear
-       Iso_SIZE    950;  Iso_SIZE_GaussFract 0.11
-       Iso_STRAIN  0.2;  Iso_STRAIN_LorentzFract 0.23
+       !           Value  Gaussian-Fraction
+       !Iso_SIZE    950         0.11
+       !           Value  Lorentzian-Fraction
+       !Iso_STRAIN  0.2         0.23
        !            Model      axis     Value
-       Aniso_SIZE  Platelet   0 0 1    0.123
+       !Aniso_SIZE  Platelet   0 0 1    0.123  0.11
        !
-       Aniso_STRAIN  Quartic_Form     "6/m"
+       Aniso_STRAIN  Quartic_Form     "6/m"    4    0.21
        !  S_400   S_004    S_220  S_202
-          0.0      0.001     0.0    0.0
+       val_Aniso_STRAIN     0.0      0.000     0.0    0.0   0.0
 
-       !Pref_OR  2   1
-       !! Axis    Val  Fract
-       ! 0 0 1   0.98    0.7
-       ! 1 1 0   0.90    0.3
+      ! Pref_OR multiaxial_MD  2    
+      !!             Axis    Val   Fract
+      !Pref_axis_val 0 0 1   1.00    0.6
+      !Pref_axis_val 1 1 0   1.00    0.4
+       
     END_PH_Pattern
     
 END_PHASE_Si3N4_beta

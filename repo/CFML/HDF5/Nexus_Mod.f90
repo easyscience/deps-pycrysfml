@@ -39,7 +39,7 @@ module nexus_mod
     ! subroutine initialize_nexus(nexus,dims)
     ! subroutine partial_nexus_copy(nexus1,nexus2)
     ! subroutine read_calibration(filename,path,machine,calibration)
-    ! subroutine read_nexus(filename,nexus)
+    ! subroutine read_nexus(filename,nexus,source,raw,phi_as_omega)
     ! subroutine write_simple_nexus(namef,nexus,novirtual,raw)
     ! subroutine write_vnexus(namef,ga_Dv,nu_Dv,avcounts,nexus)
     !
@@ -125,8 +125,9 @@ module nexus_mod
         logical                                  :: is_total_counts
         logical                                  :: is_tth
         logical                                  :: is_ub
-        logical                                :: is_virtual
-        logical                                :: is_4D
+        logical                                  :: is_virtual
+        logical                                  :: is_4D
+        logical                                  :: phi_as_omega
 
     end type nexus_type
 
@@ -396,6 +397,7 @@ module nexus_mod
         nexus%is_total_counts   = .false.
         nexus%is_ub             = .false.
         nexus%is_virtual        = .false.
+        nexus%phi_as_omega      = .false.
 
         if (allocated(nexus%monitor))      deallocate(nexus%monitor)
         if (allocated(nexus%timef))        deallocate(nexus%timef)
@@ -594,13 +596,14 @@ module nexus_mod
 
     end subroutine read_calibration
 
-    subroutine read_nexus(filename,nexus,source,raw)
+    subroutine read_nexus(filename,nexus,source,raw,phi_as_omega)
 
         ! Arguments
         character(len=*), intent(in)  :: filename
         type(nexus_type), intent(out) :: nexus
         character(len=*), intent(in), optional :: source
         logical,          intent(in), optional :: raw
+        logical,          intent(in), optional :: phi_as_omega
 
         ! Local variables
         integer :: i
@@ -658,6 +661,7 @@ module nexus_mod
         else
             call get_source(nexus%source)
         end if
+        if (present(phi_as_omega)) nexus%phi_as_omega = phi_as_omega
         if (nexus%source == 'ill') then
             if(present(raw)) then
               call read_nexus_ILL(nexus,raw)
@@ -1244,6 +1248,12 @@ module nexus_mod
                 nexus%scan_type  = 'phi'
                 nexus%scan_start = nexus%angles(1,1)
                 nexus%scan_width = nexus%angles(1,nexus%nf) - nexus%angles(1,1)
+                if (nexus%phi_as_omega) then
+                    nexus%manip = 2
+                    nexus%scan_type  = 'omega'
+                    nexus%angles(3,:) = nexus%angles(1,:)
+                    nexus%angles(1,:) = 0.0
+                end if
             else if (motors(2) == 1) then
                 nexus%manip = 3
                 nexus%scan_type = 'chi'

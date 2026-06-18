@@ -71,6 +71,7 @@
        character(len=180)                           :: Title  = " "        ! Identification/ Title
        character(len=20)                            :: KindRad= " "        ! Type of Radiation
        character(len=20)                            :: ScatVar= " "        ! 2Theta, TOF, Q, s, d-spacing, SinTL/L,...
+       character(len=512), allocatable, dimension(:):: info                ! Info to be displayed in the header
        real(kind=cp)                                :: xmin   = 0.0_cp     ! Maximum and Minimum values for X and Y
        real(kind=cp)                                :: xmax   = 0.0_cp
        real(kind=cp)                                :: ymin   = 0.0_cp
