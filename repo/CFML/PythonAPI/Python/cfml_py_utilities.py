@@ -291,7 +291,7 @@ def update_global_phase(global_phase : float,crystal : dict,c : dict):
 
     crysfml08lib.f_update_global_phase(global_phase,crystal,c)
 
-def patterns_simulation(strings : list):
+def patterns_simulation(strings : list,x=None):
     """
     Computes a series of patterns from information provided
     by a cfl file passed as a list of strings.
@@ -303,6 +303,11 @@ def patterns_simulation(strings : list):
         Fortran type   : list
         Fortran intent : inout
         Description    : cfl content
+    x
+        Python type    : np.ndarray
+        Fortran type   : real
+        Fortran intent : in
+        Description    : explicit x axis
 
     Returns
     -------
@@ -313,7 +318,11 @@ def patterns_simulation(strings : list):
         Description    : list of calculated patterns
     """
 
-    patterns = crysfml08lib.f_patterns_simulation(strings)[0]
+    if x is None:
+        patterns = crysfml08lib.f_patterns_simulation(strings)[0]
+    else:
+        x = np.asarray(x, dtype=np.float32)
+        patterns = crysfml08lib.f_patterns_simulation(strings,x)[0]
     return patterns
 
 def cw_powder_pattern_from_dict(json : dict):

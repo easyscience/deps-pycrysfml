@@ -342,10 +342,11 @@ module CFML_Py_Utilities
 
     interface ! Diffraction
 
-        module function patterns_simulation(strings) Result(patterns)
+        module function patterns_simulation(strings, x) Result(patterns)
             !> Computes a series of patterns from information provided
             !> by a cfl file passed as a list of strings.
             type(list), intent(inout) :: strings !> cfl content
+            real(kind=cp), dimension(:), optional, intent(in) :: x !> explicit x axis
             type(xy_pattern_type), dimension(:), allocatable :: patterns !> list of calculated patterns
         end function patterns_simulation
 

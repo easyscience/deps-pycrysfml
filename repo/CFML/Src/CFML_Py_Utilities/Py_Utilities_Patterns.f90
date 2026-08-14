@@ -4,12 +4,15 @@ implicit none
 
 contains
 
-    module function patterns_simulation(strings) Result(patterns)
+    module function patterns_simulation(strings, x) Result(patterns)
         !> Computes a powder diffraction pattern from information provided
         !> by a cfl file passed as a list of strings.
+        !> If x is present, it replaces the generated axis for a
+        !> single-pattern calculation.
 
         ! Arguments
         type(list), intent(inout) :: strings !> cfl content
+        real(kind=cp), dimension(:), optional, intent(in) :: x !> explicit x axis
         type(xy_pattern_type), dimension(:), allocatable :: patterns !> list of calculated patterns
 
         ! Local parameters
@@ -29,6 +32,63 @@ contains
         if (err_cfml%ierr /= 0) return
         call read_cfl(cfl)
         if (err_cfml%ierr /= 0) return
+        if (present(x)) then
+            if (size(Pat) /= 1) then
+                err_cfml%ierr = 1
+                err_cfml%msg = &
+                    'patterns_simulation: an explicit x axis currently ' // &
+                    'requires exactly one pattern'
+                return
+            end if
+
+            if (size(x) < 2) then
+                err_cfml%ierr = 1
+                err_cfml%msg = &
+                    'patterns_simulation: the explicit x axis must ' // &
+                    'contain at least two points'
+                return
+            end if
+
+            if (any(x(2:) <= x(:size(x)-1))) then
+                err_cfml%ierr = 1
+                err_cfml%msg = &
+                    'patterns_simulation: the explicit x axis must be ' // &
+                    'strictly increasing'
+                return
+            end if
+
+            if (.not. allocated(Pat(1)%PDat)) then
+                err_cfml%ierr = 1
+                err_cfml%msg = &
+                    'patterns_simulation: no diffraction pattern data ' // &
+                    'were allocated for the explicit x axis'
+                return
+            end if
+
+            select type (p => Pat(1)%PDat)
+                class is (DiffPat_E_Type)
+                    if (size(x) /= p%npts) then
+                        err_cfml%ierr = 1
+                        err_cfml%msg = &
+                            'patterns_simulation: the explicit x axis ' // &
+                            'must contain the same number of points as GEN_PATT'
+                        return
+                    end if
+
+                    p%x = x
+                    p%xmin = x(1)
+                    p%xmax = x(size(x))
+                    p%step = 0.0_cp
+                    p%CT_Step = .false.
+
+                class default
+                    err_cfml%ierr = 1
+                    err_cfml%msg = &
+                        'patterns_simulation: unsupported diffraction ' // &
+                        'pattern type for an explicit x axis'
+                    return
+            end select
+        end if
         call generate_reflections_for_patterns()
         if (err_cfml%ierr /= 0) return
         call compute_patterns()
