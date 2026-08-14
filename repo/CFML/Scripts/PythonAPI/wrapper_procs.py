@@ -753,7 +753,65 @@ def write_procedures_crysfml08lib(modules : dict,lucy : dict,classes : list,f):
         for p in modules[m].wraps:
             write_wrapping_function(m,p,lucy,classes,f)
 
+def write_patterns_simulation_wrapping_function(m,p,lucy,c,f):
+
+    f.write(f"\n\n{'':>4}"\
+        f"function f_{p.name}(self_ptr,args_ptr) result(resul) bind(c)")
+    f.write(f"\n{'':>8}! Wrapper for procedure {p.name} of module {m}")
+    f.write(f"\n\n{'':>8}! Arguments")
+    f.write(f"\n{'':>8}type(c_ptr), value :: self_ptr")
+    f.write(f"\n{'':>8}type(c_ptr), value :: args_ptr")
+    f.write(f"\n{'':>8}type(c_ptr)        :: resul")
+    f.write(f"\n\n{'':>8}! Variables in args_ptr")
+    f.write(f"\n{'':>8}type(list) :: strings")
+    f.write(f"\n{'':>8}type(ndarray) :: nd_x")
+    f.write(f"\n{'':>8}real(kind=cp), dimension(:), pointer :: ptr_x => null()")
+    f.write(f"\n\n{'':>8}! Variables in returned tuple")
+    f.write(f"\n{'':>8}type(list) :: li_patterns")
+    f.write(f"\n\n{'':>8}! Unwrapped variables")
+    f.write(f"\n{'':>8}real(kind=cp), dimension(:), allocatable, target :: x")
+    f.write(f"\n{'':>8}real(kind=cp), dimension(:), pointer :: p_x")
+    f.write(f"\n{'':>8}type(xy_pattern_type), dimension(:), allocatable :: patterns")
+    f.write(f"\n\n{'':>8}! Local parameters")
+    f.write(f"\n{'':>8}integer, parameter :: NMANDATORY = 1")
+    f.write(f"\n\n{'':>8}! Local variables")
+    f.write(f"\n{'':>8}integer :: ii")
+    f.write(f"\n{'':>8}type(dict) :: di_patterns")
+    f.write(f"\n{'':>8}integer :: nargs")
+    f.write(f"\n{'':>8}integer :: ierror")
+    f.write(f"\n{'':>8}type(object) :: item")
+    f.write(f"\n{'':>8}type(tuple) :: args,ret")
+    f.write(f"\n{'':>8}type(nonetype) :: nret")
+    write_wrapping_initialization(f)
+    f.write(f"\n\n{'':>8}! Unwrapping")
+    f.write(f"\n{'':>8}ptr_x => null()")
+    f.write(f"\n{'':>8}if (ierror == 0) ierror = args%getitem(item,0)")
+    f.write(f"\n{'':>8}if (ierror == 0) call get_var_from_item('f_patterns_simulation','strings',item,strings,ierror)")
+    f.write(f"\n{'':>8}if (ierror == 0 .and. nargs > 1) then")
+    f.write(f"\n{'':>12}ierror = args%getitem(item,1)")
+    f.write(f"\n{'':>12}if (ierror == 0) call get_var_from_item('f_patterns_simulation','x',item,nd_x,ierror)")
+    f.write(f"\n{'':>12}if (ierror == 0) call ndarray_to_pointer('patterns_simulation','x',nd_x,p_x,ierror)")
+    f.write(f"\n{'':>12}if (ierror == 0) call pointer_to_alloc_array('patterns_simulation','x',p_x,x,ierror)")
+    f.write(f"\n{'':>12}if (ierror == 0) ptr_x => x")
+    f.write(f"\n{'':>8}end if")
+    write_error_check(p,f)
+    f.write(f"\n\n{'':>8}! Call to CrysFML08 procedure")
+    f.write(f"\n{'':>8}if (ierror == 0) then")
+    f.write(f"\n{'':>12}patterns = patterns_simulation(strings,ptr_x)")
+    f.write(f"\n{'':>12}if (err_cfml%ierr /= 0) then")
+    f.write(f"\n{'':>16}ierror = EXCEPTION_ERROR")
+    f.write(f"\n{'':>16}call raise_exception(RuntimeError,'f_patterns_simulation: '//trim(err_cfml%msg))")
+    f.write(f"\n{'':>12}end if")
+    f.write(f"\n{'':>8}end if")
+    write_wrapping_section(p,lucy,f)
+    write_return_section(p,f)
+    f.write(f"\n\n{'':>4}end function f_{p.name}")
+
 def write_python_function(m : cfml_objects.Module,p : str,f) -> None:
+
+    if m.name == 'CFML_Py_Utilities' and p == 'patterns_simulation':
+        write_patterns_simulation_python_function(m,p,f)
+        return
 
     args = []
     args_py = '('
@@ -849,6 +907,41 @@ def write_python_function(m : cfml_objects.Module,p : str,f) -> None:
         else:
             f.write(f"\n\n{'':>4}crysfml08lib.f_{p}{args_for}")
     args.clear()
+
+def write_patterns_simulation_python_function(m : cfml_objects.Module,p : str,f) -> None:
+
+    proc = m.procedures[p]
+    strings = proc.arguments['strings']
+    x = proc.arguments['x']
+    f.write(f"\n\ndef {p}(strings : list,x=None):")
+    f.write(f'\n{"":>4}"""')
+    if proc.docu:
+        for l in proc.docu:
+            f.write(f'\n{"":>4}{l}')
+    else:
+        f.write(f'\n{"":>4}Description not yet available')
+    f.write(f'\n\n{"":>4}Parameters')
+    f.write(f'\n{"":>4}----------')
+    for a in (strings, x):
+        f.write(f'\n{"":>{4}}{a.name}')
+        f.write(f'\n{"":>{8}}Python type    : {a.ptype}')
+        f.write(f'\n{"":>{8}}Fortran type   : {a.ftype}')
+        f.write(f'\n{"":>{8}}Fortran intent : {a.intent}')
+        if a.info:
+            f.write(f'\n{"":>{8}}Description    : {a.info}')
+        else:
+            f.write(f'\n{"":>{8}}Description    : not documented yet')
+    if proc.wreturn:
+        f.write(f'\n\n{"":>4}Returns')
+        f.write(f'\n{"":>4}-------')
+        write_docu_ret(proc,f)
+    f.write(f'\n{"":>4}"""')
+    f.write(f"\n\n{'':>4}if x is None:")
+    f.write(f"\n{'':>8}patterns = crysfml08lib.f_patterns_simulation(strings)[0]")
+    f.write(f"\n{'':>4}else:")
+    f.write(f"\n{'':>8}x = np.asarray(x, dtype=np.float32)")
+    f.write(f"\n{'':>8}patterns = crysfml08lib.f_patterns_simulation(strings,x)[0]")
+    f.write(f"\n{'':>4}return patterns")
 
 def write_python_module(build_dir : str,m : cfml_objects.Module) -> None:
 
@@ -1145,6 +1238,10 @@ def write_wrapping_function(m,p,lucy,c,f):
     f    : _io.TextIOWrapper
            file where the wrapping function is written
     """
+    if m == 'CFML_Py_Utilities' and p.name == 'patterns_simulation':
+        write_patterns_simulation_wrapping_function(m,p,lucy,c,f)
+        return
+
     f.write(f"\n\n{'':>4}"\
         f"function f_{p.name}(self_ptr,args_ptr) result(resul) bind(c)")
     f.write(f"\n{'':>8}! Wrapper for procedure {p.name} of module {m}")

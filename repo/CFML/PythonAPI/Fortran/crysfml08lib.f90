@@ -3457,11 +3457,15 @@ module crysfml08lib
 
         ! Variables in args_ptr
         type(list) :: strings
+        type(ndarray) :: nd_x
+        real(kind=cp), dimension(:), pointer :: ptr_x => null()
 
         ! Variables in returned tuple
         type(list) :: li_patterns
 
         ! Unwrapped variables
+        real(kind=cp), dimension(:), allocatable, target :: x
+        real(kind=cp), dimension(:), pointer :: p_x
         type(xy_pattern_type), dimension(:), allocatable :: patterns
 
         ! Local parameters
@@ -3492,8 +3496,16 @@ module crysfml08lib
         end if
 
         ! Unwrapping
+        ptr_x => null()
         if (ierror == 0) ierror = args%getitem(item,0)
         if (ierror == 0) call get_var_from_item('f_patterns_simulation','strings',item,strings,ierror)
+        if (ierror == 0 .and. nargs > 1) then
+            ierror = args%getitem(item,1)
+            if (ierror == 0) call get_var_from_item('f_patterns_simulation','x',item,nd_x,ierror)
+            if (ierror == 0) call ndarray_to_pointer('patterns_simulation','x',nd_x,p_x,ierror)
+            if (ierror == 0) call pointer_to_alloc_array('patterns_simulation','x',p_x,x,ierror)
+            if (ierror == 0) ptr_x => x
+        end if
 
         ! Check errors
         if (ierror /= 0 .or. err_cfml%ierr /= 0) then
@@ -3507,7 +3519,7 @@ module crysfml08lib
 
         ! Call to CrysFML08 procedure
         if (ierror == 0) then
-            patterns = patterns_simulation(strings)
+            patterns = patterns_simulation(strings,ptr_x)
             if (err_cfml%ierr /= 0) then
                 ierror = EXCEPTION_ERROR
                 call raise_exception(RuntimeError,'f_patterns_simulation: '//trim(err_cfml%msg))
